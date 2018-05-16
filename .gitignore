@@ -73,3 +73,6 @@ bishrpg/Intermediate/*
 
 # Cache files for the editor to use
 bishrpg/DerivedDataCache/*
+
+#out
+/bin/
