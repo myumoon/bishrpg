@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "System/CharacterStatus.h"
 #include "BattleSystem.generated.h"
 
 /*! キャラのタイプ
@@ -111,18 +112,19 @@ struct FBattleCharacterStatus {
 	int32 Hate;   //!< ヘイト
 };
 
-/*! バトルステータス計算用
+/*! パーティ情報
 */
 USTRUCT(BlueprintType)
-struct FParty {
+struct FBattleParty {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	TArray<FBattleCharacterStatus> Characters;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	TArray<int32>                  Formation;
 };
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BISHRPG_API UBattleSystem : public UActorComponent
@@ -157,5 +159,5 @@ public:
 	void Initialize(const FParty& playerParty, const FParty& opponentParty, int32 aaa);
 
 private:
-	TArray<FParty> PartyList;
+	TArray<FBattleParty> PartyList;
 };
