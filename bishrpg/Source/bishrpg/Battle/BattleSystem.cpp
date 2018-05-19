@@ -8,7 +8,7 @@ UBattleSystem::UBattleSystem()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
 }
@@ -25,10 +25,16 @@ void UBattleSystem::BeginPlay()
 
 
 // Called every frame
+/*
 void UBattleSystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
 }
+*/
 
+// 初期化
+void UBattleSystem::Initialize(const FParty& playerParty, const FParty& opponentParty, int32 aaa)
+{
+}
