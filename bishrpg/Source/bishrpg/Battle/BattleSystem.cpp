@@ -49,6 +49,7 @@ FBattleCharacterStatus UBattleSystem::MakeFromCharacterStatus(const FCharacterSt
 	//*charStatTbl->FindRow<FCharacterStatusData>(FName(*FString::Printf("%d", stat.AttackLv)), "")
 
 	//EBattleStyle battleStyle = *charAssetTbl->FindRow<EBattleStyle>(stat.Id, FString(""));
+	//FCharAsset
 
 
 	FBattleCharacterStatus battleStatus;
