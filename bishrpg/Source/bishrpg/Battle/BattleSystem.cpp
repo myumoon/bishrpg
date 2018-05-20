@@ -44,32 +44,36 @@ void UBattleSystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 
 
 // バトル用キャラ情報生成
-//FBattleCharacterStatus::FBattleCharacterStatus(const FCharacterStatus& stat)
-FBattleCharacterStatus UBattleSystem::MakeFromCharacterStatus(const FCharacterStatus& stat)
+FBattleCharacterStatus UBattleSystem::MakeBattleCharacterStatus(const FCharacterStatus& stat)
 {
-	//ConstructorHelpers::FObjectFinder<UDataTable> charStatusable(*FString::Printf("DataTable'/GameData/Character/Status_%s.GameObjectLookup'", stat.Id.ToString()));
-	//UDataTable* charStatTbl = charStatusable.Object;
-	//*charStatTbl->FindRow<FCharacterStatusData>(FName(*FString::Printf("%d", stat.AttackLv)), "")
+	return MakeBattleCharacterStatusWithOffset(stat, 0, 0, 0, 0);
+}
 
-	//EBattleStyle battleStyle = *charAssetTbl->FindRow<EBattleStyle>(stat.Id, FString(""));
-	//FCharAsset
-
-
+// バトル用モンスター情報生成
+FBattleCharacterStatus UBattleSystem::MakeBattleCharacterStatusWithOffset(const FCharacterStatus& stat, int32 offsetHp, int32 offsetAttack, int32 offsetDeffence, int32 offsetSpeed)
+{
 	FBattleCharacterStatus battleStatus;
 	battleStatus.Id = stat.Id;
 
 	const auto* characterAssetTbl = ABishRPGDataTblAccessor::GetTbl(ETblType::CharacterAssetTbl);
 	const FCharacterAsset* charData = characterAssetTbl->FindRow<FCharacterAsset>(battleStatus.Id, "");
 
-	//const auto* statusTbl = charData ? charData->StatusTbl : nullptr;
+	const auto* hpTbl       = charData ? charData->HpTbl : nullptr;
+	const auto* attackTbl   = charData ? charData->AttackTbl : nullptr;
+	const auto* deffenceTbl = charData ? charData->DeffenceTbl : nullptr;
+	const auto* speedTbl    = charData ? charData->SpeedTbl : nullptr;
 
-	battleStatus.Style = charData ? charData->Style : EBattleStyle::Humor;
-	battleStatus.HpMax = stat.Hp; // todo:
-	battleStatus.Hp = stat.Hp; // todo:
-	battleStatus.Attack = stat.AttackLv; // todo:
-	battleStatus.Deffence = stat.DeffenceLv; // todo:
-	battleStatus.Speed = 0; // todo:
-	battleStatus.Hate = 0;
+	auto getCurveFrom = [](const UCurveFloat* curve, int32 lv, int32 defaultValue) {
+		return curve ? static_cast<int32>(curve->GetFloatValue(static_cast<float>(lv))) : defaultValue;
+	};
+
+	battleStatus.Style    = charData ? charData->Style : EBattleStyle::Humor;
+	battleStatus.HpMax    = getCurveFrom(hpTbl, stat.HpLv, 1) + offsetHp;
+	battleStatus.Hp       = battleStatus.HpMax;
+	battleStatus.Attack   = getCurveFrom(attackTbl, stat.AttackLv, 1) + offsetAttack;
+	battleStatus.Deffence = getCurveFrom(deffenceTbl, stat.DeffenceLv, 1) + offsetDeffence;
+	battleStatus.Speed    = getCurveFrom(speedTbl, stat.SpeedLv, 1) + offsetSpeed;
+	battleStatus.Hate     = 0;
 
 	return battleStatus;
 }
@@ -81,7 +85,7 @@ FBattleParty UBattleSystem::MakeFromParty(const FParty& party)
 	battleParty.Characters.AddUninitialized(FBattleParty::MAX_PARTY_NUM);
 
 	for(int i = 0; i < party.Characters.Num(); ++i) {
-		battleParty.Characters[i] = MakeFromCharacterStatus(party.Characters[i]);
+		battleParty.Characters[i] = MakeBattleCharacterStatus(party.Characters[i]);
 	}
 	battleParty.Formation = party.Formation;
 

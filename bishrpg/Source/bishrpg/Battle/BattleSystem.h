@@ -161,7 +161,10 @@ public:
 	void Initialize(const FParty& playerParty, const FParty& opponentParty, int32 aaa);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
-	static FBattleCharacterStatus MakeFromCharacterStatus(const FCharacterStatus& stat);
+	static FBattleCharacterStatus MakeBattleCharacterStatus(const FCharacterStatus& stat);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
+	static FBattleCharacterStatus MakeBattleCharacterStatusWithOffset(const FCharacterStatus& stat, int32 offsetHp, int32 offsetAttack, int32 offsetDeffence, int32 offsetSpeed);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
 	static FBattleParty MakeFromParty(const FParty& party);
