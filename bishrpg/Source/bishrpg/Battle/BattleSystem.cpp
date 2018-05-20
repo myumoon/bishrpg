@@ -4,6 +4,12 @@
 
 #include "Engine/DataTable.h"
 #include "ConstructorHelpers.h"
+#include "GameData/CharacterAsset.h"
+#include "GameData/BishRPGDataTblAccessor.h"
+
+#include "bishrpg.h"
+
+
 
 // Sets default values for this component's properties
 UBattleSystem::UBattleSystem()
@@ -12,7 +18,7 @@ UBattleSystem::UBattleSystem()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
-	// ...
+
 }
 
 
@@ -22,7 +28,7 @@ void UBattleSystem::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
+	UE_LOG(BishRPG, Log, TEXT("UBattleSystem::BeginPlay()"));
 }
 
 
@@ -41,9 +47,6 @@ void UBattleSystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 //FBattleCharacterStatus::FBattleCharacterStatus(const FCharacterStatus& stat)
 FBattleCharacterStatus UBattleSystem::MakeFromCharacterStatus(const FCharacterStatus& stat)
 {
-	//static ConstructorHelpers::FObjectFinder<UDataTable> charAssetTable(TEXT("DataTable'/GameData/Character/CharacterAssetTbl.GameObjectLookup'"));
-	//UDataTable* charAssetTbl = charAssetTable.Object;
-
 	//ConstructorHelpers::FObjectFinder<UDataTable> charStatusable(*FString::Printf("DataTable'/GameData/Character/Status_%s.GameObjectLookup'", stat.Id.ToString()));
 	//UDataTable* charStatTbl = charStatusable.Object;
 	//*charStatTbl->FindRow<FCharacterStatusData>(FName(*FString::Printf("%d", stat.AttackLv)), "")
@@ -54,13 +57,19 @@ FBattleCharacterStatus UBattleSystem::MakeFromCharacterStatus(const FCharacterSt
 
 	FBattleCharacterStatus battleStatus;
 	battleStatus.Id = stat.Id;
-	battleStatus.Style = EBattleStyle::Rock; // todo:
+
+	const auto* characterAssetTbl = ABishRPGDataTblAccessor::GetTbl(ETblType::CharacterAssetTbl);
+	const FCharacterAsset* charData = characterAssetTbl->FindRow<FCharacterAsset>(battleStatus.Id, "");
+
+	//const auto* statusTbl = charData ? charData->StatusTbl : nullptr;
+
+	battleStatus.Style = charData ? charData->Style : EBattleStyle::Humor;
 	battleStatus.HpMax = stat.Hp; // todo:
 	battleStatus.Hp = stat.Hp; // todo:
 	battleStatus.Attack = stat.AttackLv; // todo:
 	battleStatus.Deffence = stat.DeffenceLv; // todo:
 	battleStatus.Speed = 0; // todo:
-	battleStatus.Hate = 0; // todo:
+	battleStatus.Hate = 0;
 
 	return battleStatus;
 }
