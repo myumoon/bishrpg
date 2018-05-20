@@ -7,16 +7,6 @@
 #include "System/CharacterStatus.h"
 #include "BattleSystem.generated.h"
 
-/*! キャラのタイプ
-	Rock > Sing > Humor > Rock...
-*/
-UENUM(BlueprintType)
-enum class EBattleStyle : uint8
-{
-	Rock,    //!< ロック（ソソソソ、D子...）
-	Humor,   //!< 面白さ（社長、ポーポー、おハグ...）
-	Sing,    //!< 歌唱力（びりけん、おはじゃ...）
-};
 
 /*! 行動パターン
 */
@@ -91,6 +81,9 @@ struct FBattleCharacterStatus {
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
+	FName Id; //!< id
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	EBattleStyle Style; //!< スタイル
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
@@ -110,6 +103,12 @@ struct FBattleCharacterStatus {
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	int32 Hate;   //!< ヘイト
+
+	//FBattleCharacterStatus() {}
+
+	//UFUNCTION(BlueprintCallable, Category = "Battle")
+	//FBattleCharacterStatus(const FCharacterStatus& stat);
+
 };
 
 /*! パーティ情報
@@ -118,11 +117,14 @@ USTRUCT(BlueprintType)
 struct FBattleParty {
 	GENERATED_USTRUCT_BODY()
 
+	static const int32 MAX_PARTY_NUM = 12;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	TArray<FBattleCharacterStatus> Characters;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	TArray<int32>                  Formation;
+
 };
 
 
@@ -157,6 +159,13 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	void Initialize(const FParty& playerParty, const FParty& opponentParty, int32 aaa);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
+	static FBattleCharacterStatus MakeFromCharacterStatus(const FCharacterStatus& stat);
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
+	static FBattleParty MakeFromParty(const FParty& party);
+
 
 private:
 	TArray<FBattleParty> PartyList;
