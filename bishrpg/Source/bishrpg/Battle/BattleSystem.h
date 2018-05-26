@@ -37,6 +37,19 @@ struct FBattleTarget {
 	}
 };
 
+/*! 行動エフェクト
+*/
+UENUM(BlueprintType)
+enum class EBattleActionEffect : uint8
+{
+	None,
+	KnockBack,     //!< ノックバック
+	Stan,          //!< スタン
+	BufAttack,     //!< 攻撃力上昇
+	BufDeffence,   //!< 防御力上昇
+	DebufAttack,   //!< 攻撃力減少
+	DebufDeffence, //!< 防御力減少
+};
 
 /*! ターゲットに対してのダメージ/ヒール量
 */
@@ -61,13 +74,16 @@ USTRUCT(BlueprintType)
 struct FBattleActionResult {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
+	int32 Actor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
 	EBattleActionType ActionType;   //!< 行動
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
 	FName SkillName;                //!< スキル名(ActionTypeがSkillのときのみ)
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
 	TArray<FBattleTargetValue> TargetResults;  //!< 対象ごとのダメージ/ヒール量
 
 };
@@ -123,6 +139,14 @@ struct FBattleParty {
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	TArray<int32>                  Formation;
 
+	//キャラを取得
+	const FBattleCharacterStatus* GetCharacterByPos(int32 posIndex) const;
+	
+	// キャラを取得 非const
+	FBattleCharacterStatus* GetCharacterByPos(int32 posIndex)
+	{
+		return const_cast<FBattleCharacterStatus*>(static_cast<const FBattleParty*>(this)->GetCharacterByPos(posIndex));
+	}
 };
 
 /*! バトルコマンド
@@ -168,7 +192,7 @@ public:
 	/*! 初期化
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void Initialize(const FParty& playerParty, const FParty& opponentParty, int32 aaa);
+	void Initialize(const FParty& playerParty, const FParty& opponentParty);
 
 	/*!	バトル行動を追加
 		@return コマンド数がいっぱいになったらtrue
@@ -236,6 +260,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
 	static FBattleParty MakeFromParty(const FParty& party);
 
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -263,20 +288,31 @@ protected:
 
 	/*!	ターンのパーティーを取得
 	*/
-	FBattleParty& GetTurnParty() { return PartyList[PlayerTurn ? 0 : 1]; }
+	FBattleParty* GetTurnParty() { return PartyNum <= PartyList.Num() ? &PartyList[PlayerTurn ? 0 : 1] : nullptr; }
 
 	/*!	ターンでないパーティーを取得
 	*/
-	FBattleParty& GetNotTurnParty() { return PartyList[PlayerTurn ? 1 : 0]; }
+	FBattleParty* GetNotTurnParty() { return PartyNum <= PartyList.Num() ? &PartyList[PlayerTurn ? 1 : 0] : nullptr; }
 
 	/*!	指定場所のキャラを取得
 	*/
-	FBattleCharacterStatus& GetCharacterByPos(FBattleParty& party, int32 posIndex) const
-	{
-		check(posIndex < party.Formation.Num());
-		check(party.Formation[posIndex] < party.Characters.Num());
-		return party.Characters[party.Formation[posIndex]];
-	}
+	FBattleCharacterStatus* GetCharacterByPos(FBattleParty* party, int32 posIndex) const;
+	
+
+	/*!	ダメージ計算基礎式
+		@param attack    攻撃力(100～2000くらいを想定)
+		@param deffence  防御力(攻撃より低い値でないとダメージが出ない)
+		@param randMin   ダメージ幅（最小）
+		@param randMax   ダメージ幅（最大）
+		@param diffAcc   攻撃と防御の差があるときのダメージ増加量（累乗される）
+		@param minDamage 最低保証ダメージ
+		@return ダメージ量
+	*/
+	static int32 CalcDamage(int32 attack, int32 deffence, int32 randMin, int32 randMax, float diffAcc = 1.3f, int32 minDamage = 10);
+
+	/*!	攻撃対象選択
+	*/
+	FBattleTarget GetAttackTargetPos(const FBattleParty* opponentParty, const FBattleCharacterStatus& attacker, int32 attackerPos) const;
 
 private:
 	TArray<FBattleParty>   PartyList;   //!< パーティ
