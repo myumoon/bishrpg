@@ -40,6 +40,19 @@ int32 FBattleParty::GetCharacterPosByHandle(int32 handle) const
 	return -1;
 }
 
+void FBattleParty::Move(int32 from, int32 to)
+{
+	if(from < 0 || Formation.Num() <= from || to < 0 || Formation.Num() <= to) {
+		GAME_ERROR("FBattleParty::Move : invalid position (from:%d) (to:%d)", from, to);
+	}
+	//GAME_LOG("mov : Formation[%d](%d) -> Formation[%d](%d)", from, Formation[from], to, Formation[to]);
+	const int32 oldTo = Formation[to];
+	Formation[to]   = Formation[from];
+	Formation[from] = oldTo;
+}
+
+
+
 // 初期化
 void UBattleCommandQueue::Initialize(UBattleSystem* system, bool playerSide)
 {
@@ -146,12 +159,20 @@ bool UBattleCommandQueue::CanStartCommand() const
 	if(BattleSystem == nullptr) {
 		GAME_ERROR("CanStartCommand : Not initialized");
 	}
-	return (BattleSystem->CalcAlivePlayers() == CommandList.Num());
+	int32 actionCount = 0;
+	for(const auto& command : CommandList) {
+		if((command.ActionType == ECommandType::Attack) || (command.ActionType == ECommandType::Skill)) {
+			++actionCount;
+		}
+	}
+
+	return (BattleSystem->CalcAlivePlayers() == actionCount);
 }
 
 // コマンド送信
 void UBattleCommandQueue::Commit()
 {
+	GAME_LOG("UBattleCommandQueue::Commit");
 	if(BattleSystem) {
 		BattleSystem->EnqueueCommands(CommandList, PlayerSide);
 	}
@@ -275,9 +296,6 @@ int32 UBattleSystem::CalcAlivePlayers() const
 				++aliveCount;
 			}
 		}
-		else {
-			GAME_ERROR("CalcAlivePlayers : Formation -1");
-		}
 	}
 	return aliveCount;
 }
@@ -314,6 +332,7 @@ void UBattleSystem::EnqueueCommands(const TArray<FBattleCommand>& commandList, b
 				add.PlayerSide = playerSide;
 				MergedMoveCommandList.Add(add);
 				tempCommands.RemoveAt(i, 1, false);
+				--i; // 削除してNum()が減るので減らす
 			}
 		}
 		tempCommands.Shrink();
@@ -329,6 +348,11 @@ void UBattleSystem::EnqueueCommands(const TArray<FBattleCommand>& commandList, b
 	// 速度が早い方から順に入れていく
 	int insertIndex = 0;
 	for( ; insertIndex < tempCommands.Num(); ++insertIndex) {
+		// tempCommandsの余った分は外で入れる
+		if(checkIndex == MergedCommandList.Num()) {
+			break;
+		}
+
 		const int32 insertHandle = tempCommands[insertIndex].CharacterHandle;
 		if(insertHandle < 0 || insertParty->Characters.Num() <= insertHandle) {
 			continue;
@@ -347,6 +371,7 @@ void UBattleSystem::EnqueueCommands(const TArray<FBattleCommand>& commandList, b
 			if((prevAddSide && checkChar.Speed <= insertChar.Speed) || (!prevAddSide && checkChar.Speed < insertChar.Speed)) {
 				addCommandList(mergedCommands, tempCommands[insertIndex], playerSide);
 				prevAddSide = playerSide;
+				break;
 			}
 			else {
 				addCommandList(mergedCommands, MergedCommandList[checkIndex].BattleCommand, !playerSide);
@@ -370,7 +395,6 @@ void UBattleSystem::EnqueueCommands(const TArray<FBattleCommand>& commandList, b
 	}
 
 	MergedCommandList = mergedCommands;
-
 }
 
 
@@ -411,20 +435,65 @@ bool UBattleSystem::ConsumeMoveCommands(TArray<FBattleActionResult>& result)
 
 	bool moved = (0 < MergedMoveCommandList.Num());
 
-	for(int i = 0; i < MergedMoveCommandList.Num(); ++i) {
-		moveResult.ActionType = EBattleActionType::Move;
-		moveResult.Actor.PlayerSide = MergedMoveCommandList[i].PlayerSide;
-		moveResult.Actor.TargetPosIndex = MergedMoveCommandList[i].BattleCommand.ActionPosIndex;
-		moveResult.MoveTo = MergedMoveCommandList[i].BattleCommand.TargetPosIndex;
-		result.Add(moveResult);
+	// 古い情報をバックアップ
+	int32 oldPlayerFormation[FBattleParty::MAX_PARTY_NUM] = { 0 };
+	int32 oldOpponentFormation[FBattleParty::MAX_PARTY_NUM] = { 0 };
+	const auto* playerParty = GetParty(true);
+	const auto* opponentParty = GetParty(false);
+	for(int i = 0; i < playerParty->Formation.Num(); ++i) {
+		oldPlayerFormation[i] = playerParty->Formation[i];
+	}
+	for(int i = 0; i < playerParty->Formation.Num(); ++i) {
+		oldOpponentFormation[i] = opponentParty->Formation[i];
+	}
 
+	for(int i = 0; i < MergedMoveCommandList.Num(); ++i) {
+		const bool playerSide = MergedMoveCommandList[i].PlayerSide;
+		const int32 actorPos  = MergedMoveCommandList[i].BattleCommand.ActionPosIndex;
+		const int32 moveto    = MergedMoveCommandList[i].BattleCommand.TargetPosIndex;
+		auto* party = GetParty(playerSide);
+
+		/*
+		moveResult.ActionType = EBattleActionType::Move;
+		moveResult.Actor.PlayerSide = playerSide;
+		moveResult.Actor.TargetPosIndex = actorPos;
+		moveResult.MoveTo = moveto;
+		result.Add(moveResult);
+		*/
+
+		party->Move(actorPos, moveto);
+
+		/*
 		// 交換するときは相手側もコマンドに入れておく
 		if(MergedMoveCommandList[i].BattleCommand.ActionType == ECommandType::Swap) {
 			moveResult.Actor.TargetPosIndex = MergedMoveCommandList[i].BattleCommand.TargetPosIndex; 
 			moveResult.MoveTo = MergedMoveCommandList[i].BattleCommand.ActionPosIndex;
 			result.Add(moveResult);
 		}
+		*/
 	}
+
+	// 移動後の配置と比較してコマンドを生成
+	{
+		const int32* oldFormationList[] = { oldPlayerFormation, oldOpponentFormation };
+		const TArray<int32>* currentFormationList[] = { &playerParty->Formation, &opponentParty->Formation };
+
+		for(int partyIndex = 0; partyIndex < ARRAY_COUNT(oldFormationList); ++partyIndex) {
+			for(int i = 0; i < FBattleParty::MAX_PARTY_NUM; ++i) {
+				const int32* oldFormation = oldFormationList[partyIndex];
+				const auto&  currentFormation = *currentFormationList[partyIndex];
+
+				if((0 <= oldFormation[i]) && (oldFormation[i] != currentFormation[i])) {
+					moveResult.ActionType = EBattleActionType::Move;
+					moveResult.Actor.PlayerSide = (partyIndex == 0);
+					moveResult.Actor.TargetPosIndex = i;
+					currentFormation.Find(oldFormation[i], moveResult.MoveTo);
+					result.Add(moveResult);
+				}
+			} 
+		}
+	}
+
 	MergedMoveCommandList.Reset();
 
 	return moved;

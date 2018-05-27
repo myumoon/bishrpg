@@ -156,7 +156,11 @@ struct FBattleParty {
 		return const_cast<FBattleCharacterStatus*>(static_cast<const FBattleParty*>(this)->GetCharacterByHandle(handle));
 	}
 
+	// 位置取得
 	int32 GetCharacterPosByHandle(int32 handle) const;
+
+	// 移動(fromとtoを交換)
+	void Move(int32 from, int32 to);
 };
 UENUM(BlueprintType)
 enum class ECommandType : uint8 {
@@ -357,7 +361,7 @@ protected:
 	// 
 	const FBattleParty* GetParty(bool playerSide) const
 	{
-		if(PartyIndex::PartyNum <= PartyList.Num()) {
+		if(PartyList.Num() < PartyIndex::PartyNum) {
 			return nullptr;
 		}
 		if(playerSide) {
