@@ -72,8 +72,8 @@ bool UBattleCommandQueue::PushAttackCommand(int32 posIndex)
 	addCommand.ActionPosIndex = posIndex;
 	addCommand.CharacterHandle = BattleSystem->GetCharacterHandle(prevPosIndex, PlayerSide);
 	addCommand.TargetPosIndex = 0;
-	CommandList.Push(addCommand);
-
+	CommandList.Add(addCommand);
+	
 	return CanStartCommand();
 }
 
@@ -87,7 +87,7 @@ bool UBattleCommandQueue::PushSkillCommand(int32 posIndex, const FName& skillNam
 	addCommand.CharacterHandle = BattleSystem->GetCharacterHandle(prevPosIndex, PlayerSide);
 	addCommand.TargetPosIndex = 0;
 	addCommand.SkillName = skillName;
-	CommandList.Push(addCommand);
+	CommandList.Add(addCommand);
 
 	return CanStartCommand();
 }
@@ -104,7 +104,7 @@ bool UBattleCommandQueue::PushMoveCommand(int32 posIndex, int32 moveTo)
 	addCommand.ActionPosIndex = posIndex;
 	addCommand.CharacterHandle = BattleSystem->GetCharacterHandle(prevPosIndex, PlayerSide);
 	addCommand.TargetPosIndex = moveTo;
-	CommandList.Push(addCommand);
+	CommandList.Add(addCommand);
 
 	return CanStartCommand();
 }
@@ -384,7 +384,7 @@ void UBattleSystem::EnqueueCommands(const TArray<FBattleCommand>& commandList, b
 	for(; insertIndex < tempCommands.Num(); ++insertIndex) {
 		const int32 checkHandle = tempCommands[insertIndex].CharacterHandle;
 		if(0 <= checkHandle) {
-			addCommandList(mergedCommands, tempCommands[checkIndex], playerSide);
+			addCommandList(mergedCommands, tempCommands[insertIndex], playerSide);
 		}
 	}
 	for(; checkIndex < MergedCommandList.Num(); ++checkIndex) {
@@ -405,8 +405,10 @@ bool UBattleSystem::ConsumeCommand(FBattleActionResult& result)
 		//GAME_ERROR("ConsumeCommand : Empty PlayerCommandList");
 		return false;
 	}
+	
+	Command execCommand = MergedCommandList[0];
+	MergedCommandList.RemoveAt(0);
 
-	Command execCommand = MergedCommandList.Pop();
 	result.ActionType           = ConvertAction(execCommand.BattleCommand.ActionType);
 	result.Actor.TargetPosIndex = GetParty(execCommand.PlayerSide)->GetCharacterPosByHandle(execCommand.BattleCommand.CharacterHandle);
 	result.Actor.PlayerSide     = execCommand.PlayerSide;
