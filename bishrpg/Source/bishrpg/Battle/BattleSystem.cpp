@@ -40,6 +40,17 @@ int32 FBattleParty::GetCharacterPosByHandle(int32 handle) const
 	return -1;
 }
 
+int32 FBattleParty::GetCharacterHandleByPos(int32 pos) const
+{
+	if(pos < 0 || Formation.Num() <= pos) {
+		GAME_ERROR("GetCharacterHandleByPos : out of range 0 <= %d < %d", pos, Formation.Num());
+		return -1;
+	}
+
+	return Formation[pos];
+}
+
+
 void FBattleParty::Move(int32 from, int32 to)
 {
 	if(from < 0 || Formation.Num() <= from || to < 0 || Formation.Num() <= to) {
@@ -71,6 +82,7 @@ bool UBattleCommandQueue::PushAttackCommand(int32 posIndex)
 	addCommand.ActionType = ECommandType::Attack;
 	addCommand.ActionPosIndex = posIndex;
 	addCommand.CharacterHandle = BattleSystem->GetCharacterHandle(prevPosIndex, PlayerSide);
+	GAME_LOG("PushAttack pos(%d) -> prev(%d) -> handle(%d)", posIndex, prevPosIndex, addCommand.CharacterHandle);
 	addCommand.TargetPosIndex = 0;
 	CommandList.Add(addCommand);
 	
@@ -131,7 +143,7 @@ int32 UBattleCommandQueue::GetPrevPosIndex(int32 posIndex) const
 		}
 	}
 
-	return posIndex;
+	return prevPosIndex;
 }
 
 // 巻き戻す
@@ -424,7 +436,9 @@ bool UBattleSystem::ConsumeCommand(FBattleActionResult& result)
 	MergedCommandList.RemoveAt(0);
 
 	result.ActionType           = ConvertAction(execCommand.BattleCommand.ActionType);
-	result.Actor.TargetPosIndex = GetParty(execCommand.PlayerSide)->GetCharacterPosByHandle(execCommand.BattleCommand.CharacterHandle);
+	//result.Actor.TargetPosIndex = GetParty(execCommand.PlayerSide)->GetCharacterPosByHandle(execCommand.BattleCommand.CharacterHandle);
+	result.Actor.TargetHandle   = execCommand.BattleCommand.CharacterHandle;
+	GAME_LOG("Consume handle(%d)", execCommand.BattleCommand.CharacterHandle);
 	result.Actor.PlayerSide     = execCommand.PlayerSide;
 	
 	switch(execCommand.BattleCommand.ActionType) {
@@ -493,6 +507,7 @@ bool UBattleSystem::ConsumeMoveCommands(TArray<FBattleActionResult>& result)
 	{
 		const int32* oldFormationList[] = { oldPlayerFormation, oldOpponentFormation };
 		const TArray<int32>* currentFormationList[] = { &playerParty->Formation, &opponentParty->Formation };
+		const FBattleParty* partyList[] = { playerParty, opponentParty };
 
 		for(int partyIndex = 0; partyIndex < ARRAY_COUNT(oldFormationList); ++partyIndex) {
 			for(int i = 0; i < FBattleParty::MAX_PARTY_NUM; ++i) {
@@ -502,7 +517,7 @@ bool UBattleSystem::ConsumeMoveCommands(TArray<FBattleActionResult>& result)
 				if((0 <= oldFormation[i]) && (oldFormation[i] != currentFormation[i])) {
 					moveResult.ActionType = EBattleActionType::Move;
 					moveResult.Actor.PlayerSide = (partyIndex == 0);
-					moveResult.Actor.TargetPosIndex = i;
+					moveResult.Actor.TargetHandle = oldFormation[i];
 					currentFormation.Find(oldFormation[i], moveResult.MoveTo);
 					result.Add(moveResult);
 				}
@@ -566,7 +581,7 @@ void UBattleSystem::ExecAttack(FBattleActionResult& result, const Command& comma
 	}
 	const int32 attackerPos = GetParty(command.PlayerSide)->GetCharacterPosByHandle(command.BattleCommand.CharacterHandle);
 	const auto target       = GetAttackTargetByPos(GetParty(!command.PlayerSide), *attackChar, attackerPos, command.PlayerSide);
-	auto* targetChar        = GetCharacterByPos(GetParty(!command.PlayerSide), target.TargetPosIndex);
+	auto* targetChar        = GetCharacterByHandle(GetParty(!command.PlayerSide), target.TargetHandle);
 	if(targetChar == nullptr) {
 		return;
 	}
@@ -589,7 +604,7 @@ void UBattleSystem::ExecSkill(FBattleActionResult& result, const Command& comman
 	}
 	const int32 attackerPos = GetParty(command.PlayerSide)->GetCharacterPosByHandle(command.BattleCommand.CharacterHandle);
 	const auto target = GetAttackTargetByPos(GetParty(!command.PlayerSide), *attackChar, attackerPos, command.PlayerSide);
-	auto* targetChar = GetCharacterByPos(GetNotTurnParty(), target.TargetPosIndex);
+	auto* targetChar = GetCharacterByHandle(GetNotTurnParty(), target.TargetHandle);
 	if(targetChar == nullptr) {
 		return;
 	}
@@ -696,7 +711,7 @@ FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentPa
 
 	FBattleTarget target;
 	target.PlayerSide     = !playerSide;
-	target.TargetPosIndex = maxHateIndex;
+	target.TargetHandle   = opponentParty->GetCharacterHandleByPos(maxHateIndex);
 
 	return target;
 }

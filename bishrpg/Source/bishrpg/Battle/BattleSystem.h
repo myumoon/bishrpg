@@ -30,12 +30,12 @@ struct FBattleTarget {
 	bool PlayerSide;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
-	int32 TargetPosIndex;
+	int32 TargetHandle;
 
 	FBattleTarget()
 	{
 		PlayerSide = true;
-		TargetPosIndex = 0;
+		TargetHandle = 0;
 	}
 };
 
@@ -158,6 +158,9 @@ struct FBattleParty {
 
 	// 位置取得
 	int32 GetCharacterPosByHandle(int32 handle) const;
+
+	// 位置からハンドルを取得
+	int32 GetCharacterHandleByPos(int32 pos) const;
 
 	// 移動(fromとtoを交換)
 	void Move(int32 from, int32 to);
