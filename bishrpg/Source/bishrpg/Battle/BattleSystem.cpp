@@ -175,6 +175,7 @@ void UBattleCommandQueue::Commit()
 	GAME_LOG("UBattleCommandQueue::Commit");
 	if(BattleSystem) {
 		BattleSystem->EnqueueCommands(CommandList, PlayerSide);
+		ResetCommand();
 	}
 }
 
