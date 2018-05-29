@@ -244,6 +244,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	void Commit();
 
+	/*!	コマンド数をカウント
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	int32 GetCount(bool includingMoveCommand = false) const;
+
 protected:
 	int32 GetPrevPosIndex(int32 posIndex) const;
 

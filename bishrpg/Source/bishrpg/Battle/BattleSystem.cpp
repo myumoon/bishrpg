@@ -158,15 +158,9 @@ bool UBattleCommandQueue::CanStartCommand() const
 {
 	if(BattleSystem == nullptr) {
 		GAME_ERROR("CanStartCommand : Not initialized");
+		return false;
 	}
-	int32 actionCount = 0;
-	for(const auto& command : CommandList) {
-		if((command.ActionType == ECommandType::Attack) || (command.ActionType == ECommandType::Skill)) {
-			++actionCount;
-		}
-	}
-
-	return (BattleSystem->CalcAlivePlayers() == actionCount);
+	return (BattleSystem->CalcAlivePlayers() == GetCount());
 }
 
 // コマンド送信
@@ -177,6 +171,25 @@ void UBattleCommandQueue::Commit()
 		BattleSystem->EnqueueCommands(CommandList, PlayerSide);
 		ResetCommand();
 	}
+}
+
+// コマンドの数をカウント
+int32 UBattleCommandQueue::GetCount(bool includingMoveCommand) const
+{
+	int32 count = 0;
+
+	if(includingMoveCommand) {
+		count = CommandList.Num();
+	}
+	else {
+		for(const auto& command : CommandList) {
+			if((command.ActionType == ECommandType::Attack) || (command.ActionType == ECommandType::Skill)) {
+				++count;
+			}
+		}
+	}
+
+	return count;
 }
 
 
