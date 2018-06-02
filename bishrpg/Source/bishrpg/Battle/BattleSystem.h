@@ -86,6 +86,9 @@ struct FBattleActionResult {
 	TArray<FBattleTargetValue> TargetResults;  //!< 対象ごとのダメージ/ヒール量
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
+	int32 MoveFrom;                 //!< 移動座標
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
 	int32 MoveTo;                   //!< 移動座標
 };
 

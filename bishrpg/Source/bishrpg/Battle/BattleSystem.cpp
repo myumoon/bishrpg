@@ -518,6 +518,7 @@ bool UBattleSystem::ConsumeMoveCommands(TArray<FBattleActionResult>& result)
 					moveResult.ActionType = EBattleActionType::Move;
 					moveResult.Actor.PlayerSide = (partyIndex == 0);
 					moveResult.Actor.TargetHandle = oldFormation[i];
+					moveResult.MoveFrom = i;
 					currentFormation.Find(oldFormation[i], moveResult.MoveTo);
 					result.Add(moveResult);
 				}
