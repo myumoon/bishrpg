@@ -435,6 +435,7 @@ bool UBattleSystem::ConsumeCommand(FBattleActionResult& result)
 	Command execCommand = MergedCommandList[0];
 	MergedCommandList.RemoveAt(0);
 
+	result.TargetResults.Reset();
 	result.ActionType           = ConvertAction(execCommand.BattleCommand.ActionType);
 	//result.Actor.TargetPosIndex = GetParty(execCommand.PlayerSide)->GetCharacterPosByHandle(execCommand.BattleCommand.CharacterHandle);
 	result.Actor.TargetHandle   = execCommand.BattleCommand.CharacterHandle;
@@ -631,54 +632,57 @@ FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentPa
 	float hatemap[FBattleParty::MAX_PARTY_NUM] = { 0 }; // ヘイト
 
 	const float HATE_ADJUST_NEAREST[3][FBattleParty::MAX_PARTY_NUM] = {
-		// 左側
+		// プレイヤーが左側（敵は右側のヘイトが高い）
 		{
-			10.0f, 9.0f, 8.0f,
-			 8.0f, 7.0f, 5.0f,
-			 6.0f, 5.0f, 3.0f,
-			 4.0f, 3.0f, 1.0f,
-		},
-
-		// 真ん中
-		{
-			9.0f, 10.0f, 9.0f,
-			7.0f,  8.0f, 7.0f,
-			5.0f,  6.0f, 5.0f,
-			3.0f,  4.0f, 3.0f,
-		},
-
-		// 右側
-		{
+			// 後ろ
+			1.0f, 3.0f, 4.0f,
+			3.0f, 5.0f, 6.0f,
+			5.0f, 7.0f, 8.0f,
 			8.0f, 9.0f, 10.0f,
-			5.0f, 7.0f,  8.0f,
-			3.0f, 5.0f,  6.0f,
-			1.0f, 3.0f,  4.0f,
+			// 前
+		},
+
+		// プレイヤーが真ん中（敵は真ん中のヘイトが高い）
+		{
+			3.0f,  4.0f, 3.0f,
+			5.0f,  6.0f, 5.0f,
+			7.0f,  8.0f, 7.0f,
+			9.0f, 10.0f, 9.0f,
+			// 前
+		},
+
+		// プレイヤーが右側（敵は左側のヘイトが高い）
+		{
+			 4.0f, 3.0f, 1.0f,
+			 6.0f, 5.0f, 3.0f,
+			 8.0f, 7.0f, 5.0f,
+			10.0f, 9.0f, 8.0f,
 		},
 	};
 
 	const float HATE_ADJUST_STRAIGHT[3][FBattleParty::MAX_PARTY_NUM] = {
-		// 左側
+		// プレイヤーが左側（敵は右側のヘイトが高い）
 		{
-			12.0f, 7.0f, 2.0f,
-			11.5f, 6.5f, 1.5f,
-			11.0f, 6.0f, 1.0f,
-			10.5f, 5.5f, 0.5f,
-		},
-
-		// 真ん中
-		{
-			7.0f, 12.0f, 7.0f,
-			6.5f, 11.5f, 6.5f,
-			6.0f, 11.0f, 6.0f,
-			5.5f, 10.5f, 5.5f,
-		},
-
-		// 右側
-		{
-			2.0f, 7.0f, 12.0f,
-			1.5f, 6.5f, 11.5f,
-			1.0f, 6.0f, 11.0f,
 			0.5f, 5.5f, 10.5f,
+			1.0f, 6.0f, 11.0f,
+			1.5f, 6.5f, 11.5f,
+			2.0f, 7.0f, 12.0f,
+		},
+
+		// プレイヤーが真ん中（敵は真ん中のヘイトが高い）
+		{
+			5.5f, 10.5f, 5.5f,
+			6.0f, 11.0f, 6.0f,
+			6.5f, 11.5f, 6.5f,
+			7.0f, 12.0f, 7.0f,
+		},
+
+		// プレイヤーが右側（敵は左側のヘイトが高い）
+		{
+			10.5f, 5.5f, 0.5f,
+			11.0f, 6.0f, 1.0f,
+			11.5f, 6.5f, 1.5f,
+			12.0f, 7.0f, 2.0f,
 		},
 	};
 
@@ -709,7 +713,7 @@ FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentPa
 			maxHateIndex = i;
 		}
 	}
-
+	
 	FBattleTarget target;
 	target.PlayerSide     = !playerSide;
 	target.TargetHandle   = opponentParty->GetCharacterHandleByPos(maxHateIndex);
