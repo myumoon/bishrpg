@@ -5,20 +5,10 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "System/CharacterStatus.h"
+#include "BattleDataType.h"
 #include "BattleSystem.generated.h"
 
 class UBattleSystem;
-
-/*! 行動パターン
-*/
-UENUM(BlueprintType)
-enum class EBattleActionType : uint8
-{
-	None,
-	Attack,    //!< 攻撃
-	Skill,     //!< スキル
-	Move,      //!< 移動
-};
 
 /*! ターゲット
 */
@@ -39,19 +29,6 @@ struct FBattleTarget {
 	}
 };
 
-/*! 行動エフェクト
-*/
-UENUM(BlueprintType)
-enum class EBattleActionEffect : uint8
-{
-	None,
-	KnockBack,     //!< ノックバック
-	Stan,          //!< スタン
-	BufAttack,     //!< 攻撃力上昇
-	BufDeffence,   //!< 防御力上昇
-	DebufAttack,   //!< 攻撃力減少
-	DebufDeffence, //!< 防御力減少
-};
 
 /*! ターゲットに対してのダメージ/ヒール量
 */
@@ -168,6 +145,7 @@ struct FBattleParty {
 	// 移動(fromとtoを交換)
 	void Move(int32 from, int32 to);
 };
+
 UENUM(BlueprintType)
 enum class ECommandType : uint8 {
 	Attack,
@@ -175,6 +153,7 @@ enum class ECommandType : uint8 {
 	Move,
 	Swap,
 };
+
 /*! バトルコマンド
 */
 USTRUCT(BlueprintType)
