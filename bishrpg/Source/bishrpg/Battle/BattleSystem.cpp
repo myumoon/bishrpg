@@ -575,6 +575,7 @@ float UBattleSystem::GetTypeDamageRate(EBattleStyle attackerStyle, EBattleStyle 
 }
 
 // 攻撃
+// 通常攻撃は手前のキャラを対象に殴る
 void UBattleSystem::ExecAttack(FBattleActionResult& result, const Command& command)
 {
 	auto* attackChar       = GetCharacterByHandle(GetParty(command.PlayerSide), command.BattleCommand.CharacterHandle);
@@ -590,6 +591,7 @@ void UBattleSystem::ExecAttack(FBattleActionResult& result, const Command& comma
 	const float attack     = attackChar->Attack;
 	const float deffence   = targetChar->Deffence;
 	const int32 damage     = CalcDamage(attack, deffence, -50, 50, attackChar->Style, targetChar->Style, 1.3f, 10);
+	targetChar->Hp = FMath::Max(targetChar->Hp - damage, 0);
 
 	FBattleTargetValue targetResult;
 	targetResult.Target = target;
