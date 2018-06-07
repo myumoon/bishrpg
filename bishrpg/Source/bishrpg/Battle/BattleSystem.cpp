@@ -9,6 +9,50 @@
 
 #include "bishrpg.h"
 
+void UBattleBoardUtil::MakePositionListCol(TArray<int32>& madePosList, int32 col, bool up)
+{
+	if(UBattleBoardUtil::GetBoardCol() <= col) {
+		GAME_ERROR("invalid col %d", col);
+		return;
+	}
+
+	// 後衛から
+	if(up) {
+		for(int32 i = col; i < UBattleBoardUtil::GetCellNum(); i += UBattleBoardUtil::GetBoardCol()) {
+			madePosList.Add(i);
+		}
+	}
+	// 前線から
+	else {
+		for(int32 i = UBattleBoardUtil::GetCellNum() - UBattleBoardUtil::GetBoardCol() + col; 0 <= i; i -= UBattleBoardUtil::GetBoardCol()) {
+			madePosList.Add(i);
+		}
+	}
+}
+
+void UBattleBoardUtil::MakePositionListRow(TArray<int32>& madePosList, int32 row)
+{
+	const int32 begin = row * UBattleBoardUtil::GetBoardRow();
+	const int32 end   = begin + UBattleBoardUtil::GetBoardRow();
+	for(int32 i = begin; i < end; ++i) {
+		madePosList.Add(i);
+	}
+}
+void UBattleBoardUtil::MakePositionListRandom(TArray<int32>& madePosList, int32 positions, const FRandomStream& randStream)
+{
+	TArray<int32> poslist;
+	poslist.Reserve(CELL_NUM);
+	for(int32 i = 0; i < CELL_NUM; ++i) {
+		poslist.Add(i);
+	}
+
+	for(int32 i = 0; i < positions; ++i) {
+		const int32 index = randStream.RandRange(0, poslist.Num());
+		madePosList.Add(poslist[index]);
+		poslist.RemoveAt(index, 1, false);
+	}
+}
+
 const FBattleCharacterStatus* FBattleParty::GetCharacterByPos(int32 posIndex) const
 {
 	check(posIndex < Formation.Num());
@@ -40,10 +84,12 @@ int32 FBattleParty::GetCharacterPosByHandle(int32 handle) const
 	return -1;
 }
 
-int32 FBattleParty::GetCharacterHandleByPos(int32 pos) const
+int32 FBattleParty::GetCharacterHandleByPos(int32 pos, bool silent) const
 {
 	if(pos < 0 || Formation.Num() <= pos) {
-		GAME_ERROR("GetCharacterHandleByPos : out of range 0 <= %d < %d", pos, Formation.Num());
+		if(!silent) {
+			GAME_ERROR("GetCharacterHandleByPos : out of range 0 <= %d < %d", pos, Formation.Num());
+		}
 		return -1;
 	}
 
@@ -282,7 +328,7 @@ FBattleCharacterStatus UBattleSystem::MakeBattleCharacterStatusWithOffset(const 
 FBattleParty UBattleSystem::MakeFromParty(const FParty& party)
 {
 	FBattleParty battleParty;
-	battleParty.Characters.AddUninitialized(FBattleParty::MAX_PARTY_NUM);
+	battleParty.Characters.AddUninitialized(UBattleBoardUtil::GetCellNum());
 
 	for(int i = 0; i < party.Characters.Num(); ++i) {
 		battleParty.Characters[i] = MakeBattleCharacterStatus(party.Characters[i]);
@@ -344,7 +390,7 @@ void UBattleSystem::EnqueueCommands(const TArray<FBattleCommand>& commandList, b
 	bool prevAddSide = playerSide;
 
 	TArray<Command> mergedCommands;
-	mergedCommands.Reserve(FBattleParty::MAX_PARTY_NUM * 2);
+	mergedCommands.Reserve(UBattleBoardUtil::GetCellNum() * 2);
 
 	TArray<FBattleCommand> tempCommands = commandList;
 
@@ -467,8 +513,8 @@ bool UBattleSystem::ConsumeMoveCommands(TArray<FBattleActionResult>& result)
 	bool moved = (0 < MergedMoveCommandList.Num());
 
 	// 古い情報をバックアップ
-	int32 oldPlayerFormation[FBattleParty::MAX_PARTY_NUM] = { 0 };
-	int32 oldOpponentFormation[FBattleParty::MAX_PARTY_NUM] = { 0 };
+	int32 oldPlayerFormation[UBattleBoardUtil::CELL_NUM] = { 0 };
+	int32 oldOpponentFormation[UBattleBoardUtil::CELL_NUM] = { 0 };
 	const auto* playerParty = GetParty(true);
 	const auto* opponentParty = GetParty(false);
 	for(int i = 0; i < playerParty->Formation.Num(); ++i) {
@@ -511,7 +557,7 @@ bool UBattleSystem::ConsumeMoveCommands(TArray<FBattleActionResult>& result)
 		const FBattleParty* partyList[] = { playerParty, opponentParty };
 
 		for(int partyIndex = 0; partyIndex < ARRAY_COUNT(oldFormationList); ++partyIndex) {
-			for(int i = 0; i < FBattleParty::MAX_PARTY_NUM; ++i) {
+			for(int i = 0; i < UBattleBoardUtil::GetCellNum(); ++i) {
 				const int32* oldFormation = oldFormationList[partyIndex];
 				const auto&  currentFormation = *currentFormationList[partyIndex];
 
@@ -630,95 +676,18 @@ void UBattleSystem::ExecMove(FBattleActionResult& result, const Command& command
 }
 
 // 攻撃対象選択
-FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentParty, const FBattleCharacterStatus& attacker, int32 attackerPos, bool playerSide) const{
-	float hatemap[FBattleParty::MAX_PARTY_NUM] = { 0 }; // ヘイト
-
-	const float HATE_ADJUST_NEAREST[3][FBattleParty::MAX_PARTY_NUM] = {
-		// プレイヤーが左側（敵は右側のヘイトが高い）
-		{
-			// 後ろ
-			1.0f, 3.0f, 4.0f,
-			3.0f, 5.0f, 6.0f,
-			5.0f, 7.0f, 8.0f,
-			8.0f, 9.0f, 10.0f,
-			// 前
-		},
-
-		// プレイヤーが真ん中（敵は真ん中のヘイトが高い）
-		{
-			3.0f,  4.0f, 3.0f,
-			5.0f,  6.0f, 5.0f,
-			7.0f,  8.0f, 7.0f,
-			9.0f, 10.0f, 9.0f,
-			// 前
-		},
-
-		// プレイヤーが右側（敵は左側のヘイトが高い）
-		{
-			 4.0f, 3.0f, 1.0f,
-			 6.0f, 5.0f, 3.0f,
-			 8.0f, 7.0f, 5.0f,
-			10.0f, 9.0f, 8.0f,
-		},
-	};
-
-	const float HATE_ADJUST_STRAIGHT[3][FBattleParty::MAX_PARTY_NUM] = {
-		// プレイヤーが左側（敵は右側のヘイトが高い）
-		{
-			0.5f, 5.5f, 10.5f,
-			1.0f, 6.0f, 11.0f,
-			1.5f, 6.5f, 11.5f,
-			2.0f, 7.0f, 12.0f,
-		},
-
-		// プレイヤーが真ん中（敵は真ん中のヘイトが高い）
-		{
-			5.5f, 10.5f, 5.5f,
-			6.0f, 11.0f, 6.0f,
-			6.5f, 11.5f, 6.5f,
-			7.0f, 12.0f, 7.0f,
-		},
-
-		// プレイヤーが右側（敵は左側のヘイトが高い）
-		{
-			10.5f, 5.5f, 0.5f,
-			11.0f, 6.0f, 1.0f,
-			11.5f, 6.5f, 1.5f,
-			12.0f, 7.0f, 2.0f,
-		},
-	};
-
-
-	if((0 <= attackerPos) && (attackerPos <= FBattleParty::MAX_PARTY_NUM)) {
-		const int32 attackerCol = attackerPos % 3; // 縦列
-
-		for(int32 i = 0; i < FBattleParty::MAX_PARTY_NUM; ++i) {
-			const auto* character = opponentParty->GetCharacterByPos(i);
-			if(character) {
-				hatemap[i] = static_cast<float>(character->Hate); // キャラが持っているヘイトの絶対値
-				
-				//const int32 attackerPos = GetParty(playerSide)->GetCharacterPosByHandle(attackerHandle);
-				//if(0 <= attackerPos) 
-				{
-					const float hateOffset  = HATE_ADJUST_NEAREST[attackerCol][i];
-					hatemap[i] += hateOffset;
-				}
-			}
-		}
+FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentParty, const FBattleCharacterStatus& attacker, int32 attackerPos, bool playerSide) const
+{
+	TArray<int32> selectedTarget;
+	SelectTop(selectedTarget, !playerSide, GetParty(playerSide)->GetCharacterHandleByPos(attackerPos));
+	if(selectedTarget.Num() == 0) {
+		GAME_ERROR("GetAttackTargetByPos : not selected");
+		return FBattleTarget();
 	}
 
-	float maxHate      = hatemap[0];
-	int32 maxHateIndex = 0;
-	for(int i = 1; i < FBattleParty::MAX_PARTY_NUM; ++i) {
-		if(maxHate < hatemap[i]) {
-			maxHate      = hatemap[i];
-			maxHateIndex = i;
-		}
-	}
-	
 	FBattleTarget target;
-	target.PlayerSide     = !playerSide;
-	target.TargetHandle   = opponentParty->GetCharacterHandleByPos(maxHateIndex);
+	target.PlayerSide   = !playerSide;
+	target.TargetHandle = selectedTarget[0];
 
 	return target;
 }
@@ -755,4 +724,179 @@ FBattleCharacterStatus* UBattleSystem::GetCharacterByPos(FBattleParty* party, in
 	//check(posIndex < party->Formation.Num());
 	//check(party->Formation[posIndex] < party->Characters.Num());
 	return &party->Characters[party->Formation[posIndex]];
+}
+
+void UBattleSystem::Select(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, EBattleSelectPattern pattern, int32 param, bool clearResult) const
+{
+	switch(pattern) {
+		case EBattleSelectPattern::Top1 : {
+			SelectTop(selectedHandles, playerSide, actorHandle, clearResult);
+		} break;
+
+		case EBattleSelectPattern::Col : {
+			SelectCol(selectedHandles, playerSide, param, clearResult);
+		} break;
+
+		case EBattleSelectPattern::Row : {
+			SelectRow(selectedHandles, playerSide, param, clearResult);
+		} break;
+
+		case EBattleSelectPattern::Ahead1 : {
+			SelectAhead1(selectedHandles, playerSide, actorHandle, clearResult);
+		} break;
+
+		case EBattleSelectPattern::Ahead4 : {
+			SelectAhead4(selectedHandles, playerSide, actorHandle, clearResult);
+		} break;
+
+		case EBattleSelectPattern::All : {
+			SelectAll(selectedHandles, playerSide, actorHandle, clearResult);
+		} break;
+
+		case EBattleSelectPattern::Random : {
+			SelectRandom(selectedHandles, playerSide, actorHandle, param, clearResult);
+		} break;
+
+		default: {
+			GAME_ERROR("Select not implemented %s", *GETENUMSTRING("EBattleSelectPattern", pattern));
+		} break;
+	}
+}
+const FBattleParty* UBattleSystem::PrepareSelecting(int32* playerPos, TArray<int32>& selectedPositions, bool selectPlayerSide, int32 actorHandle, bool clearResult) const
+{
+	if(clearResult) {
+		selectedPositions.Reset();
+	}
+	if(playerPos && (0 <= actorHandle)) {
+		const auto* actorParty = GetParty(!selectPlayerSide);
+		*playerPos = actorParty->GetCharacterPosByHandle(actorHandle);
+	}
+
+	return GetParty(selectPlayerSide);
+}
+void UBattleSystem::SelectTop(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, bool clearResult) const
+{
+	int32 actorPos = -1;
+	TArray<int32> posList;
+	const auto* selecedParty = PrepareSelecting(&actorPos, posList, playerSide, actorHandle, clearResult);
+	if(actorPos < 0) {
+		GAME_ERROR("SelectTop");
+		return;
+	}
+	const int32 actorCol = actorPos % UBattleBoardUtil::GetBoardCol();
+
+	TArray<int32> row;
+	for(int32 pos = UBattleBoardUtil::GetCellNum() - 1; 0 < pos; pos -= 3) {
+		const int32 faced     = pos - actorCol; // 向かい合っているマス
+		const auto* facedChar = selecedParty->GetCharacterByPos(faced);
+		if(facedChar) {
+			posList.Add(faced);
+			break;
+		}
+
+		const int32 right = pos - 0; // ボードの右側（向かって左）
+		const int32 left  = pos - 2; // ボードの左側（向かって右）
+		const auto* rightChar = selecedParty->GetCharacterByPos(right);
+		const auto* leftChar  = selecedParty->GetCharacterByPos(left);
+
+		// 中央のときは両サイドを見る
+		if(actorCol == UBattleBoardUtil::GetColCenter()) {
+			// 両隣にキャラがいるならHPが低い方を選択
+			if(rightChar && leftChar) {
+				if(rightChar->Hp < leftChar->Hp) {
+					posList.Add(right);
+					break;
+				}
+				else if(leftChar->Hp < rightChar->Hp) {
+					posList.Add(left);
+					break;
+				}
+				// HPが同じ時は左を選ぶ
+				else {
+					posList.Add(left);
+					break;
+				}
+			}
+			else if(rightChar) {
+				posList.Add(right);
+				break;
+			}
+			else if(leftChar) {
+				posList.Add(left);
+				break;
+			}
+		}
+		// 左右どっちかに寄っているので真ん中を調べる
+		else {
+			const int32 center = pos - 1;
+			const auto* centerChar = selecedParty->GetCharacterByPos(center);
+			if(centerChar) {
+				posList.Add(center);
+				break;
+			}
+			else if (rightChar) {
+				posList.Add(right);
+				break;
+			}
+			else if(leftChar) {
+				posList.Add(left);
+				break;
+			}
+		}
+	}
+	MakeCharacterListByPositionList(selectedHandles, playerSide, posList);
+}
+void UBattleSystem::SelectCol(TArray<int32>& selectedPositions, bool playerSide, int32 col, bool clearResult) const
+{
+	PrepareSelecting(nullptr, selectedPositions, playerSide, -1, clearResult);
+
+	TArray<int32> positions;
+	UBattleBoardUtil::MakePositionListCol(positions, col, false);
+
+	MakeCharacterListByPositionList(selectedPositions, playerSide, positions);
+}
+
+void UBattleSystem::SelectRow(TArray<int32>& selectedPositions, bool playerSide, int32 row, bool clearResult) const
+{
+	if(UBattleBoardUtil::GetBoardRow() <= row) {
+		GAME_ERROR("invalid row %d", row);
+		return;
+	}
+
+	PrepareSelecting(nullptr, selectedPositions, playerSide, -1, clearResult);
+
+	TArray<int32> positions;
+	UBattleBoardUtil::MakePositionListRow(positions, row);
+	MakeCharacterListByPositionList(selectedPositions, playerSide, positions);
+}
+void UBattleSystem::SelectAhead1(TArray<int32>& selectedPositions, bool playerSide, int32 actorHandle, bool clearResult) const
+{
+	int32 actorPos = -1;
+	const auto* selecedParty = PrepareSelecting(&actorPos, selectedPositions, playerSide, actorHandle, clearResult);
+}
+void UBattleSystem::SelectAhead4(TArray<int32>& selectedPositions, bool playerSide, int32 actorHandle, bool clearResult) const
+{
+	int32 actorPos = -1;
+	const auto* selecedParty = PrepareSelecting(&actorPos, selectedPositions, playerSide, actorHandle, clearResult);
+}
+void UBattleSystem::SelectAll(TArray<int32>& selectedPositions, bool playerSide, int32 actorHandle, bool clearResult) const
+{
+	int32 actorPos = -1;
+	const auto* selecedParty = PrepareSelecting(&actorPos, selectedPositions, playerSide, actorHandle, clearResult);
+}
+void UBattleSystem::SelectRandom(TArray<int32>& selectedPositions, bool playerSide, int32 actorHandle, int selectPosNum, bool clearResult) const
+{
+	int32 actorPos = -1;
+	const auto* selecedParty = PrepareSelecting(&actorPos, selectedPositions, playerSide, actorHandle, clearResult);
+}
+
+void UBattleSystem::MakeCharacterListByPositionList(TArray<int32>& characterHandles, bool playerSide, const TArray<int32>& selectedPositions) const
+{
+	const auto* party = GetParty(playerSide);
+	for(int pos : selectedPositions) {
+		const int32 charHandle = party->GetCharacterHandleByPos(pos, true);
+		if(0 <= charHandle) {
+			characterHandles.Add(charHandle);
+		}
+	}
 }

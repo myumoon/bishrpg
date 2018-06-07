@@ -112,8 +112,6 @@ USTRUCT(BlueprintType)
 struct FBattleParty {
 	GENERATED_USTRUCT_BODY()
 
-	static const int32 MAX_PARTY_NUM = 12;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	TArray<FBattleCharacterStatus> Characters;
 
@@ -140,7 +138,7 @@ struct FBattleParty {
 	int32 GetCharacterPosByHandle(int32 handle) const;
 
 	// 位置からハンドルを取得
-	int32 GetCharacterHandleByPos(int32 pos) const;
+	int32 GetCharacterHandleByPos(int32 pos, bool silent = false) const;
 
 	// 移動(fromとtoを交換)
 	void Move(int32 from, int32 to);
@@ -243,6 +241,57 @@ private:
 	bool                   PlayerSide = true;
 };
 
+
+UCLASS()
+class BISHRPG_API UBattleBoardUtil : public UObject {
+	GENERATED_BODY()
+
+public:
+	static const int32 BOARD_ROW = 4;
+	static const int32 BOARD_COL = 3;
+	static const int32 COL_LEFT = 0;
+	static const int32 COL_CENTER = 1;
+	static const int32 COL_RIGHT = 2;
+
+	static const int32 CELL_NUM = BOARD_ROW * BOARD_COL;
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetBoardRow() { return BOARD_ROW; }
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetBoardCol() { return BOARD_COL; }
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetColLeft() { return COL_LEFT; }
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetColRight() { return COL_RIGHT; }
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetColCenter() { return COL_CENTER; }
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetCellNum() { return CELL_NUM; }
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static void MakePositionListRow(TArray<int32>& madePosList, int32 row);
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static void MakePositionListCol(TArray<int32>& madePosList, int32 col, bool up = true);
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static void MakePositionListRandom(TArray<int32>& madePosList, int32 positions, const FRandomStream& randStream);
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetFacedCol(int32 col)
+	{
+		if(0 <= col && col < GetBoardCol()) {
+			return GetBoardCol() - col - 1;
+		}
+		return -1;
+	}
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BISHRPG_API UBattleSystem : public UActorComponent
 {
@@ -329,13 +378,39 @@ public:
 	{
 		FBattleParty* party = GetParty(playerSide);
 		if(party) {
-			check(FBattleParty::MAX_PARTY_NUM == party->Formation.Num());
+			check(UBattleBoardUtil::GetCellNum() == party->Formation.Num());
 			return party->Formation[posIndex];
 		}
 		return -1;
 	}
 
+	//! @{
+	//! キャラ選択
+
+	/*!	指定の方法でキャラを取得
+		@param[out] selectedHandles 取得結果
+		@param[in]  selectedParty   選択対象パーティ
+		@param[in]  pattern         選択パターン
+		@param[in]  param           選択オプション(行、列、ランダム数、...)
+		@param[in]  clearResult     結果をクリアするかどうか
+	*/
+	void Select(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, EBattleSelectPattern pattern, int32 param, bool clearResult = true) const;
+	void SelectTop(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, bool clearResult = true) const;
+
+	void SelectCol(TArray<int32>& selectedHandles, bool playerSide, int32 col, bool clearResult = true) const;
+	void SelectRow(TArray<int32>& selectedHandles, bool playerSide, int32 row, bool clearResult = true) const;
+	void SelectAhead1(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, bool clearResult = true) const;
+	void SelectAhead4(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, bool clearResult = true) const;
+	void SelectAll(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, bool clearResult = true) const;
+	void SelectRandom(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, int selectPosNum, bool clearResult = true) const;
+
+	void MakeCharacterListByPositionList(TArray<int32>& characterHandles, bool playerSide, const TArray<int32>& selectedPositions) const;
+	//! }
+
 protected:
+	// 選択準備
+	const FBattleParty* PrepareSelecting(int32* playerPos, TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, bool clearResult) const;
+
 	static EBattleActionType ConvertAction(ECommandType type)
 	{
 		switch(type) {
