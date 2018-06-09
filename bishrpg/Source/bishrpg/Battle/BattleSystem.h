@@ -142,6 +142,31 @@ struct FBattleParty {
 
 	// 移動(fromとtoを交換)
 	void Move(int32 from, int32 to);
+
+	/*!	指定の方法でキャラを取得
+	@param[out] selectedHandles 取得結果
+	@param[in]  selectedParty   選択対象パーティ
+	@param[in]  pattern         選択パターン
+	@param[in]  param           選択オプション(行、列、ランダム数、...)
+	@param[in]  clearResult     結果をクリアするかどうか
+	*/
+	void Select(TArray<int32>& selectedHandles, int32 actorHandle, EBattleSelectPattern pattern, int32 param, bool clearResult = true) const;
+	void SelectTop(TArray<int32>& selectedHandles, int32 actorHandle, bool clearResult = true) const;
+
+	void SelectCol(TArray<int32>& selectedHandles, int32 col, bool clearResult = true) const;
+	void SelectRow(TArray<int32>& selectedHandles, int32 row, bool clearResult = true) const;
+	void SelectAhead1(TArray<int32>& selectedHandles, int32 actorPos, bool clearResult = true) const;
+	void SelectAhead4(TArray<int32>& selectedHandles, int32 actorPos, bool clearResult = true) const;
+	void SelectAll(TArray<int32>& selectedHandles, bool clearResult = true) const;
+	void SelectRandom(TArray<int32>& selectedHandles, int selectPosNum, bool clearResult = true) const;
+
+	void MakeCharacterListByPositionList(TArray<int32>& characterHandles, const TArray<int32>& selectedPositions) const;
+	//! }
+
+protected:
+	// 選択準備
+	void PrepareSelecting(TArray<int32>& selectedHandles, bool clearResult) const;
+
 };
 
 UENUM(BlueprintType)
@@ -379,7 +404,9 @@ public:
 		FBattleParty* party = GetParty(playerSide);
 		if(party) {
 			check(UBattleBoardUtil::GetCellNum() == party->Formation.Num());
-			return party->Formation[posIndex];
+			if(0 <= posIndex && posIndex < party->Formation.Num()) {
+				return party->Formation[posIndex];
+			}
 		}
 		return -1;
 	}
@@ -387,43 +414,9 @@ public:
 	//! @{
 	//! キャラ選択
 
-	/*!	指定の方法でキャラを取得
-		@param[out] selectedHandles 取得結果
-		@param[in]  selectedParty   選択対象パーティ
-		@param[in]  pattern         選択パターン
-		@param[in]  param           選択オプション(行、列、ランダム数、...)
-		@param[in]  clearResult     結果をクリアするかどうか
+
+	/*!	パーティ取得
 	*/
-	void Select(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, EBattleSelectPattern pattern, int32 param, bool clearResult = true) const;
-	void SelectTop(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, bool clearResult = true) const;
-
-	void SelectCol(TArray<int32>& selectedHandles, bool playerSide, int32 col, bool clearResult = true) const;
-	void SelectRow(TArray<int32>& selectedHandles, bool playerSide, int32 row, bool clearResult = true) const;
-	void SelectAhead1(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, bool clearResult = true) const;
-	void SelectAhead4(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, bool clearResult = true) const;
-	void SelectAll(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, bool clearResult = true) const;
-	void SelectRandom(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, int selectPosNum, bool clearResult = true) const;
-
-	void MakeCharacterListByPositionList(TArray<int32>& characterHandles, bool playerSide, const TArray<int32>& selectedPositions) const;
-	//! }
-
-protected:
-	// 選択準備
-	const FBattleParty* PrepareSelecting(int32* playerPos, TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, bool clearResult) const;
-
-	static EBattleActionType ConvertAction(ECommandType type)
-	{
-		switch(type) {
-			case ECommandType::Attack:
-				return EBattleActionType::Attack;
-			case ECommandType::Skill:
-				return EBattleActionType::Skill;
-			default:
-				return EBattleActionType::None;
-		}
-	}
-
-	// 
 	const FBattleParty* GetParty(bool playerSide) const
 	{
 		if(PartyList.Num() < PartyIndex::PartyNum) {
@@ -437,6 +430,28 @@ protected:
 	FBattleParty* GetParty(bool playerSide)
 	{
 		return const_cast<FBattleParty*>(static_cast<const UBattleSystem*>(this)->GetParty(playerSide));
+	}
+
+	/*!	指定ハンドルのキャラを取得
+	*/
+	FBattleCharacterStatus* GetCharacterByHandle(FBattleParty* party, int32 characterHandle) const;
+
+	/*!	指定場所のキャラを取得
+	*/
+	FBattleCharacterStatus* GetCharacterByPos(FBattleParty* party, int32 posIndex) const;
+
+protected:
+
+	static EBattleActionType ConvertAction(ECommandType type)
+	{
+		switch(type) {
+			case ECommandType::Attack:
+				return EBattleActionType::Attack;
+			case ECommandType::Skill:
+				return EBattleActionType::Skill;
+			default:
+				return EBattleActionType::None;
+		}
 	}
 
 	// Called when the game starts
@@ -466,13 +481,6 @@ protected:
 	*/
 	FBattleParty* GetNotTurnParty() { return PartyNum <= PartyList.Num() ? &PartyList[PlayerTurn ? 1 : 0] : nullptr; }
 
-	/*!	指定ハンドルのキャラを取得
-	*/
-	FBattleCharacterStatus* GetCharacterByHandle(FBattleParty* party, int32 characterHandle) const;
-
-	/*!	指定場所のキャラを取得
-	*/
-	FBattleCharacterStatus* GetCharacterByPos(FBattleParty* party, int32 posIndex) const;
 	
 
 	/*!	ダメージ計算基礎式

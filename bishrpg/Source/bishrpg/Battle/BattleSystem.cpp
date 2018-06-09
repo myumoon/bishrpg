@@ -128,7 +128,7 @@ bool UBattleCommandQueue::PushAttackCommand(int32 posIndex)
 	addCommand.ActionType = ECommandType::Attack;
 	addCommand.ActionPosIndex = posIndex;
 	addCommand.CharacterHandle = BattleSystem->GetCharacterHandle(prevPosIndex, PlayerSide);
-	GAME_LOG("PushAttack pos(%d) -> prev(%d) -> handle(%d)", posIndex, prevPosIndex, addCommand.CharacterHandle);
+	GAME_LOG("PushAttack PlayerSide(%s) : pos(%d) -> prev(%d) -> handle(%d)", PlayerSide ? TEXT("true") : TEXT("false"), posIndex, prevPosIndex, addCommand.CharacterHandle);
 	addCommand.TargetPosIndex = 0;
 	CommandList.Add(addCommand);
 	
@@ -411,6 +411,7 @@ void UBattleSystem::EnqueueCommands(const TArray<FBattleCommand>& commandList, b
 	}
 
 	auto addCommandList = [](TArray<Command>& list, const FBattleCommand& addCommand, bool PlayerSide) {
+		GAME_LOG("AddCommand : pos(%d), player(%s)", addCommand.ActionPosIndex, PlayerSide ? TEXT("true") : TEXT("false"));
 		Command add;
 		add.BattleCommand = addCommand;
 		add.PlayerSide = PlayerSide;
@@ -485,7 +486,7 @@ bool UBattleSystem::ConsumeCommand(FBattleActionResult& result)
 	result.ActionType           = ConvertAction(execCommand.BattleCommand.ActionType);
 	//result.Actor.TargetPosIndex = GetParty(execCommand.PlayerSide)->GetCharacterPosByHandle(execCommand.BattleCommand.CharacterHandle);
 	result.Actor.TargetHandle   = execCommand.BattleCommand.CharacterHandle;
-	GAME_LOG("Consume handle(%d)", execCommand.BattleCommand.CharacterHandle);
+	GAME_LOG("Consume handle(%d), playerSide(%s)", execCommand.BattleCommand.CharacterHandle, execCommand.PlayerSide ? TEXT("true") : TEXT("false"));
 	result.Actor.PlayerSide     = execCommand.PlayerSide;
 	
 	switch(execCommand.BattleCommand.ActionType) {
@@ -679,9 +680,9 @@ void UBattleSystem::ExecMove(FBattleActionResult& result, const Command& command
 FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentParty, const FBattleCharacterStatus& attacker, int32 attackerPos, bool playerSide) const
 {
 	TArray<int32> selectedTarget;
-	SelectTop(selectedTarget, !playerSide, GetParty(playerSide)->GetCharacterHandleByPos(attackerPos));
+	opponentParty->SelectTop(selectedTarget, attackerPos);
 	if(selectedTarget.Num() == 0) {
-		GAME_ERROR("GetAttackTargetByPos : not selected");
+		GAME_ERROR("GetAttackTargetByPos : not selected. attackerPos(%d), playerPos(%s)", attackerPos, playerSide ? TEXT("true") : TEXT("false"));
 		return FBattleTarget();
 	}
 
@@ -726,35 +727,36 @@ FBattleCharacterStatus* UBattleSystem::GetCharacterByPos(FBattleParty* party, in
 	return &party->Characters[party->Formation[posIndex]];
 }
 
-void UBattleSystem::Select(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, EBattleSelectPattern pattern, int32 param, bool clearResult) const
+void FBattleParty::Select(TArray<int32>& selectedHandles, int32 actorPos, EBattleSelectPattern pattern, int32 param, bool clearResult) const
 {
 	switch(pattern) {
 		case EBattleSelectPattern::Top1 : {
-			SelectTop(selectedHandles, playerSide, actorHandle, clearResult);
+			SelectTop(selectedHandles, actorPos, clearResult);
 		} break;
 
 		case EBattleSelectPattern::Col : {
-			SelectCol(selectedHandles, playerSide, param, clearResult);
+			SelectCol(selectedHandles, param, clearResult);
 		} break;
 
 		case EBattleSelectPattern::Row : {
-			SelectRow(selectedHandles, playerSide, param, clearResult);
+			SelectRow(selectedHandles, param, clearResult);
 		} break;
 
 		case EBattleSelectPattern::Ahead1 : {
-			SelectAhead1(selectedHandles, playerSide, actorHandle, clearResult);
+			
+			SelectAhead1(selectedHandles, actorPos, clearResult);
 		} break;
 
 		case EBattleSelectPattern::Ahead4 : {
-			SelectAhead4(selectedHandles, playerSide, actorHandle, clearResult);
+			SelectAhead4(selectedHandles, actorPos, clearResult);
 		} break;
 
 		case EBattleSelectPattern::All : {
-			SelectAll(selectedHandles, playerSide, actorHandle, clearResult);
+			SelectAll(selectedHandles, clearResult);
 		} break;
 
 		case EBattleSelectPattern::Random : {
-			SelectRandom(selectedHandles, playerSide, actorHandle, param, clearResult);
+			SelectRandom(selectedHandles, param, clearResult);
 		} break;
 
 		default: {
@@ -762,23 +764,17 @@ void UBattleSystem::Select(TArray<int32>& selectedHandles, bool playerSide, int3
 		} break;
 	}
 }
-const FBattleParty* UBattleSystem::PrepareSelecting(int32* playerPos, TArray<int32>& selectedPositions, bool selectPlayerSide, int32 actorHandle, bool clearResult) const
+void FBattleParty::PrepareSelecting(TArray<int32>& selectedPositions, bool clearResult) const
 {
 	if(clearResult) {
 		selectedPositions.Reset();
 	}
-	if(playerPos && (0 <= actorHandle)) {
-		const auto* actorParty = GetParty(!selectPlayerSide);
-		*playerPos = actorParty->GetCharacterPosByHandle(actorHandle);
-	}
 
-	return GetParty(selectPlayerSide);
 }
-void UBattleSystem::SelectTop(TArray<int32>& selectedHandles, bool playerSide, int32 actorHandle, bool clearResult) const
+void FBattleParty::SelectTop(TArray<int32>& selectedHandles, int32 actorPos, bool clearResult) const
 {
-	int32 actorPos = -1;
 	TArray<int32> posList;
-	const auto* selecedParty = PrepareSelecting(&actorPos, posList, playerSide, actorHandle, clearResult);
+	PrepareSelecting(posList, clearResult);
 	if(actorPos < 0) {
 		GAME_ERROR("SelectTop");
 		return;
@@ -788,7 +784,7 @@ void UBattleSystem::SelectTop(TArray<int32>& selectedHandles, bool playerSide, i
 	TArray<int32> row;
 	for(int32 pos = UBattleBoardUtil::GetCellNum() - 1; 0 < pos; pos -= 3) {
 		const int32 faced     = pos - actorCol; // 向かい合っているマス
-		const auto* facedChar = selecedParty->GetCharacterByPos(faced);
+		const auto* facedChar = GetCharacterByPos(faced);
 		if(facedChar) {
 			posList.Add(faced);
 			break;
@@ -796,8 +792,8 @@ void UBattleSystem::SelectTop(TArray<int32>& selectedHandles, bool playerSide, i
 
 		const int32 right = pos - 0; // ボードの右側（向かって左）
 		const int32 left  = pos - 2; // ボードの左側（向かって右）
-		const auto* rightChar = selecedParty->GetCharacterByPos(right);
-		const auto* leftChar  = selecedParty->GetCharacterByPos(left);
+		const auto* rightChar = GetCharacterByPos(right);
+		const auto* leftChar  = GetCharacterByPos(left);
 
 		// 中央のときは両サイドを見る
 		if(actorCol == UBattleBoardUtil::GetColCenter()) {
@@ -829,7 +825,7 @@ void UBattleSystem::SelectTop(TArray<int32>& selectedHandles, bool playerSide, i
 		// 左右どっちかに寄っているので真ん中を調べる
 		else {
 			const int32 center = pos - 1;
-			const auto* centerChar = selecedParty->GetCharacterByPos(center);
+			const auto* centerChar = GetCharacterByPos(center);
 			if(centerChar) {
 				posList.Add(center);
 				break;
@@ -844,57 +840,52 @@ void UBattleSystem::SelectTop(TArray<int32>& selectedHandles, bool playerSide, i
 			}
 		}
 	}
-	MakeCharacterListByPositionList(selectedHandles, playerSide, posList);
+	MakeCharacterListByPositionList(selectedHandles, posList);
 }
-void UBattleSystem::SelectCol(TArray<int32>& selectedPositions, bool playerSide, int32 col, bool clearResult) const
+void FBattleParty::SelectCol(TArray<int32>& selectedPositions, int32 col, bool clearResult) const
 {
-	PrepareSelecting(nullptr, selectedPositions, playerSide, -1, clearResult);
+	PrepareSelecting(selectedPositions, clearResult);
 
 	TArray<int32> positions;
 	UBattleBoardUtil::MakePositionListCol(positions, col, false);
 
-	MakeCharacterListByPositionList(selectedPositions, playerSide, positions);
+	MakeCharacterListByPositionList(selectedPositions, positions);
 }
 
-void UBattleSystem::SelectRow(TArray<int32>& selectedPositions, bool playerSide, int32 row, bool clearResult) const
+void FBattleParty::SelectRow(TArray<int32>& selectedPositions, int32 row, bool clearResult) const
 {
 	if(UBattleBoardUtil::GetBoardRow() <= row) {
 		GAME_ERROR("invalid row %d", row);
 		return;
 	}
 
-	PrepareSelecting(nullptr, selectedPositions, playerSide, -1, clearResult);
+	PrepareSelecting(selectedPositions, clearResult);
 
 	TArray<int32> positions;
 	UBattleBoardUtil::MakePositionListRow(positions, row);
-	MakeCharacterListByPositionList(selectedPositions, playerSide, positions);
+	MakeCharacterListByPositionList(selectedPositions, positions);
 }
-void UBattleSystem::SelectAhead1(TArray<int32>& selectedPositions, bool playerSide, int32 actorHandle, bool clearResult) const
+void FBattleParty::SelectAhead1(TArray<int32>& selectedPositions, int32 actorPos, bool clearResult) const
 {
-	int32 actorPos = -1;
-	const auto* selecedParty = PrepareSelecting(&actorPos, selectedPositions, playerSide, actorHandle, clearResult);
+	PrepareSelecting(selectedPositions, clearResult);
 }
-void UBattleSystem::SelectAhead4(TArray<int32>& selectedPositions, bool playerSide, int32 actorHandle, bool clearResult) const
+void FBattleParty::SelectAhead4(TArray<int32>& selectedPositions, int32 actorPos, bool clearResult) const
 {
-	int32 actorPos = -1;
-	const auto* selecedParty = PrepareSelecting(&actorPos, selectedPositions, playerSide, actorHandle, clearResult);
+	PrepareSelecting(selectedPositions, clearResult);
 }
-void UBattleSystem::SelectAll(TArray<int32>& selectedPositions, bool playerSide, int32 actorHandle, bool clearResult) const
+void FBattleParty::SelectAll(TArray<int32>& selectedPositions, bool clearResult) const
 {
-	int32 actorPos = -1;
-	const auto* selecedParty = PrepareSelecting(&actorPos, selectedPositions, playerSide, actorHandle, clearResult);
+	PrepareSelecting(selectedPositions, clearResult);
 }
-void UBattleSystem::SelectRandom(TArray<int32>& selectedPositions, bool playerSide, int32 actorHandle, int selectPosNum, bool clearResult) const
+void FBattleParty::SelectRandom(TArray<int32>& selectedPositions, int selectPosNum, bool clearResult) const
 {
-	int32 actorPos = -1;
-	const auto* selecedParty = PrepareSelecting(&actorPos, selectedPositions, playerSide, actorHandle, clearResult);
+	PrepareSelecting(selectedPositions, clearResult);
 }
 
-void UBattleSystem::MakeCharacterListByPositionList(TArray<int32>& characterHandles, bool playerSide, const TArray<int32>& selectedPositions) const
+void FBattleParty::MakeCharacterListByPositionList(TArray<int32>& characterHandles, const TArray<int32>& selectedPositions) const
 {
-	const auto* party = GetParty(playerSide);
 	for(int pos : selectedPositions) {
-		const int32 charHandle = party->GetCharacterHandleByPos(pos, true);
+		const int32 charHandle = GetCharacterHandleByPos(pos, true);
 		if(0 <= charHandle) {
 			characterHandles.Add(charHandle);
 		}
