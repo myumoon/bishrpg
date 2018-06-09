@@ -672,6 +672,8 @@ void UBattleSystem::ExecSkill(FBattleActionResult& result, const Command& comman
 		return;
 	}
 	const int32 attackerPos = GetParty(command.PlayerSide)->GetCharacterPosByHandle(command.BattleCommand.CharacterHandle);
+	const auto* skillTbl    = ABishRPGDataTblAccessor::GetTbl(ETblType::SkillTbl);
+	//skillTbl->FindRow<>(command.BattleCommand.SkillName, FString(""));
 	const auto target       = GetAttackTargetByPos(GetParty(!command.PlayerSide), *attackChar, attackerPos, command.PlayerSide);
 	auto* targetChar        = GetCharacterByHandle(GetParty(!command.PlayerSide), target.TargetHandle);
 	if(targetChar == nullptr) {
