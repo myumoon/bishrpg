@@ -98,12 +98,15 @@ struct FBattleCharacterStatus {
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	int32 Hate;   //!< ヘイト
+	
+	//	死亡判定
+	bool IsDie() const { return (Hp <= 0); }
 
-	//FBattleCharacterStatus() {}
-
-	//UFUNCTION(BlueprintCallable, Category = "Battle")
-	//FBattleCharacterStatus(const FCharacterStatus& stat);
-
+	// ダメージを受ける
+	void ReceiveDamage(int32 damage)
+	{
+		Hp = FMath::Max(Hp - damage, 0);
+	}
 };
 
 /*! パーティ情報
@@ -347,18 +350,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	void Initialize(const FParty& playerParty, const FParty& opponentParty);
 
-
-	/*!	ターン設定
-	*/
-	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void SetTurn(bool playerTurn) { PlayerTurn = playerTurn; }
-
-	/*!	ターン設定
-		@return プレイヤーターンかどうか
-	*/
-	UFUNCTION(BlueprintCallable, Category = "Battle")
-	bool SwapTurn() { PlayerTurn = !PlayerTurn; return PlayerTurn; }
-
 	/*!	行動を行う
 		@param[out] result 計算結果
 		@return     消費するコマンドが合った場合はtrue
@@ -473,16 +464,6 @@ protected:
 	*/
 	void ExecSkill(FBattleActionResult& result, const Command& command);
 
-	/*!	ターンのパーティーを取得
-	*/
-	FBattleParty* GetTurnParty() { return PartyNum <= PartyList.Num() ? &PartyList[PlayerTurn ? 0 : 1] : nullptr; }
-
-	/*!	ターンでないパーティーを取得
-	*/
-	FBattleParty* GetNotTurnParty() { return PartyNum <= PartyList.Num() ? &PartyList[PlayerTurn ? 1 : 0] : nullptr; }
-
-	
-
 	/*!	ダメージ計算基礎式
 		@param attack        攻撃力(100～2000くらいを想定)
 		@param deffence      防御力(攻撃より低い値でないとダメージが出ない)
@@ -504,9 +485,12 @@ protected:
 	*/
 	FBattleTarget GetAttackTargetByPos(const FBattleParty* opponentParty, const FBattleCharacterStatus& attacker, int32 attackerPos, bool playerSide) const;
 
+	/*!	死亡更新
+	*/
+	void UpdateDie();
+
 private:
 	TArray<FBattleParty>   PartyList;           //!< パーティ
 	TArray<Command>        MergedCommandList;   //!< 全バトルコマンドリスト
 	TArray<Command>        MergedMoveCommandList; //!< 移動コマンドをまとめたやつ
-	bool                   PlayerTurn = true;   //!< プレイヤーターンかどうか
 };

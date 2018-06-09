@@ -502,6 +502,8 @@ bool UBattleSystem::ConsumeCommand(FBattleActionResult& result)
 			break;
 	}
 
+	UpdateDie();
+
 	return true;
 }
 
@@ -579,6 +581,22 @@ bool UBattleSystem::ConsumeMoveCommands(TArray<FBattleActionResult>& result)
 	return moved;
 }
 
+// 死亡チェック
+void UBattleSystem::UpdateDie()
+{
+	for(auto& party : PartyList) {
+		for(int32 pos = 0; pos < party.Formation.Num(); ++pos) {
+			if(0 < party.Formation[pos]) {
+				const auto* character = party.GetCharacterByPos(pos);
+				if(character->Hp <= 0) {
+					party.Formation[pos] = -1;
+				}
+			}
+		}
+	}
+
+}
+
 // ダメージ基礎式
 int32 UBattleSystem::CalcDamage(int32 attack, int32 deffence, int32 randMin, int32 randMax, EBattleStyle attackerStyle, EBattleStyle targetStyle, float diffAcc/*=1.3f*/, int32 minDamage/*=10*/)
 {
@@ -638,7 +656,7 @@ void UBattleSystem::ExecAttack(FBattleActionResult& result, const Command& comma
 	const float attack     = attackChar->Attack;
 	const float deffence   = targetChar->Deffence;
 	const int32 damage     = CalcDamage(attack, deffence, -50, 50, attackChar->Style, targetChar->Style, 1.3f, 10);
-	targetChar->Hp = FMath::Max(targetChar->Hp - damage, 0);
+	targetChar->ReceiveDamage(damage);
 
 	FBattleTargetValue targetResult;
 	targetResult.Target = target;
@@ -654,14 +672,15 @@ void UBattleSystem::ExecSkill(FBattleActionResult& result, const Command& comman
 		return;
 	}
 	const int32 attackerPos = GetParty(command.PlayerSide)->GetCharacterPosByHandle(command.BattleCommand.CharacterHandle);
-	const auto target = GetAttackTargetByPos(GetParty(!command.PlayerSide), *attackChar, attackerPos, command.PlayerSide);
-	auto* targetChar = GetCharacterByHandle(GetNotTurnParty(), target.TargetHandle);
+	const auto target       = GetAttackTargetByPos(GetParty(!command.PlayerSide), *attackChar, attackerPos, command.PlayerSide);
+	auto* targetChar        = GetCharacterByHandle(GetParty(!command.PlayerSide), target.TargetHandle);
 	if(targetChar == nullptr) {
 		return;
 	}
 	const float attack = attackChar->Attack;
 	const float deffence = targetChar->Deffence;
 	const int32 damage = CalcDamage(attack, deffence, 0, 100, attackChar->Style, targetChar->Style, 1.4f, 20);
+	targetChar->ReceiveDamage(damage);
 
 	FBattleTargetValue targetResult;
 	targetResult.Target = target;
