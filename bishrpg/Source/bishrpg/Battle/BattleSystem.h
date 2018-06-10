@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "SharedPointer.h"
 #include "System/CharacterStatus.h"
+#include "GameData/SkillData.h"
 #include "BattleDataType.h"
 #include "BattleSystem.generated.h"
 
@@ -105,7 +107,12 @@ struct FBattleCharacterStatus {
 	// ダメージを受ける
 	void ReceiveDamage(int32 damage)
 	{
-		Hp = FMath::Max(Hp - damage, 0);
+		Hp = FMath::Clamp(Hp - damage, 0, HpMax);
+	}
+
+	void Heal(int32 heal)
+	{
+		Hp = FMath::Clamp(Hp + heal, 0, HpMax);
 	}
 };
 
@@ -153,7 +160,7 @@ struct FBattleParty {
 	@param[in]  param           選択オプション(行、列、ランダム数、...)
 	@param[in]  clearResult     結果をクリアするかどうか
 	*/
-	void Select(TArray<int32>& selectedHandles, int32 actorHandle, EBattleSelectPattern pattern, int32 param, bool clearResult = true) const;
+	void Select(TArray<int32>& selectedHandles, int32 actorHandle, EBattleSelectPattern pattern, int32 param, const FRandomStream& randStream, bool clearResult = true) const;
 	void SelectTop(TArray<int32>& selectedHandles, int32 actorHandle, bool clearResult = true) const;
 
 	void SelectCol(TArray<int32>& selectedHandles, int32 col, bool clearResult = true) const;
@@ -161,7 +168,7 @@ struct FBattleParty {
 	void SelectAhead1(TArray<int32>& selectedHandles, int32 actorPos, bool clearResult = true) const;
 	void SelectAhead4(TArray<int32>& selectedHandles, int32 actorPos, bool clearResult = true) const;
 	void SelectAll(TArray<int32>& selectedHandles, bool clearResult = true) const;
-	void SelectRandom(TArray<int32>& selectedHandles, int selectPosNum, bool clearResult = true) const;
+	void SelectRandom(TArray<int32>& selectedHandles, int selectPosNum, const FRandomStream& randStream, bool clearResult = true) const;
 
 	void MakeCharacterListByPositionList(TArray<int32>& characterHandles, const TArray<int32>& selectedPositions) const;
 	//! }
@@ -311,10 +318,49 @@ public:
 	static void MakePositionListRandom(TArray<int32>& madePosList, int32 positions, const FRandomStream& randStream);
 
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	static int32 GetFacedCol(int32 col)
+	static int32 GetFacedCol(int32 pos)
 	{
-		if(0 <= col && col < GetBoardCol()) {
+		if(0 <= pos) {
+			const int32 col = pos % GetBoardCol();
 			return GetBoardCol() - col - 1;
+		}
+		return -1;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetCol(int32 pos)
+	{
+		if(0 <= pos) {
+			return (pos % GetBoardCol());
+		}
+		return -1;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetRow(int32 pos)
+	{
+		if(0 <= pos) {
+			return (pos / GetBoardCol());
+		}
+		return -1;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetRowInverse(int32 pos)
+	{
+		const int32 row = GetRow(pos);
+		if(0 <= row) {
+			return (GetBoardRow() - row - 1);
+		}
+		return -1;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetPos(int32 row, int32 col)
+	{
+		if((0 <= row) && (row < GetBoardRow()) && (0 <= col) && (col < GetBoardCol())) {
+			const int32 pos = row * GetBoardRow() + col;
+			return pos;
 		}
 		return -1;
 	}
@@ -348,7 +394,7 @@ public:
 	/*! 初期化
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void Initialize(const FParty& playerParty, const FParty& opponentParty);
+	void Initialize(const FParty& playerParty, const FParty& opponentParty, const FRandomStream& randStream);
 
 	/*!	行動を行う
 		@param[out] result 計算結果
@@ -470,7 +516,7 @@ protected:
 		@param randMin       ダメージ幅（最小）
 		@param randMax       ダメージ幅（最大）
 		@param attackerStyle 攻撃側のスタイル
-		@param targetStyle   攻撃側のスタイル
+		@param targetStyle   相手側のスタイル
 		@param diffAcc       攻撃と防御の差があるときのダメージ増加量（累乗される）
 		@param minDamage     最低保証ダメージ
 		@return ダメージ量
@@ -485,12 +531,17 @@ protected:
 	*/
 	FBattleTarget GetAttackTargetByPos(const FBattleParty* opponentParty, const FBattleCharacterStatus& attacker, int32 attackerPos, bool playerSide) const;
 
+	/*!	攻撃対象選択
+	*/
+	void GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const FBattleCharacterStatus& attacker, int32 attackerPos, bool selectPlayerSide, ESkillType skillType, EBattleSelectPattern selectType, int32 selectParam) const;
+
 	/*!	死亡更新
 	*/
 	void UpdateDie();
 
 private:
-	TArray<FBattleParty>   PartyList;           //!< パーティ
-	TArray<Command>        MergedCommandList;   //!< 全バトルコマンドリスト
-	TArray<Command>        MergedMoveCommandList; //!< 移動コマンドをまとめたやつ
+	TArray<FBattleParty>             PartyList;             //!< パーティ
+	TArray<Command>                  MergedCommandList;     //!< 全バトルコマンドリスト
+	TArray<Command>                  MergedMoveCommandList; //!< 移動コマンドをまとめたやつ
+	const FRandomStream*             RandStream;            //!< ランダム
 };

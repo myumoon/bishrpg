@@ -5,6 +5,7 @@
 #include "Engine/DataTable.h"
 #include "ConstructorHelpers.h"
 #include "GameData/CharacterAsset.h"
+#include "GameData/SkillData.h"
 #include "GameData/BishRPGDataTblAccessor.h"
 
 #include "bishrpg.h"
@@ -340,7 +341,7 @@ FBattleParty UBattleSystem::MakeFromParty(const FParty& party)
 
 
 // 初期化
-void UBattleSystem::Initialize(const FParty& playerParty, const FParty& opponentParty)
+void UBattleSystem::Initialize(const FParty& playerParty, const FParty& opponentParty, const FRandomStream& randStream)
 {
 	const FParty* partyList[] = { &playerParty, &opponentParty };
 
@@ -348,6 +349,8 @@ void UBattleSystem::Initialize(const FParty& playerParty, const FParty& opponent
 		FBattleParty battleParty = MakeFromParty(*party);
 		PartyList.Add(battleParty);
 	}
+
+	RandStream = &randStream;
 }
 
 
@@ -486,7 +489,7 @@ bool UBattleSystem::ConsumeCommand(FBattleActionResult& result)
 	result.ActionType           = ConvertAction(execCommand.BattleCommand.ActionType);
 	//result.Actor.TargetPosIndex = GetParty(execCommand.PlayerSide)->GetCharacterPosByHandle(execCommand.BattleCommand.CharacterHandle);
 	result.Actor.TargetHandle   = execCommand.BattleCommand.CharacterHandle;
-	GAME_LOG("Consume handle(%d), playerSide(%s)", execCommand.BattleCommand.CharacterHandle, execCommand.PlayerSide ? TEXT("true") : TEXT("false"));
+	GAME_LOG("Consume handle(%d), playerSide(%s), skill(%s)", execCommand.BattleCommand.CharacterHandle, execCommand.PlayerSide ? TEXT("true") : TEXT("false"), *execCommand.BattleCommand.SkillName.ToString());
 	result.Actor.PlayerSide     = execCommand.PlayerSide;
 	
 	switch(execCommand.BattleCommand.ActionType) {
@@ -673,22 +676,44 @@ void UBattleSystem::ExecSkill(FBattleActionResult& result, const Command& comman
 	}
 	const int32 attackerPos = GetParty(command.PlayerSide)->GetCharacterPosByHandle(command.BattleCommand.CharacterHandle);
 	const auto* skillTbl    = ABishRPGDataTblAccessor::GetTbl(ETblType::SkillTbl);
-	//skillTbl->FindRow<>(command.BattleCommand.SkillName, FString(""));
-	const auto target       = GetAttackTargetByPos(GetParty(!command.PlayerSide), *attackChar, attackerPos, command.PlayerSide);
-	auto* targetChar        = GetCharacterByHandle(GetParty(!command.PlayerSide), target.TargetHandle);
-	if(targetChar == nullptr) {
+	const auto* skillData   = skillTbl->FindRow<FSkillData>(command.BattleCommand.SkillName, FString(""));
+	if(skillData == nullptr) {
+		GAME_ERROR("ExecSkill : Not found '%s' in the SkillTbl", *command.BattleCommand.SkillName.ToString());
 		return;
 	}
-	const float attack = attackChar->Attack;
-	const float deffence = targetChar->Deffence;
-	const int32 damage = CalcDamage(attack, deffence, 0, 100, attackChar->Style, targetChar->Style, 1.4f, 20);
-	targetChar->ReceiveDamage(damage);
 
 	FBattleTargetValue targetResult;
-	targetResult.Target = target;
-	targetResult.Value = damage;
-	result.TargetResults.Add(targetResult);
 	result.SkillName = command.BattleCommand.SkillName;
+
+	if(skillData->Type == ESkillType::Attack || skillData->Type == ESkillType::Heal) {
+		TArray<FBattleTarget> targets;
+		GetSkillTargetsByPos(targets, *attackChar, attackerPos, command.PlayerSide, skillData->Type, skillData->SelectType, skillData->SelectParam);
+		for(auto& target : targets) {
+			auto* targetChar = GetCharacterByHandle(GetParty(target.PlayerSide), target.TargetHandle);
+			if(targetChar == nullptr) {
+				GAME_ERROR("target char is null");
+				return;
+			}
+			
+			if(skillData->Type == ESkillType::Attack) {
+				const float attack   = attackChar->Attack;
+				const float deffence = targetChar->Deffence;
+				const int32 damage   = CalcDamage(attack, deffence, 0, 100, attackChar->Style, targetChar->Style, 1.4f, 20);
+				targetChar->ReceiveDamage(damage);
+
+				targetResult.Target = target;
+				targetResult.Value = damage;
+				result.TargetResults.Add(targetResult);
+			}
+			else {
+				// todo : 回復
+				//skillData->ValueAtLevel->GetFloatValue();
+				//targetChar->Heal();
+			}
+		}
+	}
+
+
 }
 
 // 移動
@@ -713,6 +738,30 @@ FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentPa
 
 	return target;
 }
+
+// スキル対象
+void UBattleSystem::GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const FBattleCharacterStatus& actor, int32 actorPos, bool actorSide, ESkillType skillType, EBattleSelectPattern selectType, int32 selectParam) const
+{
+	const bool targetPlayerSide = (skillType == ESkillType::Heal) ? actorSide : !actorSide;
+	const auto* targetParty = GetParty(targetPlayerSide);
+
+	TArray<int32> selectedTarget;
+	targetParty->Select(selectedTarget, actorPos, selectType, selectParam, *RandStream);
+	if(selectedTarget.Num() == 0) {
+		//GAME_ERROR("GetSkillTargetsByPos : not selected. actorPos(%d), actorSide(%s), selectType(%d), selectParam(%d)", actorPos, actorSide ? TEXT("true") : TEXT("false"), static_cast<int32>(selectType), selectParam);
+		return;
+	}
+
+	FBattleTarget target;
+	for(int32 handle : selectedTarget) {
+		target.PlayerSide   = targetPlayerSide;
+		target.TargetHandle = handle;
+		targets.Add(target);
+	}
+	
+}
+
+
 
 FBattleCharacterStatus* UBattleSystem::GetCharacterByHandle(FBattleParty* party, int32 characterHandle) const
 {
@@ -748,7 +797,7 @@ FBattleCharacterStatus* UBattleSystem::GetCharacterByPos(FBattleParty* party, in
 	return &party->Characters[party->Formation[posIndex]];
 }
 
-void FBattleParty::Select(TArray<int32>& selectedHandles, int32 actorPos, EBattleSelectPattern pattern, int32 param, bool clearResult) const
+void FBattleParty::Select(TArray<int32>& selectedHandles, int32 actorPos, EBattleSelectPattern pattern, int32 param, const FRandomStream& randStream, bool clearResult) const
 {
 	switch(pattern) {
 		case EBattleSelectPattern::Top1 : {
@@ -764,7 +813,6 @@ void FBattleParty::Select(TArray<int32>& selectedHandles, int32 actorPos, EBattl
 		} break;
 
 		case EBattleSelectPattern::Ahead1 : {
-			
 			SelectAhead1(selectedHandles, actorPos, clearResult);
 		} break;
 
@@ -777,7 +825,7 @@ void FBattleParty::Select(TArray<int32>& selectedHandles, int32 actorPos, EBattl
 		} break;
 
 		case EBattleSelectPattern::Random : {
-			SelectRandom(selectedHandles, param, clearResult);
+			SelectRandom(selectedHandles, param, randStream, clearResult);
 		} break;
 
 		default: {
@@ -863,49 +911,95 @@ void FBattleParty::SelectTop(TArray<int32>& selectedHandles, int32 actorPos, boo
 	}
 	MakeCharacterListByPositionList(selectedHandles, posList);
 }
-void FBattleParty::SelectCol(TArray<int32>& selectedPositions, int32 col, bool clearResult) const
+void FBattleParty::SelectCol(TArray<int32>& selectedHandles, int32 col, bool clearResult) const
 {
-	PrepareSelecting(selectedPositions, clearResult);
+	PrepareSelecting(selectedHandles, clearResult);
 
 	TArray<int32> positions;
 	UBattleBoardUtil::MakePositionListCol(positions, col, false);
 
-	MakeCharacterListByPositionList(selectedPositions, positions);
+	MakeCharacterListByPositionList(selectedHandles, positions);
 }
 
-void FBattleParty::SelectRow(TArray<int32>& selectedPositions, int32 row, bool clearResult) const
+void FBattleParty::SelectRow(TArray<int32>& selectedHandles, int32 row, bool clearResult) const
 {
 	if(UBattleBoardUtil::GetBoardRow() <= row) {
 		GAME_ERROR("invalid row %d", row);
 		return;
 	}
 
-	PrepareSelecting(selectedPositions, clearResult);
+	PrepareSelecting(selectedHandles, clearResult);
 
 	TArray<int32> positions;
 	UBattleBoardUtil::MakePositionListRow(positions, row);
-	MakeCharacterListByPositionList(selectedPositions, positions);
+	MakeCharacterListByPositionList(selectedHandles, positions);
 }
-void FBattleParty::SelectAhead1(TArray<int32>& selectedPositions, int32 actorPos, bool clearResult) const
+void FBattleParty::SelectAhead1(TArray<int32>& selectedHandles, int32 actorPos, bool clearResult) const
 {
-	PrepareSelecting(selectedPositions, clearResult);
+	PrepareSelecting(selectedHandles, clearResult);
+
+	TArray<int32> positions;
+	const int32 facedCol = UBattleBoardUtil::GetFacedCol(actorPos);
+	const int32 row      = UBattleBoardUtil::GetRow(actorPos);
+	if((0 <= facedCol) && (0 <= row)) {
+		// 最前列
+		if(row == UBattleBoardUtil::GetBoardRow() - 1) {
+			const int32 selectedPos = row * UBattleBoardUtil::GetBoardRow() + facedCol;
+			positions.Add(selectedPos);
+
+			MakeCharacterListByPositionList(selectedHandles, positions);
+		}
+	}
+	
 }
-void FBattleParty::SelectAhead4(TArray<int32>& selectedPositions, int32 actorPos, bool clearResult) const
+void FBattleParty::SelectAhead4(TArray<int32>& selectedHandles, int32 actorPos, bool clearResult) const
 {
-	PrepareSelecting(selectedPositions, clearResult);
+	PrepareSelecting(selectedHandles, clearResult);
+
+	TArray<int32> positions;
+	const int32 facedCol = UBattleBoardUtil::GetFacedCol(actorPos);
+	const int32 row      = UBattleBoardUtil::GetRowInverse(actorPos);
+	if((0 <= facedCol) && (0 <= row)) {
+		const int32 selectedPos = UBattleBoardUtil::GetPos(row, facedCol);
+		positions.Add(selectedPos);
+
+		MakeCharacterListByPositionList(selectedHandles, positions);
+	}
+	
 }
-void FBattleParty::SelectAll(TArray<int32>& selectedPositions, bool clearResult) const
+void FBattleParty::SelectAll(TArray<int32>& selectedHandles, bool clearResult) const
 {
-	PrepareSelecting(selectedPositions, clearResult);
+	PrepareSelecting(selectedHandles, clearResult);
+
+	TArray<int32> positions;
+	for(int32 i = 0; i < UBattleBoardUtil::GetCellNum(); ++i) {
+		positions.Add(i);
+	}
+	MakeCharacterListByPositionList(selectedHandles, positions);
+
 }
-void FBattleParty::SelectRandom(TArray<int32>& selectedPositions, int selectPosNum, bool clearResult) const
+void FBattleParty::SelectRandom(TArray<int32>& selectedHandles, int selectPosNum, const FRandomStream& randStream, bool clearResult) const
 {
-	PrepareSelecting(selectedPositions, clearResult);
+	PrepareSelecting(selectedHandles, clearResult);
+
+	TArray<int32> selectedPositions;
+	selectedPositions.Reserve(selectPosNum);
+
+	TArray<int32> tempPosList;
+	SelectAll(tempPosList, false);
+
+	for(int i = 0; i < selectPosNum; ++i) {
+		const int32 selectedIdx = randStream.RandRange(0, tempPosList.Num() - 1);
+		selectedPositions.Add(tempPosList[selectedIdx]);
+		tempPosList.RemoveAt(selectedIdx, 1, false);
+	}
+	MakeCharacterListByPositionList(selectedHandles, selectedPositions);
+
 }
 
 void FBattleParty::MakeCharacterListByPositionList(TArray<int32>& characterHandles, const TArray<int32>& selectedPositions) const
 {
-	for(int pos : selectedPositions) {
+	for(int32 pos : selectedPositions) {
 		const int32 charHandle = GetCharacterHandleByPos(pos, true);
 		if(0 <= charHandle) {
 			characterHandles.Add(charHandle);
