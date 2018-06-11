@@ -14,3 +14,5 @@ DECLARE_LOG_CATEGORY_EXTERN(BishRPG, Log, All);
 // FString name = GETENUMSTRING("EEnumType", Value);
 // GAME_LOG("%s", *name);
 #define GETENUMSTRING(etype, evalue) ( (FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true) != nullptr) ? FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true)->GetNameStringByIndex((int32)evalue) : FString("Invalid - are you sure enum uses UENUM() macro?") )
+
+#define TO_TEXT(b) ((b) ? TEXT("true") : TEXT("false"))
