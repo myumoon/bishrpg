@@ -31,7 +31,15 @@ struct FBattleTarget {
 	}
 };
 
+UENUM(BlueprintType, meta=(Bitflags))
+enum class EStatusFlag : uint8 {
+	None = 0,
+	Status_Die = 1 << 0,
+};
+ENUM_CLASS_FLAGS( EStatusFlag )
 
+
+struct FBattleCharacterStatus;
 /*! ターゲットに対してのダメージ/ヒール量
 */
 USTRUCT(BlueprintType)
@@ -42,7 +50,10 @@ struct FBattleTargetValue {
 	FBattleTarget Target; //!< 対象
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
-	int32 Value;  //!< ダメージorヒール量
+	int32 Value = 0;  //!< ダメージorヒール量
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle", meta=(Bitmask, BitmaskEnum=EStatusFlag))
+	int32 Status; //!< EStatusFlagのand
 };
 
 

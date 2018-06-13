@@ -664,6 +664,7 @@ void UBattleSystem::ExecAttack(FBattleActionResult& result, const Command& comma
 	FBattleTargetValue targetResult;
 	targetResult.Target = target;
 	targetResult.Value  = damage;
+	targetResult.Status |= static_cast<int32>(targetChar->IsDie() ? EStatusFlag::Status_Die : EStatusFlag::None);
 	result.TargetResults.Add(targetResult);
 }
 
@@ -703,6 +704,7 @@ void UBattleSystem::ExecSkill(FBattleActionResult& result, const Command& comman
 
 				targetResult.Target = target;
 				targetResult.Value = damage;
+				targetResult.Status |= static_cast<int32>(targetChar->IsDie() ? EStatusFlag::Status_Die : EStatusFlag::None);
 				result.TargetResults.Add(targetResult);
 			}
 			else {
