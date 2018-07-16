@@ -22,7 +22,9 @@ from optparse import OptionParser
 # ----------------------------------------------------------
 argStart = 7
 meshType       = sys.argv[argStart + 0].replace("--", "")
-inFilePathList = [path for path in sys.argv[argStart + 1:]]
+outDirName     = sys.argv[argStart + 1]
+tempDirName    = sys.argv[argStart + 2]
+inFilePathList = [path for path in sys.argv[argStart + 3:]]
 
 
 for path in inFilePathList:
@@ -47,15 +49,19 @@ else:
 	fixedBaseName = re.sub(r'(\w+)(\-[0-9]+\.\w+|\.\w+)', r'\1', os.path.basename(inFilePathList[0]))
 	srcDir    = os.path.dirname(inFilePathList[0]) + "/"
 destdir   = srcDir + "/"
-destpath  = srcDir + fixedBaseName + ".fbx"
-blendpath = srcDir + fixedBaseName + ".blend"
 importedObjects = []
 importedObjectNames = []
-texFileName = fixedBaseName + "_tex_atlas.png"
 
-print("dest  : " + destpath)
-print("blend : " + blendpath)
-print("texFileName : " + texFileName)
+# make work and output dir
+outDirPath  = srcDir + outDirName + "/"
+tempDirPath = srcDir + tempDirName + "/"
+if not os.path.exists(outDirPath):
+	os.mkdir(outDirPath)
+if not os.path.exists(tempDirPath):
+	os.mkdir(tempDirPath)
+
+blendpath   = tempDirPath + fixedBaseName + ".blend"
+texFileName = fixedBaseName + "_tex_atlas.png"
 
 # ----------------------------------------------------------
 # import
@@ -147,7 +153,7 @@ bpy.ops.object.ms_auto()
 
 #bpy.ops.uv.smart_project(island_margin=0.1)
 #bpy.ops.object.editmode_toggle()
-imagePath = srcDir + "/" + texFileName
+imagePath = outDirPath + texFileName
 imageName = texFileName
 image = bpy.data.images.new(imageName, width=1024, height=1024)
 image.use_alpha = True
@@ -200,11 +206,11 @@ for obj in bpy.context.scene.objects:
 		bpy.context.object.modifiers["Decimate"].decimate_type = 'DISSOLVE'
 
 		#bpy.ops.object.modifier_apply(apply_as='DATA', modifier="Decimate")
-		#bpy.ops.export_scene.fbx(filepath=destpath, path_mode='ABSOLUTE')
+		#bpy.ops.export_scene.fbx(filepath=outDirPath, path_mode='ABSOLUTE')
 		objname = re.sub(r'(\w+)(\-[0-9]+)', r'\1', obj.name)
 
 		obj.select = True
-		bpy.ops.export_scene.fbx(filepath=destdir + objname + ".fbx", path_mode='ABSOLUTE', use_selection=True)
+		bpy.ops.export_scene.fbx(filepath=outDirPath + objname + ".fbx", path_mode='ABSOLUTE', use_selection=True)
 		obj.select = False
 
 # ----------------------------------------------------------
