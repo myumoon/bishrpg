@@ -203,4 +203,6 @@ for obj in bpy.context.scene.objects:
 #bpy.ops.export_scene.fbx(filepath=destpath, path_mode='ABSOLUTE')
 
 # save the blender file
-bpy.ops.wm.save_as_mainfile(filepath=blendpath)
+if os.path.exists(blendpath):
+	os.remove(blendpath)
+bpy.ops.wm.save_mainfile(filepath=blendpath, check_existing=False)

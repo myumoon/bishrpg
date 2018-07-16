@@ -206,6 +206,9 @@ if not meshType.startswith("static"):
 # export
 #outpath = "J:/prog/0_myprogram/bishrpg_work/characters/lifeisbeautiful/" + filebasename + ".fbx"
 bpy.ops.export_scene.fbx(filepath=destpath, path_mode='ABSOLUTE')
+
 # save the blender file
-bpy.ops.wm.save_as_mainfile(filepath=workPath)
+if os.path.exists(blendpath):
+	os.remove(blendpath)
+bpy.ops.wm.save_as_mainfile(filepath=workPath, check_existing=False)
 
