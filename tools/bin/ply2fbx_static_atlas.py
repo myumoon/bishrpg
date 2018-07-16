@@ -14,6 +14,7 @@ import bmesh
 import os
 import sys
 import re
+import glob
 from optparse import OptionParser
 
 # ----------------------------------------------------------
@@ -31,14 +32,25 @@ for path in inFilePathList:
 # ----------------------------------------------------------
 # set descriotion
 # ----------------------------------------------------------
-fixedBaseName = re.sub(r'(\w+)(\-[0-9]+\.\w+|\.\w+)', r'\1', os.path.basename(inFilePathList[0]))
-srcDir    = os.path.dirname(inFilePathList[0]) + "/"
+fileList = []
+srcDir   = ""
+fixedBaseName = ""
+if os.path.isdir(inFilePathList[0]):
+	fileList      = glob.glob(inFilePathList[0] + "/*.ply")
+	print("filelist :", fileList)
+	fixedBaseName = os.path.basename(inFilePathList[0])
+	print("fixedBaseName :", fixedBaseName)
+	srcDir        = inFilePathList[0] + "/"
+	print("srcDir :", srcDir)
+else:
+	fileList = inFilePathList
+	fixedBaseName = re.sub(r'(\w+)(\-[0-9]+\.\w+|\.\w+)', r'\1', os.path.basename(inFilePathList[0]))
+	srcDir    = os.path.dirname(inFilePathList[0]) + "/"
 destdir   = srcDir + "/"
 destpath  = srcDir + fixedBaseName + ".fbx"
 blendpath = srcDir + fixedBaseName + ".blend"
 importedObjects = []
 importedObjectNames = []
-srcFileDir  = os.path.dirname(inFilePathList[0])
 texFileName = fixedBaseName + "_tex_atlas.png"
 
 print("dest  : " + destpath)
@@ -48,7 +60,7 @@ print("texFileName : " + texFileName)
 # ----------------------------------------------------------
 # import
 # ----------------------------------------------------------
-for srcPath in inFilePathList:
+for srcPath in fileList:
 	filebasename, fileext = os.path.splitext(os.path.basename(srcPath))
 	importedObjectNames.append(filebasename)
 
@@ -135,7 +147,7 @@ bpy.ops.object.ms_auto()
 
 #bpy.ops.uv.smart_project(island_margin=0.1)
 #bpy.ops.object.editmode_toggle()
-imagePath = srcFileDir + "/" + texFileName
+imagePath = srcDir + "/" + texFileName
 imageName = texFileName
 image = bpy.data.images.new(imageName, width=1024, height=1024)
 image.use_alpha = True

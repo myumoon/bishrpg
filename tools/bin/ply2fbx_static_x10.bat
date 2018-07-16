@@ -1,10 +1,10 @@
 @echo off
 rem =======================================================
-rem static‚ÈƒIƒuƒWƒFƒNƒg‚ðply¨fbx‰»
-rem •¡”‚ÌƒIƒuƒWƒFƒNƒg‚ð“ü‚ê‚é‚±‚Æ‚ª‚Å‚«‚é
-rem ƒtƒHƒ‹ƒ_Žw’è‚·‚é‚±‚Æ‚ÅƒtƒHƒ‹ƒ_–¼‚Å‚Ü‚Æ‚ß‚é
+rem staticï¿½ÈƒIï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½ï¿½plyï¿½ï¿½fbxï¿½ï¿½
+rem ï¿½ï¿½ï¿½ï¿½ï¿½ÌƒIï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½ï¿½ï¿½ï¿½ï¿½é‚±ï¿½Æ‚ï¿½ï¿½Å‚ï¿½ï¿½ï¿½
+rem ï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½wï¿½è‚·ï¿½é‚±ï¿½Æ‚Åƒtï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½Å‚Ü‚Æ‚ß‚ï¿½
 rem 
-rem blender‚ÌƒpƒX‚ð’Ê‚µ‚Ä‚­‚¾‚³‚¢
+rem blenderï¿½Ìƒpï¿½Xï¿½ï¿½Ê‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 rem =======================================================
 
 set BLENDER="blender.exe"
@@ -18,4 +18,4 @@ if not "%SRC_PLY_LIST%" == "" (
 	%BLENDER% %BASE_BLEND:\\=/% -b -P %PLY2FBX% -- ""  --static_x10 %SRC_PLY_LIST%
 )
 
-:pause
+pause
