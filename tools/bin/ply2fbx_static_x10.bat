@@ -1,10 +1,10 @@
 @echo off
 rem =======================================================
-rem staticなオブジェクトをply→fbx化
-rem 複数のオブジェクトを入れることができる
-rem フォルダ指定することでフォルダ名でまとめる
+rem static�ȃI�u�W�F�N�g��ply��fbx��
+rem �����̃I�u�W�F�N�g�����邱�Ƃ��ł���
+rem �t�H���_�w�肷�邱�ƂŃt�H���_���ł܂Ƃ߂�
 rem 
-rem blenderのパスを通してください
+rem blender�̃p�X��ʂ��Ă�������
 rem =======================================================
 
 set BLENDER="blender.exe"

@@ -1,10 +1,10 @@
 @echo off
 rem =======================================================
-rem キャラを変換
-rem データの種類ごとにfbxを出力
-rem 髪の毛は上にある想定
+rem �L������ϊ�
+rem �f�[�^�̎�ނ��Ƃ�fbx���o��
+rem ���̖т͏�ɂ���z��
 rem 
-rem blenderのパスを通してください
+rem blender�̃p�X��ʂ��Ă�������
 rem =======================================================
 
 set BLENDER="blender.exe"
