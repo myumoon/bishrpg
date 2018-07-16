@@ -141,7 +141,7 @@ for obj in bpy.context.scene.objects:
 # ----------------------------------------------------------
 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 bpy.ops.scene.ms_add_lightmap_group()
-bpy.context.scene.ms_lightmap_groups[0].autoUnwrapPrecision = 0.01
+bpy.context.scene.ms_lightmap_groups[0].autoUnwrapPrecision = 0.1
 
 for obj in bpy.context.scene.objects:
 	if obj.type == 'MESH':
@@ -155,7 +155,7 @@ bpy.ops.object.ms_auto()
 #bpy.ops.object.editmode_toggle()
 imagePath = outDirPath + texFileName
 imageName = texFileName
-image = bpy.data.images.new(imageName, width=1024, height=1024)
+image = bpy.data.images.new(imageName, width=2048, height=2048)
 image.use_alpha = True
 image.alpha_mode = 'STRAIGHT'
 image.filepath_raw = imagePath

@@ -20,4 +20,4 @@ if not "%SRC_PLY_LIST%" == "" (
 	%BLENDER% %BASE_BLEND:\\=/% -b -P %PLY2FBX% -- ""  --static_x10 %OUT_DIRNAME% %TEMP_DIRNAME% %SRC_PLY_LIST%
 )
 
-pause
+:pause
