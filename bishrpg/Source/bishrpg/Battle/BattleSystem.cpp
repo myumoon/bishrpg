@@ -115,7 +115,8 @@ void FBattleParty::Move(int32 from, int32 to)
 void UBattleCommandQueue::Initialize(UBattleSystem* system, bool playerSide)
 {
 	if(system == nullptr) {
-		GAME_ERROR("UBattleCommandQueue::Initialize : system is nullptr");
+		UE_LOG(BishRPG, Error, TEXT("UBattleCommandQueue::Initialize : system is nullptr"));
+		//GAME_ERROR("UBattleCommandQueue::Initialize : system is nullptr");
 	}
 	BattleSystem = system;
 	PlayerSide = playerSide;
