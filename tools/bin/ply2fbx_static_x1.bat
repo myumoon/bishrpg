@@ -8,7 +8,7 @@ rem blenderをPATHに追加すること
 rem =======================================================
 
 set BLENDER="blender.exe"
-set PLY2FBX=%~dp0\ply2fbx_static.py
+set PLY2FBX=%~dp0\ply2fbx_static_atlas.py
 set SRC_PLY_LIST=%*
 set BASE_BLEND=%~dp0ply2fbx_base_static.blend
 set OUT_DIRNAME=out
