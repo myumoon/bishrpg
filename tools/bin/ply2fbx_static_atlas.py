@@ -199,6 +199,10 @@ image.save()
 for obj in bpy.context.scene.objects:
 	obj.select = False
 
+meshDirPath = outDirPath + "Meshes/"
+if not os.path.exists(meshDirPath):
+	os.mkdir(meshDirPath)
+
 #for obj in mergedObjectList:
 for obj in bpy.context.scene.objects:
 	if obj.type == 'MESH':
@@ -218,7 +222,7 @@ for obj in bpy.context.scene.objects:
 		objname = re.sub(r'(\w+)(\-[0-9]+)', r'\1', obj.name)
 
 		obj.select = True
-		bpy.ops.export_scene.fbx(filepath=outDirPath + objname + ".fbx", path_mode='ABSOLUTE', use_selection=True)
+		bpy.ops.export_scene.fbx(filepath=meshDirPath + objname + ".fbx", path_mode='ABSOLUTE', use_selection=True)
 		obj.select = False
 
 # ----------------------------------------------------------
