@@ -1,7 +1,7 @@
 @echo off
 rem =======================================================
 rem staticなplyオブジェクトをfbxに変換する
-rem スケーリングは等倍
+rem スケーリングをx10する
 rem 同時に複数インポートされた場合は同じアトラスにする
 rem
 rem blenderをPATHに追加すること
@@ -17,7 +17,7 @@ set TEMP_DIRNAME=temp
 echo src: %SRC_PLY_LIST:\\=/%
 
 if not "%SRC_PLY_LIST%" == "" (
-	%BLENDER% %BASE_BLEND:\\=/% -b -P %PLY2FBX% -- "" --static_x1 %OUT_DIRNAME% %TEMP_DIRNAME% 2048 0.1 16 %SRC_PLY_LIST%
+	%BLENDER% %BASE_BLEND:\\=/% -b -P %PLY2FBX% -- ""  --static_x10 %OUT_DIRNAME% %TEMP_DIRNAME% 1024 0.5 4 %SRC_PLY_LIST%
 )
 
 :pause

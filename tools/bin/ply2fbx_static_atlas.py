@@ -1,6 +1,6 @@
 #!usr/bin/python
 # -*- coding: utf-8 -*-
-# 
+#
 # convert ply to fbx
 # ply2fbx [--static_x10|--static_x1] [out.fbx] [work_blender_path] [in.ply]
 # --- options ---
@@ -18,13 +18,17 @@ import glob
 from optparse import OptionParser
 
 # ----------------------------------------------------------
-# parse arguments 
+# parse arguments
 # ----------------------------------------------------------
 argStart = 7
-meshType       = sys.argv[argStart + 0].replace("--", "")
-outDirName     = sys.argv[argStart + 1]
-tempDirName    = sys.argv[argStart + 2]
-inFilePathList = [path for path in sys.argv[argStart + 3:]]
+meshType          = sys.argv[argStart + 0].replace("--", "")
+outDirName        = sys.argv[argStart + 1]
+tempDirName       = sys.argv[argStart + 2]
+texSizeWH         = int(sys.argv[argStart + 3])
+texAutoUnwrapProj = float(sys.argv[argStart + 4])
+texMargin         = float(sys.argv[argStart + 5])
+
+inFilePathList = [path for path in sys.argv[argStart + 6:]]
 
 
 for path in inFilePathList:
@@ -75,17 +79,17 @@ for srcPath in fileList:
 	# ----------------------------------------------------------
 	print("import " + srcPath)
 	bpy.ops.import_mesh.ply(filepath=srcPath)
-	
+
 	importedObjects.append(bpy.data.objects[filebasename])
 	bpy.context.scene.objects.active = bpy.data.objects[filebasename]
-	
+
 	# scaling
 	if meshType == "static_x10":
 		bpy.context.object.scale[0] = 10
 		bpy.context.object.scale[1] = 10
 		bpy.context.object.scale[2] = 10
 		bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-		
+
 # ----------------------------------------------------------
 # make material
 # ----------------------------------------------------------
@@ -141,7 +145,7 @@ for obj in bpy.context.scene.objects:
 # ----------------------------------------------------------
 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 bpy.ops.scene.ms_add_lightmap_group()
-bpy.context.scene.ms_lightmap_groups[0].autoUnwrapPrecision = 0.1
+bpy.context.scene.ms_lightmap_groups[0].autoUnwrapPrecision = texAutoUnwrapProj
 
 for obj in bpy.context.scene.objects:
 	if obj.type == 'MESH':
@@ -153,9 +157,13 @@ bpy.ops.object.ms_auto()
 
 #bpy.ops.uv.smart_project(island_margin=0.1)
 #bpy.ops.object.editmode_toggle()
-imagePath = outDirPath + texFileName
+texDir = outDirPath + "Textures/"
+if not  os.path.exists(texDir):
+	os.mkdir(texDir)
+
+imagePath = texDir + texFileName
 imageName = texFileName
-image = bpy.data.images.new(imageName, width=2048, height=2048)
+image = bpy.data.images.new(imageName, width=texSizeWH, height=texSizeWH)
 image.use_alpha = True
 image.alpha_mode = 'STRAIGHT'
 image.filepath_raw = imagePath
@@ -176,7 +184,7 @@ image.save()
 
 
 # bake
-bpy.data.scenes["Scene"].render.bake_margin = 16
+bpy.data.scenes["Scene"].render.bake_margin = texMargin
 bpy.data.scenes["Scene"].render.bake_type = 'VERTEX_COLORS'
 
 for obj in bpy.context.scene.objects:
@@ -190,12 +198,12 @@ image.save()
 
 for obj in bpy.context.scene.objects:
 	obj.select = False
-	
+
 #for obj in mergedObjectList:
 for obj in bpy.context.scene.objects:
 	if obj.type == 'MESH':
 		bpy.context.scene.objects.active = obj
-		
+
 		# remove vertex color
 		bpy.ops.mesh.vertex_color_remove()
 
