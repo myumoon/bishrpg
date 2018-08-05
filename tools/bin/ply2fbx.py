@@ -13,6 +13,7 @@ import bpy
 import bmesh
 import os
 import sys
+import re
 from optparse import OptionParser
 
 # ----------------------------------------------------------
@@ -32,18 +33,22 @@ from optparse import OptionParser
 
 argStart = 7
 inFilePath  = sys.argv[argStart + 0].replace("\\", "/")
-outFilePath = sys.argv[argStart + 1].replace("\\", "/")
+outFileDir = sys.argv[argStart + 1].replace("\\", "/")
 workPath = sys.argv[argStart + 2].replace("\\", "/")
+texSize = int(sys.argv[argStart + 3])
 
 print("src -> " + inFilePath)
-print("dest -> " + outFilePath)
+print("dest -> " + outFileDir)
 
 
 # ----------------------------------------------------------
 # set descriotion
 # ----------------------------------------------------------
-destpath = outFilePath
+destDir = outFileDir
 srcpath = inFilePath
+
+
+
 #srcpath = "J:/prog/0_myprogram/bishrpg_work/characters/box/p005_lingling/school_lingling-0.ply"
 #destpath = "J:/prog/0_myprogram/bishrpg_work/characters/box/p005_lingling/school_lingling-0.fbx"
 #face = options.face
@@ -60,7 +65,7 @@ srcpath = inFilePath
 filedir = os.path.dirname(srcpath)
 filebasename, fileext = os.path.splitext(os.path.basename(srcpath))
  
-partsIndex = argStart + 3
+partsIndex = argStart + 4
 if partsIndex < len(sys.argv):
 	meshType = sys.argv[partsIndex].replace("-", "")
 elif filebasename.endswith("-0"):
@@ -76,6 +81,28 @@ elif filebasename.endswith("-4"):
 else:
 	meshType = none
 
+meshTypeName = ""
+if meshType == "hair_origin":
+	meshTypeName = "Hair"
+else:
+	meshTypeName = meshType.capitalize()
+
+
+print("basename:" + os.path.basename(srcpath))
+fileBaseName = re.sub(r'(.+)-[0-9]\.ply', r'\1', os.path.basename(srcpath))
+destFbxDir  = destDir + meshTypeName + "/Meshes/"
+destFbxPath = destFbxDir + meshTypeName + "_" + fileBaseName + ".fbx"
+destTexDir  = destDir + meshTypeName + "/Textures/"
+destTexPath = destTexDir + meshTypeName + "_" + fileBaseName + ".png"
+
+if not os.path.exists(destDir):
+	os.mkdir(destDir)
+if not os.path.exists(destDir + meshTypeName):
+	os.mkdir(destDir + meshTypeName)
+if not os.path.exists(destFbxDir):
+	os.mkdir(destFbxDir)
+if not os.path.exists(destTexDir):
+	os.mkdir(destTexDir)
 
 # ----------------------------------------------------------
 # import
@@ -126,7 +153,7 @@ bpy.ops.mesh.remove_doubles()
 # https://blender.stackexchange.com/questions/19310/vertex-color-bake-to-texture-causes-wrong-color-margin
 bpy.ops.uv.smart_project(island_margin=0.1)
 
-imagePath = os.path.splitext(srcpath)[0] + "_tex.png"
+imagePath = destTexPath
 imageName = filebasename + "_tex.png"
 image = bpy.data.images.new(imageName, width=1024, height=1024)
 image.use_alpha = True
@@ -205,10 +232,13 @@ if not meshType.startswith("static"):
 		bpy.ops.object.vertex_group_invert()
 # export
 #outpath = "J:/prog/0_myprogram/bishrpg_work/characters/lifeisbeautiful/" + filebasename + ".fbx"
-bpy.ops.export_scene.fbx(filepath=destpath, path_mode='ABSOLUTE')
+bpy.ops.export_scene.fbx(filepath=destFbxPath, path_mode='ABSOLUTE')
+
+if not os.path.exists(os.path.dirname(workPath)):
+	os.mkdir(os.path.dirname(workPath))
 
 # save the blender file
-if os.path.exists(blendpath):
-	os.remove(blendpath)
+if os.path.exists(workPath):
+	os.remove(workPath)
 bpy.ops.wm.save_as_mainfile(filepath=workPath, check_existing=False)
 
