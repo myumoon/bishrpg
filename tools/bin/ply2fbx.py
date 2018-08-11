@@ -89,7 +89,11 @@ else:
 
 
 print("basename:" + os.path.basename(srcpath))
-fileBaseName = re.sub(r'(.+)(-[0-9])*\.ply', r'\1', os.path.basename(srcpath))
+fileBaseName = ""
+if not meshType == "onemesh":
+	fileBaseName = re.sub(r'(.+)-[0-9]\.ply', r'\1', os.path.basename(srcpath))
+else:
+	fileBaseName = re.sub(r'(.+)\.ply', r'\1', os.path.basename(srcpath))
 destFbxDir  = destDir + meshTypeName + "/Meshes/"
 destFbxPath = destFbxDir + meshTypeName + "_" + fileBaseName + ".fbx"
 destTexDir  = destDir + meshTypeName + "/Textures/"
