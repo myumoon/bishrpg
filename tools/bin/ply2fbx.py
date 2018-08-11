@@ -79,7 +79,7 @@ elif filebasename.endswith("-3"):
 elif filebasename.endswith("-4"):
 	meshType = "accessory"
 else:
-	meshType = none
+	meshType = "onemesh"
 
 meshTypeName = ""
 if meshType == "hair_origin":
@@ -89,7 +89,7 @@ else:
 
 
 print("basename:" + os.path.basename(srcpath))
-fileBaseName = re.sub(r'(.+)-[0-9]\.ply', r'\1', os.path.basename(srcpath))
+fileBaseName = re.sub(r'(.+)(-[0-9])*\.ply', r'\1', os.path.basename(srcpath))
 destFbxDir  = destDir + meshTypeName + "/Meshes/"
 destFbxPath = destFbxDir + meshTypeName + "_" + fileBaseName + ".fbx"
 destTexDir  = destDir + meshTypeName + "/Textures/"
@@ -125,18 +125,18 @@ elif meshType == "accessory":
 	bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
 
 # scaling
-if meshType == "hair" or meshType == "hair_origin" or meshType == "face" or meshType == "upper" or meshType == "lower" or meshType == "accessory":
+if meshType == "static_x10":
+	bpy.context.object.scale[0] = 10
+	bpy.context.object.scale[1] = 10
+	bpy.context.object.scale[2] = 10
+	bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+else: #if meshType == "hair" or meshType == "hair_origin" or meshType == "face" or meshType == "upper" or meshType == "lower" or meshType == "accessory":
 	bpy.context.object.scale[0] = 2.5
 	bpy.context.object.scale[1] = 2.5
 	bpy.context.object.scale[2] = 2.5
 	#bpy.data.objects[filebasename].scale[0] = 2.5
 	#bpy.data.objects[filebasename].scale[1] = 2.5
 	#bpy.data.objects[filebasename].scale[2] = 2.5
-	bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-elif meshType == "static_x10":
-	bpy.context.object.scale[0] = 10
-	bpy.context.object.scale[1] = 10
-	bpy.context.object.scale[2] = 10
 	bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 
 # ----------------------------------------------------------
