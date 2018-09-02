@@ -278,6 +278,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	int32 GetCount(bool includingMoveCommand = false) const;
 
+	/*!	コマンド実行前のキャラの位置を取得
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	int32 GetInitialCharacterPos(int32 posIndex) const;
+
+	/*!	移動コマンド実行前のキャラを取得
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	int32 GetMovedCharacterHandle(int32 posIndex, bool playerSide) const;
+
 protected:
 	int32 GetPrevPosIndex(int32 posIndex) const;
 
@@ -447,9 +457,9 @@ public:
 
 	/*!	位置からキャラを取得
 	*/
-	int32 GetCharacterHandle(int32 posIndex, bool playerSide)
+	int32 GetCharacterHandle(int32 posIndex, bool playerSide) const
 	{
-		FBattleParty* party = GetParty(playerSide);
+		const FBattleParty* party = GetParty(playerSide);
 		if(party) {
 			check(UBattleBoardUtil::GetCellNum() == party->Formation.Num());
 			if(0 <= posIndex && posIndex < party->Formation.Num()) {

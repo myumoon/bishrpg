@@ -252,7 +252,40 @@ int32 UBattleCommandQueue::GetCount(bool includingMoveCommand) const
 	return count;
 }
 
+// コマンド実行前のキャラの位置を取得
+int32 UBattleCommandQueue::GetInitialCharacterPos(int32 posIndex) const
+{
+	if(BattleSystem == nullptr) {
+		return -1;
+	}
 
+	int32 searchPosIndex = posIndex;
+	for(int32 i = CommandList.Num() - 1; 0 <= i; --i) {
+		const auto& command = CommandList[i];
+		if((command.ActionType == ECommandType::Move) || (command.ActionType == ECommandType::Swap)) {
+			if(command.TargetPosIndex == searchPosIndex) {
+				searchPosIndex = command.ActionPosIndex;
+			}
+			else if(command.ActionPosIndex == searchPosIndex) {
+				searchPosIndex = command.TargetPosIndex;
+			}
+		}
+	}
+
+	return searchPosIndex;
+}
+
+// 移動コマンド実行前のキャラを取得
+int32 UBattleCommandQueue::GetMovedCharacterHandle(int32 posIndex, bool playerSide) const
+{
+	int32 initialPos = GetInitialCharacterPos(posIndex);
+	if(initialPos < 0) {
+		return -1;
+	}
+	int32 charHandle = BattleSystem->GetCharacterHandle(initialPos, playerSide);
+
+	return charHandle;
+}
 
 
 
