@@ -243,7 +243,8 @@ int32 UBattleCommandQueue::GetCount(bool includingMoveCommand) const
 	}
 	else {
 		for(const auto& command : CommandList) {
-			if((command.ActionType == ECommandType::Attack) || (command.ActionType == ECommandType::Skill)) {
+			//if((command.ActionType == ECommandType::Attack) || (command.ActionType == ECommandType::Skill)) 
+			{
 				++count;
 			}
 		}
