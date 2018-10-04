@@ -322,6 +322,11 @@ void UBattleSystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 }
 */
 
+// バトル用キャラ情報生成
+void UBattleSystem::GetCharacterStatus(FBattleCharacterStatus& stat, int32 posIndex, bool playerSide) const
+{
+	stat = *GetCharacterByPos(const_cast<FBattleParty*>(GetParty(playerSide)), posIndex);
+}
 
 // バトル用キャラ情報生成
 FBattleCharacterStatus UBattleSystem::MakeBattleCharacterStatus(const FCharacterStatus& stat)

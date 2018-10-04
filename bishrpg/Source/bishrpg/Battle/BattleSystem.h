@@ -431,6 +431,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	bool ConsumeMoveCommands(TArray<FBattleActionResult>& result);
 
+	/*!	移動だけ全消費する
+	@param[out] stat ステータス
+	@param[it]  posIndex 位置
+	@param[it]  playerSide プレイヤーか敵か
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void GetCharacterStatus(FBattleCharacterStatus& stat, int32 posIndex, bool playerSide = true) const;
+
 	/*!	バトル用のキャラステータス生成
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
