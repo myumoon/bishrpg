@@ -1,4 +1,4 @@
-﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #pragma once
 
@@ -431,13 +431,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	bool ConsumeMoveCommands(TArray<FBattleActionResult>& result);
 
-	/*!	移動だけ全消費する
+	/*!	指定位置にいるキャラのステータスを取得
 	@param[out] stat ステータス
 	@param[it]  posIndex 位置
 	@param[it]  playerSide プレイヤーか敵か
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void GetCharacterStatus(FBattleCharacterStatus& stat, int32 posIndex, bool playerSide = true) const;
+	void GetCharacterStatusByPos(FBattleCharacterStatus& stat, int32 posIndex, bool playerSide = true) const;
+
+    /*! 指定キャラのステータスを取得
+     @param[out] stat ステータス
+     @param[it]  handle キャラハンドル
+     @param[it]  playerSide プレイヤーか敵か
+     */
+    UFUNCTION(BlueprintCallable, Category = "Battle")
+    void GetCharacterStatusByHandle(FBattleCharacterStatus& stat, int32 handle, bool playerSide = true) const;
 
 	/*!	バトル用のキャラステータス生成
 	*/

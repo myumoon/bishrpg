@@ -1,4 +1,4 @@
-﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #include "BattleSystem.h"
 
@@ -322,10 +322,23 @@ void UBattleSystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 }
 */
 
-// バトル用キャラ情報生成
-void UBattleSystem::GetCharacterStatus(FBattleCharacterStatus& stat, int32 posIndex, bool playerSide) const
+// バトル用キャラ情報取得
+void UBattleSystem::GetCharacterStatusByPos(FBattleCharacterStatus& stat, int32 posIndex, bool playerSide) const
 {
-	stat = *GetCharacterByPos(const_cast<FBattleParty*>(GetParty(playerSide)), posIndex);
+    auto status = GetCharacterByPos(const_cast<FBattleParty*>(GetParty(playerSide)), posIndex);
+    if(status != nullptr) {
+        stat = *status;
+    }
+}
+
+// バトル用キャラ情報取得
+void UBattleSystem::GetCharacterStatusByHandle(FBattleCharacterStatus& stat, int32 handle, bool playerSide) const
+{
+    const FBattleCharacterStatus* status = const_cast<FBattleParty*>(GetParty(playerSide))->GetCharacterByHandle(handle);
+    check(status != nullptr);
+    if(status != nullptr) {
+        stat = *status;
+    }
 }
 
 // バトル用キャラ情報生成
@@ -684,7 +697,6 @@ float UBattleSystem::GetTypeDamageRate(EBattleStyle attackerStyle, EBattleStyle 
 
 // 攻撃
 // 通常攻撃は手前のキャラを対象に殴る
-void UBattleSystem::ExecAttack(FBattleActionResult& result, const Command& command)
 {
 	auto* attackChar       = GetCharacterByHandle(GetParty(command.PlayerSide), command.BattleCommand.CharacterHandle);
 	if(attackChar == nullptr) {
