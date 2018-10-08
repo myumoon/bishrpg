@@ -41,6 +41,9 @@ struct BISHRPG_API FSkillData : public FTableRowBase {
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
 	EBattleSelectPattern SelectType;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
+    EBattleSelectRange SelectRange;
 
 	// Top1    : 未使用
 	// Col     : 未使用   
