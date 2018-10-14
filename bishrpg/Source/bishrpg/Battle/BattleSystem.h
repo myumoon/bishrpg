@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <functional>
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "SharedPointer.h"
@@ -171,8 +172,8 @@ struct FBattleParty {
 	@param[in]  param           選択オプション(行、列、ランダム数、...)
 	@param[in]  clearResult     結果をクリアするかどうか
 	*/
-	void Select(TArray<int32>& selectedHandles, int32 actorHandle, EBattleSelectPattern pattern, int32 param, const FRandomStream& randStream, bool clearResult = true) const;
-	void SelectTop(TArray<int32>& selectedHandles, int32 actorHandle, bool clearResult = true) const;
+	void Select(TArray<int32>& selectedHandles, int32 actorHandle, EBattleSelectMethod pattern, int32 param, const FRandomStream& randStream, bool clearResult = true) const;
+	void SelectTop(TArray<int32>& selectedHandles, int32 actorHandle, int32 index, bool clearResult = true) const;
 
 	void SelectCol(TArray<int32>& selectedHandles, int32 col, bool clearResult = true) const;
 	void SelectRow(TArray<int32>& selectedHandles, int32 row, bool clearResult = true) const;
@@ -180,6 +181,7 @@ struct FBattleParty {
 	void SelectAhead4(TArray<int32>& selectedHandles, int32 actorPos, bool clearResult = true) const;
 	void SelectAll(TArray<int32>& selectedHandles, bool clearResult = true) const;
 	void SelectRandom(TArray<int32>& selectedHandles, int selectPosNum, const FRandomStream& randStream, bool clearResult = true) const;
+	void Filter(TArray<int32>& selectedHandles, std::function<bool(int32)> filter, std::function<bool(int32, int32)> comp, bool clearResult = true) const;
 
 	void MakeCharacterListByPositionList(TArray<int32>& characterHandles, const TArray<int32>& selectedPositions) const;
 	//! }
@@ -344,6 +346,24 @@ public:
 		if(0 <= pos) {
 			const int32 col = pos % GetBoardCol();
 			return GetBoardCol() - col - 1;
+		}
+		return -1;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetColReverse(int32 col)
+	{
+		if(0 <= col && col < GetBoardCol()) {
+			return GetBoardCol() - col - 1;
+		}
+		return -1;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static int32 GetRowReverse(int32 row)
+	{
+		if(0 <= row && row < GetBoardRow()) {
+			return GetBoardRow() - row - 1;
 		}
 		return -1;
 	}
@@ -570,7 +590,7 @@ protected:
 
 	/*!	攻撃対象選択
 	*/
-	void GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const FBattleCharacterStatus& attacker, int32 attackerPos, bool selectPlayerSide, ESkillType skillType, EBattleSelectPattern selectType, int32 selectParam) const;
+	void GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const FBattleCharacterStatus& attacker, int32 attackerPos, bool selectPlayerSide, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam) const;
 
 	/*!	死亡更新
 	*/

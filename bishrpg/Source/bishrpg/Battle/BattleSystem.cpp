@@ -10,6 +10,28 @@
 
 #include "bishrpg.h"
 
+namespace {
+	struct SortCompDistance {
+		int32 basePos = 0;
+
+		SortCompDistance(int32 actorPos) : basePos(actorPos)
+		{
+		}
+
+		bool operator()(int32 lhs, int32 rhs) const
+		{
+			if(UBattleBoardUtil::GetRow(lhs) > UBattleBoardUtil::GetRow(rhs)) {
+				return true;
+			}
+
+			int32 distL = FMath::Abs(UBattleBoardUtil::GetCol(basePos) - UBattleBoardUtil::GetCol(lhs));
+			int32 distR = FMath::Abs(UBattleBoardUtil::GetCol(basePos) - UBattleBoardUtil::GetCol(rhs));
+			return (distL < distR);
+		}
+	};
+
+}
+
 void UBattleBoardUtil::MakePositionListCol(TArray<int32>& madePosList, int32 col, bool up)
 {
 	if(UBattleBoardUtil::GetBoardCol() <= col) {
@@ -697,6 +719,7 @@ float UBattleSystem::GetTypeDamageRate(EBattleStyle attackerStyle, EBattleStyle 
 
 // 攻撃
 // 通常攻撃は手前のキャラを対象に殴る
+void UBattleSystem::ExecAttack(FBattleActionResult& result, const Command& command)
 {
 	auto* attackChar       = GetCharacterByHandle(GetParty(command.PlayerSide), command.BattleCommand.CharacterHandle);
 	if(attackChar == nullptr) {
@@ -780,7 +803,7 @@ void UBattleSystem::ExecMove(FBattleActionResult& result, const Command& command
 FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentParty, const FBattleCharacterStatus& attacker, int32 attackerPos, bool playerSide) const
 {
 	TArray<int32> selectedTarget;
-	opponentParty->SelectTop(selectedTarget, attackerPos);
+	opponentParty->SelectTop(selectedTarget, 0, attackerPos);
 	if(selectedTarget.Num() == 0) {
 		GAME_ERROR("GetAttackTargetByPos : not selected. attackerPos(%d), playerPos(%s)", attackerPos, playerSide ? TEXT("true") : TEXT("false"));
 		return FBattleTarget();
@@ -794,7 +817,7 @@ FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentPa
 }
 
 // スキル対象
-void UBattleSystem::GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const FBattleCharacterStatus& actor, int32 actorPos, bool actorSide, ESkillType skillType, EBattleSelectPattern selectType, int32 selectParam) const
+void UBattleSystem::GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const FBattleCharacterStatus& actor, int32 actorPos, bool actorSide, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam) const
 {
 	const bool targetPlayerSide = (skillType == ESkillType::Heal) ? actorSide : !actorSide;
 	const auto* targetParty = GetParty(targetPlayerSide);
@@ -851,34 +874,69 @@ FBattleCharacterStatus* UBattleSystem::GetCharacterByPos(FBattleParty* party, in
 	return &party->Characters[party->Formation[posIndex]];
 }
 
-void FBattleParty::Select(TArray<int32>& selectedHandles, int32 actorPos, EBattleSelectPattern pattern, int32 param, const FRandomStream& randStream, bool clearResult) const
+void FBattleParty::Select(TArray<int32>& selectedHandles, int32 actorPos, EBattleSelectMethod pattern, int32 param, const FRandomStream& randStream, bool clearResult) const
 {
+	SortCompDistance sortCompDist(actorPos);
+	auto allFilter = [](int32) { return true; };
+
+	auto selectTop = [&](int32 index) {
+		Filter(selectedHandles, allFilter, sortCompDist);
+		int32 handle = 0;
+		if(index < selectedHandles.Num()) {
+			handle = selectedHandles[index];
+		}
+		else {
+			handle = selectedHandles[selectedHandles.Num() - 1];
+		}
+		selectedHandles.Reset();
+		selectedHandles.Add(handle);
+	};
+
 	switch(pattern) {
-		case EBattleSelectPattern::Top1 : {
-			SelectTop(selectedHandles, actorPos, clearResult);
+		case EBattleSelectMethod::Top1 : {
+			selectTop(0);
+			//SelectTop(selectedHandles, actorPos, 0, clearResult);
 		} break;
 
-		case EBattleSelectPattern::Col : {
-			SelectCol(selectedHandles, param, clearResult);
+		case EBattleSelectMethod::Top2 : {
+			selectTop(1);
+			//SelectTop(selectedHandles, actorPos, 1, clearResult);
 		} break;
 
-		case EBattleSelectPattern::Row : {
-			SelectRow(selectedHandles, param, clearResult);
+		case EBattleSelectMethod::Top3 : {
+			selectTop(2);
+			//SelectTop(selectedHandles, actorPos, 2, clearResult);
 		} break;
 
-		case EBattleSelectPattern::Ahead1 : {
-			SelectAhead1(selectedHandles, actorPos, clearResult);
+		case EBattleSelectMethod::Top4 : {
+			selectTop(3);
+			//SelectTop(selectedHandles, actorPos, 3, clearResult);
 		} break;
 
-		case EBattleSelectPattern::Ahead4 : {
-			SelectAhead4(selectedHandles, actorPos, clearResult);
+		case EBattleSelectMethod::Top5 : {
+			selectTop(4);
+			//SelectTop(selectedHandles, actorPos, 4, clearResult);
+		} break; 
+
+		case EBattleSelectMethod::Top6 : {
+			selectTop(5);
+			//SelectTop(selectedHandles, actorPos, 5, clearResult);
 		} break;
 
-		case EBattleSelectPattern::All : {
+		case EBattleSelectMethod::Ahead1 : {
+			//SelectAhead1(selectedHandles, actorPos, clearResult);
+			//Filter(selectedHandles, [](int32 pos) { return pos == actorPos },
+		} break;
+
+		case EBattleSelectMethod::Ahead4 : {
+			//SelectAhead4(selectedHandles, actorPos, clearResult);
+		} break;
+
+		case EBattleSelectMethod::AllCells : {
 			SelectAll(selectedHandles, clearResult);
 		} break;
 
-		case EBattleSelectPattern::Random : {
+		case EBattleSelectMethod::Random1 : {
 			SelectRandom(selectedHandles, param, randStream, clearResult);
 		} break;
 
@@ -887,6 +945,7 @@ void FBattleParty::Select(TArray<int32>& selectedHandles, int32 actorPos, EBattl
 		} break;
 	}
 }
+
 void FBattleParty::PrepareSelecting(TArray<int32>& selectedPositions, bool clearResult) const
 {
 	if(clearResult) {
@@ -894,7 +953,8 @@ void FBattleParty::PrepareSelecting(TArray<int32>& selectedPositions, bool clear
 	}
 
 }
-void FBattleParty::SelectTop(TArray<int32>& selectedHandles, int32 actorPos, bool clearResult) const
+
+void FBattleParty::SelectTop(TArray<int32>& selectedHandles, int32 actorPos, int32 index, bool clearResult) const
 {
 	TArray<int32> posList;
 	PrepareSelecting(posList, clearResult);
@@ -1049,6 +1109,29 @@ void FBattleParty::SelectRandom(TArray<int32>& selectedHandles, int selectPosNum
 	}
 	MakeCharacterListByPositionList(selectedHandles, selectedPositions);
 
+}
+
+
+void FBattleParty::Filter(TArray<int32>& selectedHandles, std::function<bool(int32)> posFilter, std::function<bool(int32, int32)> posComp, bool clearResult) const
+{
+	PrepareSelecting(selectedHandles, clearResult);
+
+	TArray<int32> selectedPositions;
+	selectedPositions.Reserve(Formation.Num());
+
+	for(int i = 0; i < Formation.Num(); ++i) {
+		if(0 <= Formation[i]) {
+			if(posFilter(i)) {
+				selectedPositions.Add(i);
+			}
+		}
+	}
+
+	if(posComp != nullptr) {
+		selectedPositions.Sort(posComp);
+	}
+
+	MakeCharacterListByPositionList(selectedHandles, selectedPositions);
 }
 
 void FBattleParty::MakeCharacterListByPositionList(TArray<int32>& characterHandles, const TArray<int32>& selectedPositions) const

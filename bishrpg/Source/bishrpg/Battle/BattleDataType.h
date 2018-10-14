@@ -33,9 +33,10 @@ enum class EBattleActionEffect : uint8 {
 /*! 選択方法
 */
 UENUM(BlueprintType)
-enum class EBattleSelectPattern : uint8 {
+enum class EBattleSelectMethod : uint8 {
 	None,
     
+	// 前方
 	Top1,          //!< 先頭1体目
     Top2,          //!< 先頭2体目(それ以下なら最後尾のやつ)
     Top3,          //!< 先頭3体目(それ以下なら最後尾のやつ)
@@ -43,12 +44,15 @@ enum class EBattleSelectPattern : uint8 {
     Top5,          //!< 先頭5体目(それ以下なら最後尾のやつ)
     Top6,          //!< 先頭6体目(それ以下なら最後尾のやつ)
     
+	// 目の前
 	Ahead1,        //!< 1マス前(先頭じゃないときは不発)
 	Ahead4,        //!< 4マス前
     
+	// ステータス指定
     AttackTop1,    //!< 攻撃力トップ1
     DeffenceTop1,  //!< 防御力トップ1
-    
+
+	// 属性指定
     RockTop,       //!< Rock先頭
     RockBack,      //!< Rock後方
     SingTop,       //!< Sing先頭
@@ -56,6 +60,7 @@ enum class EBattleSelectPattern : uint8 {
     HurmorTop,     //!< Hurmor先頭
     HurmotBack,    //!< Hurmor後方
     
+	// 指定セル
     Cell_0_Right,  //!< セル
     Cell_0_Center, //!< セル
     Cell_0_Left,   //!< セル
