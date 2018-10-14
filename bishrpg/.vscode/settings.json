@@ -1,0 +1,10 @@
+{
+	"files.exclude": {
+		"J:/prog/0_myprogram/bishrpg/bishrpg/.vs": true,
+		"J:/prog/0_myprogram/bishrpg/bishrpg/.vscode": true,
+		"J:/prog/0_myprogram/bishrpg/bishrpg/Content": true,
+		"J:/prog/0_myprogram/bishrpg/bishrpg/Debug": true,
+		"J:/prog/0_myprogram/bishrpg/bishrpg/Intermediate": true,
+		"J:/prog/0_myprogram/bishrpg/bishrpg/Saved": true
+	}
+}
