@@ -2,6 +2,7 @@
 
 #include "BattleAIComponent.h"
 #include "BattleSystem.h"
+#include "BattleCommandList.h"
 #include "bishrpg.h"
 
 UBattleAIComponent::UBattleAIComponent()
