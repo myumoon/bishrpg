@@ -14,8 +14,6 @@
 
 
 
-
-
 // Sets default values for this component's properties
 UBattleSystem::UBattleSystem()
 {
