@@ -220,7 +220,7 @@ public:
 	{
 		const int32 baseRow  = GetRow(originPos);
 		const int32 nextRow  = GetRow(pos);
-		const int32 diff     = baseCol - nextCol;
+		const int32 diff     = baseRow - nextRow;
 		if(diff < 0) {
 			return (baseRow * GetBoardCol());
 		}

@@ -107,50 +107,50 @@ void FBattleParty::Select(TArray<int32>& selectedHandles, int32 actorPos, EBattl
 	
 
 	switch(pattern) {
-	case EBattleSelectMethod::Top1 : {
+	case EBattleSelectMethod::E_Top1 : {
 		selectTop(0);
 		//SelectTop(selectedHandles, actorPos, 0, clearResult);
 	} break;
 
-	case EBattleSelectMethod::Top2 : {
+	case EBattleSelectMethod::E_Top2 : {
 		selectTop(1);
 		//SelectTop(selectedHandles, actorPos, 1, clearResult);
 	} break;
 
-	case EBattleSelectMethod::Top3 : {
+	case EBattleSelectMethod::E_Top3 : {
 		selectTop(2);
 		//SelectTop(selectedHandles, actorPos, 2, clearResult);
 	} break;
 
-	case EBattleSelectMethod::Top4 : {
+	case EBattleSelectMethod::E_Top4 : {
 		selectTop(3);
 		//SelectTop(selectedHandles, actorPos, 3, clearResult);
 	} break;
 
-	case EBattleSelectMethod::Top5 : {
+	case EBattleSelectMethod::E_Top5 : {
 		selectTop(4);
 		//SelectTop(selectedHandles, actorPos, 4, clearResult);
 	} break; 
 
-	case EBattleSelectMethod::Top6 : {
+	case EBattleSelectMethod::E_Top6 : {
 		selectTop(5);
 		//SelectTop(selectedHandles, actorPos, 5, clearResult);
 	} break;
 
-	case EBattleSelectMethod::Ahead1 : {
+	case EBattleSelectMethod::E_Ahead1 : {
 		//SelectAhead1(selectedHandles, actorPos, clearResult);
 		//Filter(selectedHandles, [](int32 pos) { return pos == actorPos },
 	} break;
 
-	case EBattleSelectMethod::Ahead4 : {
+	case EBattleSelectMethod::E_Ahead4 : {
 		//SelectAhead4(selectedHandles, actorPos, clearResult);
 	} break;
 
-	case EBattleSelectMethod::AllCells : {
+	case EBattleSelectMethod::E_AllCells : {
 		SelectAll(selectedHandles, clearResult);
 	} break;
 
-	case EBattleSelectMethod::Random1 : {
+	case EBattleSelectMethod::E_Random1 : {
 		SelectRandom(selectedHandles, param, randStream, clearResult);
 	} break;
 
@@ -361,7 +361,7 @@ bool FBattleParty::FilterExistsAll(int32 pos) const
 }
 
 // 位置追加
-void FBattleParty::AddPos(TArray<int32>& expandedPos, int32 posIndex)
+void FBattleParty::AddPos(TArray<int32>& expandedPos, int32 posIndex) const
 {
 	if(!expandedPos.Contains(posIndex)) {
 		expandedPos.Add(posIndex);
@@ -384,7 +384,7 @@ void FBattleParty::SelectRangeCol(TArray<int32>& expandedPos, int32 basePos) con
 
 	for(int32 i = 0; i < UBattleBoardUtil::GetBoardRow() - 1; ++i) {
 		const int32 nextPos = UBattleBoardUtil::GetPosForward(base);
-		if(addPos != nextPos) {
+		if(base != nextPos) {
 			AddPos(expandedPos, nextPos);
 			base = nextPos;
 		}
@@ -400,7 +400,7 @@ void FBattleParty::SelectRangeRow(TArray<int32>& expandedPos, int32 basePos) con
 
 	for(int32 i = 0; i < UBattleBoardUtil::GetBoardCol() - 1; ++i) {
 		const int32 nextPos = UBattleBoardUtil::GetPosRight(base);
-		if(addPos != nextPos) {
+		if(base != nextPos) {
 			AddPos(expandedPos, nextPos);
 			base = nextPos;
 		}
@@ -463,7 +463,7 @@ void FBattleParty::SelectRangeAroundCross4(TArray<int32>& expandedPos, int32 bas
 		}
 
 		AddPos(expandedPos, finalPos);
-	}
+	};
 
 	addPosOf(true, true);
 	addPosOf(true, false);
@@ -473,44 +473,23 @@ void FBattleParty::SelectRangeAroundCross4(TArray<int32>& expandedPos, int32 bas
 
 
 // 周囲選択
-void FBattleParty::SelectRangeAround9(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+void FBattleParty::SelectRangeAround9(TArray<int32>& expandedPos, int32 basePos) const
 {
-	check(0 < basePos.Num());
-
 	SelectRangeAroundPlus4(expandedPos, basePos);
 	SelectRangeAroundCross4(expandedPos, basePos);
 }
 
+#if 0
 // 後ろ選択
-void FBattleParty::SelectRangeBack2(TArray<int32>& expandedPos, int32 basePos, int32 count) const
-{
-	int32 base = basePos;
-	int32 back = UBattleBoardUtil::GetPosBack(base);
-	if(back == base) {
-		return;
-	}
-
-	AddPos(expandedPos, back);
-	base = back;
-
-	back = UBattleBoardUtil::GetPosBack(base);
-	if(back == base) {
-		return;
-	}
-
-	AddPos(expandedPos, back);
-
-}
-
-
-// 後ろ選択
-void FBattleParty::SelectRangeBack1(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+void FBattleParty::SelectRangeBack1(TArray<int32>& expandedPos, int32 basePos) const
 {
 	const int32 back = UBattleBoardUtil::GetPosBack(basePos[0]);
 	if(back != basePos[0]) {
 		AddPos(expandedPos, back);
 	}
+
 }
+
 
 // 後ろ選択
 void FBattleParty::SelectRangeBack2(TArray<int32>& expandedPos, int32 basePos) const
@@ -532,4 +511,124 @@ void FBattleParty::SelectRangeBack2(TArray<int32>& expandedPos, int32 basePos) c
 	AddPos(expandedPos, back);
 
 }
+#endif
 
+// 後ろ選択
+void FBattleParty::SelectRangeBack(TArray<int32>& expandedPos, int32 basePos, int32 count) const
+{
+	int32 base = basePos;
+	int32 back = 0;
+	
+	for(int32 i = 0; i < count; ++i) {
+		back = UBattleBoardUtil::GetPosBack(base);
+		if(back == base) {
+			return;
+		}
+
+		AddPos(expandedPos, back);
+		base = back;
+	}
+
+}
+
+
+
+
+//----- 複数選択 -----
+
+
+void FBattleParty::SelectRangeSingle(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+{
+	for(const auto& base : basePos) {
+		SelectRangeSingle(expandedPos, base);
+	}
+	
+}
+
+void FBattleParty::SelectRangeCol(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+{
+	for(const auto& base : basePos) {
+		SelectRangeCol(expandedPos, base);
+	}
+	
+}
+
+void FBattleParty::SelectRangeRow(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+{
+	for(const auto& base : basePos) {
+		SelectRangeRow(expandedPos, base);
+	}
+	
+}
+
+void FBattleParty::SelectRangeSide(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+{
+	for(const auto& base : basePos) {
+		SelectRangeSide(expandedPos, base);
+	}
+	
+}
+
+void FBattleParty::SelectRangeFrontBack(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+{
+	for(const auto& base : basePos) {
+		SelectRangeFrontBack(expandedPos, base);
+	}
+	
+}
+
+void FBattleParty::SelectRangeAroundPlus4(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+{
+	for(const auto& base : basePos) {
+		SelectRangeAroundPlus4(expandedPos, base);
+	}
+	
+}
+
+void FBattleParty::SelectRangeAroundCross4(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+{
+	for(const auto& base : basePos) {
+		SelectRangeAroundCross4(expandedPos, base);
+	}
+	
+}
+
+void FBattleParty::SelectRangeAround9(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+{
+	for(const auto& base : basePos) {
+		SelectRangeAround9(expandedPos, base);
+	}
+	
+}
+
+void FBattleParty::SelectRangeBack1(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+{
+	for(const auto& base : basePos) {
+		SelectRangeBack(expandedPos, base, 1);
+	}
+	
+}
+
+void FBattleParty::SelectRangeBack2(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+{
+	for(const auto& base : basePos) {
+		SelectRangeBack(expandedPos, base, 2);
+	}
+	
+}
+
+void FBattleParty::SelectRangeBack3(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+{
+	for(const auto& base : basePos) {
+		SelectRangeBack(expandedPos, base, 3);
+	}
+	
+}
+
+void FBattleParty::SelectRangeBack4(TArray<int32>& expandedPos, const TArray<int32>& basePos) const
+{
+	for(const auto& base : basePos) {
+		SelectRangeBack(expandedPos, base,4);
+	}
+	
+}

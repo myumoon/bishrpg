@@ -292,11 +292,11 @@ protected:
 	void SelectRangeAroundPlus4(TArray<int32>& expandedPos, int32 basePos) const;
 	void SelectRangeAroundCross4(TArray<int32>& expandedPos, int32 basePos) const;
 	void SelectRangeAround9(TArray<int32>& expandedPos, int32 basePos) const;
-	void SelectBack(TArray<int32>& expandedPos, int32 basePos, int32 count) const;
-	void SelectRangeBack1(TArray<int32>& expandedPos, int32 basePos) const;
-	void SelectRangeBack2(TArray<int32>& expandedPos, int32 basePos) const;
-	void SelectRangeBack3(TArray<int32>& expandedPos, int32 basePos) const;
-	void SelectRangeBack4(TArray<int32>& expandedPos, int32 basePos) const;
+	void SelectRangeBack(TArray<int32>& expandedPos, int32 basePos, int32 count) const;
+	//void SelectRangeBack1(TArray<int32>& expandedPos, int32 basePos) const;
+	//void SelectRangeBack2(TArray<int32>& expandedPos, int32 basePos) const;
+	//void SelectRangeBack3(TArray<int32>& expandedPos, int32 basePos) const;
+	//void SelectRangeBack4(TArray<int32>& expandedPos, int32 basePos) const;
 };
 
 
