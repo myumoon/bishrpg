@@ -136,6 +136,8 @@ USTRUCT(BlueprintType)
 struct FBattleParty {
 	GENERATED_USTRUCT_BODY()
 
+	using RangeFuncTbl = void (FBattleParty::*)(TArray<int32>&, const TArray<int32>&) const;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	TArray<FBattleCharacterStatus> Characters;
 
@@ -269,19 +271,11 @@ protected:
 	//@}
 
 	//@{
-	void SelectRangeSingle(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
-	void SelectRangeCol(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
-	void SelectRangeRow(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
-	void SelectRangeSide(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
-	void SelectRangeFrontBack(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
-	void SelectRangeAroundPlus4(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
-	void SelectRangeAroundCross4(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
-	void SelectRangeAround9(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
-	void SelectRangeBack1(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
-	void SelectRangeBack2(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
-	void SelectRangeBack3(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
-	void SelectRangeBack4(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
-	//@}
+	//! 入力セルを指定ルールに従って拡張する
+	//! @param[out] expandedPos 拡張結果
+	//! @param[in]  basePos     拡張元
+	//! @param[in]  range       拡張タイプ
+	void ExpandCell(TArray<int32>& expandedPos, const TArray<int32>& basePos, EBattleSelectRange range) const;
 
 	void AddPos(TArray<int32>& expandedPos, int32 posIndex) const;
 	void SelectRangeSingle(TArray<int32>& expandedPos, int32 basePos) const;
@@ -297,6 +291,22 @@ protected:
 	//void SelectRangeBack2(TArray<int32>& expandedPos, int32 basePos) const;
 	//void SelectRangeBack3(TArray<int32>& expandedPos, int32 basePos) const;
 	//void SelectRangeBack4(TArray<int32>& expandedPos, int32 basePos) const;
+
+	//@{
+	void ExpandRangeSingle(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
+	void ExpandRangeCol(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
+	void ExpandRangeRow(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
+	void ExpandRangeSide(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
+	void ExpandRangeFrontBack(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
+	void ExpandRangeAroundPlus4(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
+	void ExpandRangeAroundCross4(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
+	void ExpandRangeAround9(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
+	void ExpandRangeBack1(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
+	void ExpandRangeBack2(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
+	void ExpandRangeBack3(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
+	void ExpandRangeBack4(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
+	//@}
+	//@}
 };
 
 

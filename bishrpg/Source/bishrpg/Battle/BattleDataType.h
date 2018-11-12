@@ -118,6 +118,8 @@ enum class EBattleSelectRange : uint8 {
     Back2,         //!< 後ろ2マス
     Back3,         //!< 後ろ3マス
     Back4,         //!< 後ろ4マス
+
+    Max,
 };
 
 
