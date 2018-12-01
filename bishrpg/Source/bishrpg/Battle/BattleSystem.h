@@ -142,6 +142,7 @@ public:
 	*/
 	FBattleCharacterStatus* GetCharacterByPos(FBattleParty* party, int32 posIndex) const;
 
+	static const FRandomStream& GetRandStream();
 protected:
 
 	static EBattleActionType ConvertAction(ECommandType type)
@@ -208,5 +209,5 @@ private:
 	TArray<FBattleParty>             PartyList;             //!< パーティ
 	TArray<Command>                  MergedCommandList;     //!< 全バトルコマンドリスト
 	TArray<Command>                  MergedMoveCommandList; //!< 移動コマンドをまとめたやつ
-	const FRandomStream*             RandStream;            //!< ランダム
+	//static const FRandomStream*      RandStream;            //!< ランダム
 };

@@ -3,12 +3,15 @@
 #pragma once
 
 #include <functional>
+#include "Runtime/Core/Public/GenericPlatform/GenericPlatform.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "SharedPointer.h"
+#include "BattleCell.h"
 #include "System/CharacterStatus.h"
 #include "GameData/SkillData.h"
 #include "BattleDataType.h"
+#include "BattleBoardDef.h"
 #include "BattleData.generated.h"
 
 
@@ -136,13 +139,17 @@ USTRUCT(BlueprintType)
 struct FBattleParty {
 	GENERATED_USTRUCT_BODY()
 
-	using RangeFuncTbl = void (FBattleParty::*)(TArray<int32>&, const TArray<int32>&) const;
+	using SelectFunc = void (FBattleParty::*)(TArray<int32>&, int32) const;
+	using RangeFunc  = void (FBattleParty::*)(TArray<int32>&, const TArray<int32>&) const;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	TArray<FBattleCharacterStatus> Characters;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	TArray<int32>                  Formation;
+
+	// 乱数
+	FRandomStream RandStream;
 
 	//キャラを取得
 	const FBattleCharacterStatus* GetCharacterByPos(int32 posIndex) const;
@@ -169,6 +176,12 @@ struct FBattleParty {
 	// 移動(fromとtoを交換)
 	void Move(int32 from, int32 to);
 
+	// 指定セルにキャラがいるかどうか
+	bool ExistsPos(int32 posIndex) const
+	{
+		return Formation[posIndex] != Battle::Def::INVALID_CELL_NO;
+	}
+#if 0
 	/*!	指定の方法でキャラを取得
 	@param[out] selectedHandles 取得結果
 	@param[in]  selectedParty   選択対象パーティ
@@ -190,13 +203,15 @@ struct FBattleParty {
 
 	void MakeCharacterListByPositionList(TArray<int32>& characterHandles, const TArray<int32>& selectedPositions) const;
 	//! }
-
+#endif
 protected:
 	// 選択準備
 	void PrepareSelecting(TArray<int32>& selectedHandles, bool clearResult) const;
 
+
 	bool FilterAll(int32 actorPos) const;
 	bool FilterExistsAll(int32 actorPos) const;
+	/*
 	bool FilterFront(int32 actorPos) const;
 	//bool FilterFrontTop1(int32 actorPos) const;
 	//bool FilterFrontTop2(int32 actorPos) const;
@@ -206,9 +221,13 @@ protected:
 	bool FilterRowTop2(int32 actorPos) const;
 	bool FilterRowTop3(int32 actorPos) const;
 	bool FilterRowTop4(int32 actorPos) const;
-
+	*/
 protected:
+#if 0
+	BattleCell FetchTop(int32 index) const;
+
 	//@{
+	void SelectTarget(TArray<int32>& selectedPos, int32 actorPos, EBattleSelectMethod selectMethod) const;
 	//! 敵選択
 	void SelectTop1(TArray<int32>& selectedPos, int32 actorPos) const;
 	void SelectTop2(TArray<int32>& selectedPos, int32 actorPos) const;
@@ -267,19 +286,19 @@ protected:
 	void SelectFront1_P(TArray<int32>& selectedPos, int32 actorPos) const;
 	void SelectTop1_P(TArray<int32>& selectedPos, int32 actorPos) const;
 	void SelectBack1_P(TArray<int32>& selectedPos, int32 actorPos) const;
-	void SelectAll1_P(TArray<int32>& selectedPos, int32 actorPos) const;
-	//@}
-
+	void SelectAll_P(TArray<int32>& selectedPos, int32 actorPos) const;
+	//@!}
 	//@{
-	//! 入力セルを指定ルールに従って拡張する
-	//! @param[out] expandedPos 拡張結果
+	//!! 入力セルを指定ルールに従って拡張する
+//! @param[out] expandedPos 拡張結果
 	//! @param[in]  basePos     拡張元
-	//! @param[in]  range       拡張タイプ
-	void ExpandCell(TArray<int32>& expandedPos, const TArray<int32>& basePos, EBattleSelectRange range) const;
+	//!! @param[in]  range       拡張タイプ
+void ExpandCell(TArray<int32>& expandedPos, const TArray<int32>& basePos, EBattleSelectRange range) const;
 
-	void AddPos(TArray<int32>& expandedPos, int32 posIndex) const;
+	//! 指定セルにキャラがいるかどうか
+void AddPos(TArray<int32>& expandedPos, int32 posIndex) const;
 	void SelectRangeSingle(TArray<int32>& expandedPos, int32 basePos) const;
-	void SelectRangeCol(TArray<int32>& expandedPos, int32 basePos) const;
+	void SelectRangeCol(TArray<int32>& expandedPos, int32posIndex basePos) const; != Battle::Def::INVALID_CELL_NO;
 	void SelectRangeRow(TArray<int32>& expandedPos, int32 basePos) const;
 	void SelectRangeSide(TArray<int32>& expandedPos, int32 basePos) const;
 	void SelectRangeFrontBack(TArray<int32>& expandedPos, int32 basePos) const;
@@ -307,6 +326,7 @@ protected:
 	void ExpandRangeBack4(TArray<int32>& expandedPos, const TArray<int32>& basePos) const;
 	//@}
 	//@}
+#endif
 };
 
 

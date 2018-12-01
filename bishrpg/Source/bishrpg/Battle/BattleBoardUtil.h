@@ -13,6 +13,7 @@ class BISHRPG_API UBattleBoardUtil : public UObject {
 	GENERATED_BODY()
 
 public:
+	static const int32 INVALID_CELL_NO = -1;
 	static const int32 BOARD_ROW = 4;
 	static const int32 BOARD_COL = 3;
 	static const int32 COL_LEFT = 0;
@@ -21,6 +22,9 @@ public:
 	static const int32 MAX_BOARD_CELLS = BOARD_COL * BOARD_ROW;
 
 	static const int32 CELL_NUM = BOARD_ROW * BOARD_COL;
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	static bool IsValidCellNo(int32 index) { return (0 <= index && index < CELL_NUM); }
 
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	static int32 GetBoardRow() { return BOARD_ROW; }

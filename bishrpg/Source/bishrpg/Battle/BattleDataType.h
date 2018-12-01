@@ -31,6 +31,7 @@ enum class EBattleActionEffect : uint8 {
 };
 
 /*! 選択方法
+    並び順を変えるときは FBattleParty::SelectTarget のテーブルも変えること！
 */
 UENUM(BlueprintType)
 enum class EBattleSelectMethod : uint8 {
@@ -101,9 +102,12 @@ enum class EBattleSelectMethod : uint8 {
     P_Top1,          //!< 最善
     P_Back1,          //!< 最善
     P_All,           //!< 全員
+
+    Max,
 };
 
 /*! 選択範囲
+    並び順を変えるときは FBattleParty::ExpandCell のテーブルも変えること！
  */
 UENUM(BlueprintType)
 enum class EBattleSelectRange : uint8 {

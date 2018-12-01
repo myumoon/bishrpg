@@ -6,11 +6,14 @@
 #include "ConstructorHelpers.h"
 #include "GameData/CharacterAsset.h"
 #include "GameData/SkillData.h"
+#include "BattleCellSelector.h"
 #include "GameData/BishRPGDataTblAccessor.h"
 
 #include "bishrpg.h"
 
-
+namespace {
+	FRandomStream RandStream;
+}
 
 
 
@@ -127,7 +130,7 @@ void UBattleSystem::Initialize(const FParty& playerParty, const FParty& opponent
 		PartyList.Add(battleParty);
 	}
 
-	RandStream = &randStream;
+	RandStream = randStream;
 }
 
 
@@ -505,7 +508,10 @@ void UBattleSystem::ExecMove(FBattleActionResult& result, const Command& command
 FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentParty, const FBattleCharacterStatus& attacker, int32 attackerPos, bool playerSide) const
 {
 	TArray<int32> selectedTarget;
-	opponentParty->SelectTop(selectedTarget, 0, attackerPos);
+	// todo:BattleCellSelectorに差し替え
+	//opponentParty->SelectTop(selectedTarget, 0, attackerPos);
+	BattleCellSelector cellSelector(GetParty(!playerSide));
+	cellSelector.SelectTarget(attackerPos, EBattleSelectMethod::E_Top1);
 	if(selectedTarget.Num() == 0) {
 		GAME_ERROR("GetAttackTargetByPos : not selected. attackerPos(%d), playerPos(%s)", attackerPos, playerSide ? TEXT("true") : TEXT("false"));
 		return FBattleTarget();
@@ -525,7 +531,11 @@ void UBattleSystem::GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const F
 	const auto* targetParty = GetParty(targetPlayerSide);
 
 	TArray<int32> selectedTarget;
-	targetParty->Select(selectedTarget, actorPos, selectType, selectParam, *RandStream);
+	//targetParty->Select(selectedTarget, actorPos, selectType, selectParam, *RandStream);
+	// todo:選択処理を入れる
+	BattleCellSelector cellSelector(GetParty(targetPlayerSide));
+	//cellSelector.SelectTarget();
+
 	if(selectedTarget.Num() == 0) {
 		//GAME_ERROR("GetSkillTargetsByPos : not selected. actorPos(%d), actorSide(%s), selectType(%d), selectParam(%d)", actorPos, actorSide ? TEXT("true") : TEXT("false"), static_cast<int32>(selectType), selectParam);
 		return;
@@ -576,3 +586,7 @@ FBattleCharacterStatus* UBattleSystem::GetCharacterByPos(FBattleParty* party, in
 	return &party->Characters[party->Formation[posIndex]];
 }
 
+const FRandomStream& UBattleSystem::GetRandStream()
+{
+	return RandStream;
+}

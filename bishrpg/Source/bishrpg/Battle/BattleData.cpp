@@ -83,6 +83,7 @@ void FBattleParty::Move(int32 from, int32 to)
 	Formation[from] = oldTo;
 }
 
+#if 0
 void FBattleParty::Select(TArray<int32>& selectedHandles, int32 actorPos, EBattleSelectMethod pattern, int32 param, const FRandomStream& randStream, bool clearResult) const
 {
 	SortCompDistance sortCompDist(actorPos);
@@ -357,7 +358,7 @@ void FBattleParty::MakeCharacterListByPositionList(TArray<int32>& characterHandl
 bool FBattleParty::FilterExistsAll(int32 pos) const
 {
 	check(0 <= pos && pos < UBattleBoardUtil::MAX_BOARD_CELLS);
-	return Formation[pos];
+	return (0 <= Formation[pos]);
 }
 
 // 位置追加
@@ -369,15 +370,270 @@ void FBattleParty::AddPos(TArray<int32>& expandedPos, int32 posIndex) const
 }
 
 
+// ----- セル選択 -----
+void FBattleParty::SelectTarget(TArray<int32>& selectedPos, int32 actorPos, EBattleSelectMethod selectMethod) const
+{
+	SelectFunc selectFuncTbl[]  = {
+		&FBattleParty::SelectTop1,
+		&FBattleParty::SelectTop2,
+		&FBattleParty::SelectTop3,
+		&FBattleParty::SelectTop4,
+		&FBattleParty::SelectTop5,
+		&FBattleParty::SelectTop6,
+
+		&FBattleParty::SelectFacedTop1,
+		&FBattleParty::SelectAhead1,
+		&FBattleParty::SelectAhead4,
+
+		&FBattleParty::SelectAttackTop1,
+		&FBattleParty::SelectDeffenceTop1,
+
+		&FBattleParty::SelectRockTop1,
+		&FBattleParty::SelectRockBack1,
+		&FBattleParty::SelectSingTop1,
+		&FBattleParty::SelectSingBack1,
+		&FBattleParty::SelectHurmorTop1,
+		&FBattleParty::SelectHurmorBack1,
+
+		&FBattleParty::SelectCell_0_Faced,
+		&FBattleParty::SelectCell_0_Right,
+		&FBattleParty::SelectCell_0_Center,
+		&FBattleParty::SelectCell_0_Left,
+		&FBattleParty::SelectCell_1_Right,
+		&FBattleParty::SelectCell_1_Center,
+		&FBattleParty::SelectCell_1_Left,
+		&FBattleParty::SelectCell_2_Right,
+		&FBattleParty::SelectCell_2_Center,
+		&FBattleParty::SelectCell_2_Left,
+		&FBattleParty::SelectCell_3_Right,
+		&FBattleParty::SelectCell_3_Center,
+		&FBattleParty::SelectCell_3_Left,
+
+		&FBattleParty::SelectMyself_P,
+		&FBattleParty::SelectFront1_P,
+		&FBattleParty::SelectTop1_P,
+		&FBattleParty::SelectBack1_P,
+		&FBattleParty::SelectAll_P,
+	};
+
+	const int32 funcIndex = (int)selectMethod;
+	check(0 <= funcIndex && selectMethod < EBattleSelectMethod::Max);
+	(this->*selectFuncTbl[funcIndex])(expandedPos, actorPos);
+}
+
+BattleCell FBattleParty::FetchTop(int32 index) const
+{
+	SortCompDistance sortCompDist(index);
+	auto allFilter = [](int32) { return true; };
+	TArray<int32> selectedHandles;
+	
+	auto selectTop = [&](int32 index) -> int32 {
+		Filter(selectedHandles, [&](int32 pos) { return FilterExistsAll(pos); }, sortCompDist);
+		int32 handle = 0;
+		if(index < selectedHandles.Num()) {
+			handle = selectedHandles[index];
+		}
+		else {
+			handle = selectedHandles[selectedHandles.Num() - 1];
+		}
+		for(int32 i = 0; i < Formation.Num(); ++i) {
+			if(handle == Formation[i]) {
+				return i;
+			}
+		}
+		check(false);
+		return -1;
+	};
+
+	const int32 pos = selectTop(index);
+	return BattleCell(pos);
+}
 
 
+void FBattleParty::SelectTop1(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectTop2(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectTop3(TArray<int32>& selectedPos, int32 actorPos) const
+{
 
+}
+void FBattleParty::SelectTop4(TArray<int32>& selectedPos, int32 actorPos) const
+{
 
+}
+void FBattleParty::SelectTop5(TArray<int32>& selectedPos, int32 actorPos) const
+{
 
+}
+void FBattleParty::SelectTop6(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectFacedTop1(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+void FBattleParty::SelectAhead1(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+void FBattleParty::SelectAhead4(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+
+void FBattleParty::SelectAttackTop1(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+void FBattleParty::SelectDeffenceTop1(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+
+void FBattleParty::SelectRockTop1(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+void FBattleParty::SelectRockBack1(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+void FBattleParty::SelectSingTop1(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+void FBattleParty::SelectSingBack1(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+void FBattleParty::SelectHurmorTop1(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+void FBattleParty::SelectHurmorBack1(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+void FBattleParty::SelectCell_0_Faced(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+void FBattleParty::SelectCell_0_Right(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectCell_0_Center(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectCell_0_Left(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectCell_1_Right(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectCell_1_Center(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectCell_1_Left(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectCell_2_Right(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectCell_2_Center(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectCell_2_Left(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectCell_3_Right(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectCell_3_Center(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectCell_3_Left(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+
+void FBattleParty::SelectAllCells(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+
+void FBattleParty::SelectRandom1(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectRandom2(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectRandom3(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectRandom4(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectRandom5(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectRandom6(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectRandom7(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectRandom8(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectRandom9(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectRandom10(TArray<int32>& selectedPos, int32 actorPos) const
+{
+	
+}
+void FBattleParty::SelectRandom11(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+void FBattleParty::SelectRandom12(TArray<int32>& selectedPos, int32 actorPos) const
+{
+
+}
+#endif
+
+#if 0
+// ----- セル拡張 -----
 
 void FBattleParty::ExpandCell(TArray<int32>& expandedPos, const TArray<int32>& basePos, EBattleSelectRange range) const
 {
-	RangeFuncTbl rangeFuncTbl[]  = {
+	RangeFunc rangeFuncTbl[]  = {
 		&FBattleParty::ExpandRangeSingle,
 		&FBattleParty::ExpandRangeCol,
 		&FBattleParty::ExpandRangeRow,
@@ -662,3 +918,4 @@ void FBattleParty::ExpandRangeBack4(TArray<int32>& expandedPos, const TArray<int
 	}
 	
 }
+#endif
