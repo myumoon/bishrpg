@@ -11,6 +11,7 @@
 #include "BattleDataType.h"
 #include "BattleData.h"
 #include "BattleBoardUtil.h"
+//#include "Battle/CharacterHandle.h"
 #include "BattleSystem.generated.h"
 
 
@@ -19,6 +20,8 @@ UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BISHRPG_API UBattleSystem : public UActorComponent
 {
 	GENERATED_BODY()
+
+	//friend class FCharacterHandle;
 
 private:
 	enum PartyIndex {
@@ -141,7 +144,7 @@ public:
 	/*!	指定場所のキャラを取得
 	*/
 	FBattleCharacterStatus* GetCharacterByPos(FBattleParty* party, int32 posIndex) const;
-
+	
 	static const FRandomStream& GetRandStream();
 protected:
 

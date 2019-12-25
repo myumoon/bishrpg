@@ -5,7 +5,15 @@
 #include "CoreMinimal.h"
 #include "BattleDataType.generated.h"
 
+/*!	プレイヤーグループ
+*/
+UENUM(BlueprintType)
+enum class EPlayerTag : uint8 {
+	One, //!< 1P
+	Two, //!< 2P
 
+	Max,
+};
 
 /*! 行動パターン
 */
