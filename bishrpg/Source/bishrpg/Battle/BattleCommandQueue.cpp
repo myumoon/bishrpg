@@ -114,7 +114,7 @@ bool UBattleCommandQueue::CanStartCommand() const
 		GAME_ERROR("CanStartCommand : Not initialized");
 		return false;
 	}
-	return (BattleSystem->CalcAlivePlayers() == GetCount());
+	return (BattleSystem->CalcAlivePlayers() == GetCount(true));
 }
 
 // コマンド送信
