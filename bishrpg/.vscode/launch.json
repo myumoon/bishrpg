@@ -4,127 +4,103 @@
 		{
 			"name": "bishrpg (Debug)",
 			"request": "launch",
-			"preLaunchTask": "bishrpg Win64 Debug Build",
-			"program": "J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\Binaries\\Win64\\bishrpg-Win64-Debug.exe",
+			"preLaunchTask": "bishrpg Mac Debug Build",
+			"program": "/Users/ryunosukeide/proj/bishrpg/bishrpg/Binaries/Mac/bishrpg-Mac-Debug.app/Contents/MacOS/bishrpg-Mac-Debug",
 			"args": [
 			],
-			"cwd": "J:\\Program Files\\Epic Games\\UE_4.19",
-			"stopAtEntry": false,
-			"externalConsole": true,
-			"type": "cppvsdbg",
-			"visualizerFile": "J:\\Program Files\\Epic Games\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"type": "lldb"
 		},
 		{
 			"name": "bishrpg (DebugGame)",
 			"request": "launch",
-			"preLaunchTask": "bishrpg Win64 DebugGame Build",
-			"program": "J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\Binaries\\Win64\\bishrpg-Win64-DebugGame.exe",
+			"preLaunchTask": "bishrpg Mac DebugGame Build",
+			"program": "/Users/ryunosukeide/proj/bishrpg/bishrpg/Binaries/Mac/bishrpg-Mac-DebugGame.app/Contents/MacOS/bishrpg-Mac-DebugGame",
 			"args": [
 			],
-			"cwd": "J:\\Program Files\\Epic Games\\UE_4.19",
-			"stopAtEntry": false,
-			"externalConsole": true,
-			"type": "cppvsdbg",
-			"visualizerFile": "J:\\Program Files\\Epic Games\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"type": "lldb"
 		},
 		{
 			"name": "bishrpg (Development)",
 			"request": "launch",
-			"preLaunchTask": "bishrpg Win64 Development Build",
-			"program": "J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\Binaries\\Win64\\bishrpg.exe",
+			"preLaunchTask": "bishrpg Mac Development Build",
+			"program": "/Users/ryunosukeide/proj/bishrpg/bishrpg/Binaries/Mac/bishrpg.app/Contents/MacOS/bishrpg",
 			"args": [
 			],
-			"cwd": "J:\\Program Files\\Epic Games\\UE_4.19",
-			"stopAtEntry": false,
-			"externalConsole": true,
-			"type": "cppvsdbg",
-			"visualizerFile": "J:\\Program Files\\Epic Games\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"type": "lldb"
 		},
 		{
 			"name": "bishrpg (Shipping)",
 			"request": "launch",
-			"preLaunchTask": "bishrpg Win64 Shipping Build",
-			"program": "J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\Binaries\\Win64\\bishrpg-Win64-Shipping.exe",
+			"preLaunchTask": "bishrpg Mac Shipping Build",
+			"program": "/Users/ryunosukeide/proj/bishrpg/bishrpg/Binaries/Mac/bishrpg-Mac-Shipping.app/Contents/MacOS/bishrpg-Mac-Shipping",
 			"args": [
 			],
-			"cwd": "J:\\Program Files\\Epic Games\\UE_4.19",
-			"stopAtEntry": false,
-			"externalConsole": true,
-			"type": "cppvsdbg",
-			"visualizerFile": "J:\\Program Files\\Epic Games\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"type": "lldb"
 		},
 		{
 			"name": "bishrpg (Test)",
 			"request": "launch",
-			"preLaunchTask": "bishrpg Win64 Test Build",
-			"program": "J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\Binaries\\Win64\\bishrpg-Win64-Test.exe",
+			"preLaunchTask": "bishrpg Mac Test Build",
+			"program": "/Users/ryunosukeide/proj/bishrpg/bishrpg/Binaries/Mac/bishrpg-Mac-Test.app/Contents/MacOS/bishrpg-Mac-Test",
 			"args": [
 			],
-			"cwd": "J:\\Program Files\\Epic Games\\UE_4.19",
-			"stopAtEntry": false,
-			"externalConsole": true,
-			"type": "cppvsdbg",
-			"visualizerFile": "J:\\Program Files\\Epic Games\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"type": "lldb"
 		},
 		{
 			"name": "bishrpgEditor (Debug)",
 			"request": "launch",
-			"preLaunchTask": "bishrpgEditor Win64 Debug Build",
-			"program": "J:\\Program Files\\Epic Games\\UE_4.19\\Engine\\Binaries\\Win64\\UE4Editor-Win64-Debug.exe",
+			"preLaunchTask": "bishrpgEditor Mac Debug Build",
+			"program": "/Users/Shared/Epic Games/UE_4.19/Engine/Binaries/Mac/UE4Editor-Mac-Debug.app/Contents/MacOS/UE4Editor-Mac-Debug",
 			"args": [
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-debug"
 			],
-			"cwd": "J:\\Program Files\\Epic Games\\UE_4.19",
-			"stopAtEntry": false,
-			"externalConsole": true,
-			"type": "cppvsdbg",
-			"visualizerFile": "J:\\Program Files\\Epic Games\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"type": "lldb"
 		},
 		{
 			"name": "bishrpgEditor (DebugGame)",
 			"request": "launch",
-			"preLaunchTask": "bishrpgEditor Win64 DebugGame Build",
-			"program": "J:\\Program Files\\Epic Games\\UE_4.19\\Engine\\Binaries\\Win64\\UE4Editor.exe",
+			"preLaunchTask": "bishrpgEditor Mac DebugGame Build",
+			"program": "/Users/Shared/Epic Games/UE_4.19/Engine/Binaries/Mac/UE4Editor.app/Contents/MacOS/UE4Editor",
 			"args": [
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-debug"
 			],
-			"cwd": "J:\\Program Files\\Epic Games\\UE_4.19",
-			"stopAtEntry": false,
-			"externalConsole": true,
-			"type": "cppvsdbg",
-			"visualizerFile": "J:\\Program Files\\Epic Games\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"type": "lldb"
 		},
 		{
 			"name": "bishrpgEditor (Development)",
 			"request": "launch",
-			"preLaunchTask": "bishrpgEditor Win64 Development Build",
-			"program": "J:\\Program Files\\Epic Games\\UE_4.19\\Engine\\Binaries\\Win64\\UE4Editor.exe",
+			"preLaunchTask": "bishrpgEditor Mac Development Build",
+			"program": "/Users/Shared/Epic Games/UE_4.19/Engine/Binaries/Mac/UE4Editor.app/Contents/MacOS/UE4Editor",
 			"args": [
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject"
 			],
-			"cwd": "J:\\Program Files\\Epic Games\\UE_4.19",
-			"stopAtEntry": false,
-			"externalConsole": true,
-			"type": "cppvsdbg",
-			"visualizerFile": "J:\\Program Files\\Epic Games\\UE_4.19\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"type": "lldb"
 		},
 		{
 			"name": "Generate Project Files",
-			"type": "clr",
+			"type": "mono",
 			"request": "launch",
-			"program": "J:\\Program Files\\Epic Games\\UE_4.19\\Engine\\Binaries\\DotNET\\UnrealBuildTool.exe",
-			"console": "externalTerminal",
+			"program": "/Users/Shared/Epic Games/UE_4.19/Engine/Binaries/DotNET/UnrealBuildTool.exe",
+			"console": "internalConsole",
 			"args": [
 				"-projectfiles",
 				"-vscode",
-				"-project=\"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject\"",
+				"-project=\"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject\"",
 				"-game",
 				"-engine"
 			],
 			"internalConsoleOptions": "openOnSessionStart",
-			"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+			"cwd": "/Users/Shared/Epic Games/UE_4.19"
 		}
 	]
 }

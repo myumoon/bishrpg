@@ -2,571 +2,306 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "bishrpg Win32 Debug Build",
+			"label": "bishrpg Mac Debug Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 Debug Rebuild",
+			"label": "bishrpg Mac Debug Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"dependsOn": [
-				"bishrpg Win32 Debug Clean"
+				"bishrpg Mac Debug Clean"
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 Debug Clean",
+			"label": "bishrpg Mac Debug Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 DebugGame Build",
+			"label": "bishrpg Mac DebugGame Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 DebugGame Rebuild",
+			"label": "bishrpg Mac DebugGame Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"dependsOn": [
-				"bishrpg Win32 DebugGame Clean"
+				"bishrpg Mac DebugGame Clean"
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 DebugGame Clean",
+			"label": "bishrpg Mac DebugGame Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 Development Build",
+			"label": "bishrpg Mac Development Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 Development Rebuild",
+			"label": "bishrpg Mac Development Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"dependsOn": [
-				"bishrpg Win32 Development Clean"
+				"bishrpg Mac Development Clean"
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 Development Clean",
+			"label": "bishrpg Mac Development Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 Shipping Build",
+			"label": "bishrpg Mac Shipping Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 Shipping Rebuild",
+			"label": "bishrpg Mac Shipping Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"dependsOn": [
-				"bishrpg Win32 Shipping Clean"
+				"bishrpg Mac Shipping Clean"
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 Shipping Clean",
+			"label": "bishrpg Mac Shipping Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
+			}
+		},
+		{
+			"label": "bishrpg Mac Test Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"bishrpg",
+				"Mac",
+				"Test",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 Test Build",
+			"label": "bishrpg Mac Test Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win32 Test Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Win32",
-				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"dependsOn": [
-				"bishrpg Win32 Test Clean"
+				"bishrpg Mac Test Clean"
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpg Win32 Test Clean",
+			"label": "bishrpg Mac Test Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
-				"Win32",
+				"Mac",
 				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 Debug Build",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 Debug Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"dependsOn": [
-				"bishrpg Win64 Debug Clean"
-			],
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 Debug Clean",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 DebugGame Build",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 DebugGame Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"dependsOn": [
-				"bishrpg Win64 DebugGame Clean"
-			],
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 DebugGame Clean",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 Development Build",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 Development Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"dependsOn": [
-				"bishrpg Win64 Development Clean"
-			],
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 Development Clean",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 Shipping Build",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 Shipping Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"dependsOn": [
-				"bishrpg Win64 Shipping Clean"
-			],
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 Shipping Clean",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 Test Build",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 Test Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"dependsOn": [
-				"bishrpg Win64 Test Clean"
-			],
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Win64 Test Clean",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-			"args": [
-				"bishrpg",
-				"Win64",
-				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS Debug Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS Debug Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -575,52 +310,53 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS Debug Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS DebugGame Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS DebugGame Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -629,52 +365,53 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS DebugGame Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS Development Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS Development Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -683,52 +420,53 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS Development Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS Shipping Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS Shipping Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -737,52 +475,53 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS Shipping Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS Test Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS Test Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -791,322 +530,53 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg IOS Test Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"IOS",
 				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android Debug Build",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android Debug Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"dependsOn": [
-				"bishrpg Android Debug Clean"
-			],
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android Debug Clean",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android DebugGame Build",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android DebugGame Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"dependsOn": [
-				"bishrpg Android DebugGame Clean"
-			],
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android DebugGame Clean",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android Development Build",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android Development Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"dependsOn": [
-				"bishrpg Android Development Clean"
-			],
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android Development Clean",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android Shipping Build",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android Shipping Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"dependsOn": [
-				"bishrpg Android Shipping Clean"
-			],
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android Shipping Clean",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android Test Build",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android Test Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"dependsOn": [
-				"bishrpg Android Test Clean"
-			],
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpg Android Test Clean",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
-			"args": [
-				"bishrpg",
-				"Android",
-				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 Debug Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 Debug Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -1115,52 +585,53 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 Debug Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 DebugGame Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 DebugGame Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -1169,52 +640,53 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 DebugGame Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 Development Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 Development Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -1223,52 +695,53 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 Development Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 Shipping Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 Shipping Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -1277,52 +750,53 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 Shipping Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"Shipping",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 Test Build",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 Test Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
@@ -1331,186 +805,190 @@
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
 			"label": "bishrpg HTML5 Test Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpg",
 				"HTML5",
 				"Test",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
+			}
+		},
+		{
+			"label": "bishrpgEditor Mac Debug Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"bishrpgEditor",
+				"Mac",
+				"Debug",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpgEditor Win64 Debug Build",
+			"label": "bishrpgEditor Mac Debug Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpgEditor",
-				"Win64",
+				"Mac",
 				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpgEditor Win64 Debug Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpgEditor",
-				"Win64",
-				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"dependsOn": [
-				"bishrpgEditor Win64 Debug Clean"
+				"bishrpgEditor Mac Debug Clean"
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpgEditor Win64 Debug Clean",
+			"label": "bishrpgEditor Mac Debug Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpgEditor",
-				"Win64",
+				"Mac",
 				"Debug",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
+			}
+		},
+		{
+			"label": "bishrpgEditor Mac DebugGame Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"bishrpgEditor",
+				"Mac",
+				"DebugGame",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpgEditor Win64 DebugGame Build",
+			"label": "bishrpgEditor Mac DebugGame Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpgEditor",
-				"Win64",
+				"Mac",
 				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpgEditor Win64 DebugGame Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpgEditor",
-				"Win64",
-				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"dependsOn": [
-				"bishrpgEditor Win64 DebugGame Clean"
+				"bishrpgEditor Mac DebugGame Clean"
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpgEditor Win64 DebugGame Clean",
+			"label": "bishrpgEditor Mac DebugGame Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpgEditor",
-				"Win64",
+				"Mac",
 				"DebugGame",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
+			],
+			"problemMatcher": "$msCompile",
+			"type": "shell",
+			"options": {
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
+			}
+		},
+		{
+			"label": "bishrpgEditor Mac Development Build",
+			"group": "build",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
+			"args": [
+				"bishrpgEditor",
+				"Mac",
+				"Development",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpgEditor Win64 Development Build",
+			"label": "bishrpgEditor Mac Development Rebuild",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpgEditor",
-				"Win64",
+				"Mac",
 				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
-			],
-			"problemMatcher": "$msCompile",
-			"type": "shell",
-			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
-			}
-		},
-		{
-			"label": "bishrpgEditor Win64 Development Rebuild",
-			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Build.bat",
-			"args": [
-				"bishrpgEditor",
-				"Win64",
-				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-waitmutex"
 			],
 			"problemMatcher": "$msCompile",
 			"dependsOn": [
-				"bishrpgEditor Win64 Development Clean"
+				"bishrpgEditor Mac Development Clean"
 			],
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		},
 		{
-			"label": "bishrpgEditor Win64 Development Clean",
+			"label": "bishrpgEditor Mac Development Clean",
 			"group": "build",
-			"command": "Engine\\Build\\BatchFiles\\Clean.bat",
+			"command": "Engine/Build/BatchFiles/Mac/Build.sh",
 			"args": [
 				"bishrpgEditor",
-				"Win64",
+				"Mac",
 				"Development",
-				"J:\\prog\\0_myprogram\\bishrpg\\bishrpg\\bishrpg.uproject",
-				"-waitmutex"
+				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
+				"-waitmutex",
+				"-clean"
 			],
 			"problemMatcher": "$msCompile",
 			"type": "shell",
 			"options": {
-				"cwd": "J:\\Program Files\\Epic Games\\UE_4.19"
+				"cwd": "/Users/Shared/Epic Games/UE_4.19"
 			}
 		}
 	]
