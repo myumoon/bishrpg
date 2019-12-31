@@ -8,7 +8,7 @@
 			"program": "/Users/ryunosukeide/proj/bishrpg/bishrpg/Binaries/Mac/bishrpg-Mac-Debug.app/Contents/MacOS/bishrpg-Mac-Debug",
 			"args": [
 			],
-			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"cwd": "/Users/Shared/Epic Games/UE_4.20",
 			"type": "lldb"
 		},
 		{
@@ -18,7 +18,7 @@
 			"program": "/Users/ryunosukeide/proj/bishrpg/bishrpg/Binaries/Mac/bishrpg-Mac-DebugGame.app/Contents/MacOS/bishrpg-Mac-DebugGame",
 			"args": [
 			],
-			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"cwd": "/Users/Shared/Epic Games/UE_4.20",
 			"type": "lldb"
 		},
 		{
@@ -28,7 +28,7 @@
 			"program": "/Users/ryunosukeide/proj/bishrpg/bishrpg/Binaries/Mac/bishrpg.app/Contents/MacOS/bishrpg",
 			"args": [
 			],
-			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"cwd": "/Users/Shared/Epic Games/UE_4.20",
 			"type": "lldb"
 		},
 		{
@@ -38,7 +38,7 @@
 			"program": "/Users/ryunosukeide/proj/bishrpg/bishrpg/Binaries/Mac/bishrpg-Mac-Shipping.app/Contents/MacOS/bishrpg-Mac-Shipping",
 			"args": [
 			],
-			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"cwd": "/Users/Shared/Epic Games/UE_4.20",
 			"type": "lldb"
 		},
 		{
@@ -48,49 +48,49 @@
 			"program": "/Users/ryunosukeide/proj/bishrpg/bishrpg/Binaries/Mac/bishrpg-Mac-Test.app/Contents/MacOS/bishrpg-Mac-Test",
 			"args": [
 			],
-			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"cwd": "/Users/Shared/Epic Games/UE_4.20",
 			"type": "lldb"
 		},
 		{
 			"name": "bishrpgEditor (Debug)",
 			"request": "launch",
 			"preLaunchTask": "bishrpgEditor Mac Debug Build",
-			"program": "/Users/Shared/Epic Games/UE_4.19/Engine/Binaries/Mac/UE4Editor-Mac-Debug.app/Contents/MacOS/UE4Editor-Mac-Debug",
+			"program": "/Users/Shared/Epic Games/UE_4.20/Engine/Binaries/Mac/UE4Editor-Mac-Debug.app/Contents/MacOS/UE4Editor-Mac-Debug",
 			"args": [
 				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-debug"
 			],
-			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"cwd": "/Users/Shared/Epic Games/UE_4.20",
 			"type": "lldb"
 		},
 		{
 			"name": "bishrpgEditor (DebugGame)",
 			"request": "launch",
 			"preLaunchTask": "bishrpgEditor Mac DebugGame Build",
-			"program": "/Users/Shared/Epic Games/UE_4.19/Engine/Binaries/Mac/UE4Editor.app/Contents/MacOS/UE4Editor",
+			"program": "/Users/Shared/Epic Games/UE_4.20/Engine/Binaries/Mac/UE4Editor.app/Contents/MacOS/UE4Editor",
 			"args": [
 				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject",
 				"-debug"
 			],
-			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"cwd": "/Users/Shared/Epic Games/UE_4.20",
 			"type": "lldb"
 		},
 		{
 			"name": "bishrpgEditor (Development)",
 			"request": "launch",
 			"preLaunchTask": "bishrpgEditor Mac Development Build",
-			"program": "/Users/Shared/Epic Games/UE_4.19/Engine/Binaries/Mac/UE4Editor.app/Contents/MacOS/UE4Editor",
+			"program": "/Users/Shared/Epic Games/UE_4.20/Engine/Binaries/Mac/UE4Editor.app/Contents/MacOS/UE4Editor",
 			"args": [
 				"/Users/ryunosukeide/proj/bishrpg/bishrpg/bishrpg.uproject"
 			],
-			"cwd": "/Users/Shared/Epic Games/UE_4.19",
+			"cwd": "/Users/Shared/Epic Games/UE_4.20",
 			"type": "lldb"
 		},
 		{
 			"name": "Generate Project Files",
 			"type": "mono",
 			"request": "launch",
-			"program": "/Users/Shared/Epic Games/UE_4.19/Engine/Binaries/DotNET/UnrealBuildTool.exe",
+			"program": "/Users/Shared/Epic Games/UE_4.20/Engine/Binaries/DotNET/UnrealBuildTool.exe",
 			"console": "internalConsole",
 			"args": [
 				"-projectfiles",
@@ -100,7 +100,7 @@
 				"-engine"
 			],
 			"internalConsoleOptions": "openOnSessionStart",
-			"cwd": "/Users/Shared/Epic Games/UE_4.19"
+			"cwd": "/Users/Shared/Epic Games/UE_4.20"
 		}
 	]
 }
