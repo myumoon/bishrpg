@@ -4,7 +4,7 @@
 
 #include "bishrpg.h"
 
-void FBattleTurn::Setup(EPlayerTag myTag, EPlayerTag firstPlayerTag)
+void FBattleTurn::Setup(EPlayerGroup myTag, EPlayerGroup firstPlayerTag)
 {
 	MyPlayerTag      = myTag;
 	CurrentPlayerTag = firstPlayerTag;
@@ -17,5 +17,5 @@ bool FBattleTurn::IsManualPlayerTurn() const
 
 void FBattleTurn::SwapTurn()
 {
-	CurrentPlayerTag = static_cast<EPlayerTag>(1 - static_cast<int32>(CurrentPlayerTag));
+	CurrentPlayerTag = static_cast<EPlayerGroup>(1 - static_cast<int32>(CurrentPlayerTag));
 }

@@ -17,7 +17,7 @@ public:
 	/*!	初期化
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void Setup(EPlayerTag myTag, EPlayerTag firstPlayerTag);
+	void Setup(EPlayerGroup myTag, EPlayerGroup firstPlayerTag);
 
 	/*!	操作プレイヤーのターンか
 	*/
@@ -35,6 +35,6 @@ public:
 	void SwapTurn();
 
 private:
-	EPlayerTag MyPlayerTag      = EPlayerTag::One;
-	EPlayerTag CurrentPlayerTag = EPlayerTag::One;
+	EPlayerGroup MyPlayerTag      = EPlayerGroup::One;
+	EPlayerGroup CurrentPlayerTag = EPlayerGroup::One;
 };

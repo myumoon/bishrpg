@@ -8,9 +8,25 @@
 /*!	プレイヤーグループ
 */
 UENUM(BlueprintType)
-enum class EPlayerTag : uint8 {
-	One, //!< 1P
-	Two, //!< 2P
+enum class EPlayerGroup : uint8 {
+	One,     //!< 1P
+	Two,     //!< 2P
+
+	Max,
+};
+constexpr int32 ToIndex01(EPlayerGroup group)
+{
+    static_assert(static_cast<int32>(EPlayerGroup::Max) == 2, "EPlayerGroup size have to be 2");
+    return static_cast<int32>(group);
+}
+
+/*!	オブジェクトタイプ
+*/
+UENUM(BlueprintType)
+enum class EObjectType : uint8 {
+    None,          //!< なし
+	Character,     //!< キャラ
+	Item,          //!< アイテム
 
 	Max,
 };
