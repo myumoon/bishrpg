@@ -43,3 +43,9 @@ int32 FBattleObjectHandle::GetGroupIndex() const
 	return _GetGroup(GetHandleValue());
 }
 
+// オブジェクトインデックスを取得
+int32 FBattleObjectHandle::GetObjectIndex() const
+{
+	return _GetIndex(GetHandleValue());
+}
+

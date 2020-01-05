@@ -11,7 +11,7 @@
 #include "BattleDataType.h"
 #include "BattleData.h"
 #include "BattleBoardUtil.h"
-//#include "BattleObjectHandleHandle.h"
+#include "BattleObjectHandle.h"
 #include "BattleSystem.generated.h"
 
 
@@ -21,7 +21,7 @@ class BISHRPG_API UBattleSystem : public UActorComponent
 {
 	GENERATED_BODY()
 
-	//friend class FCharacterHandle;
+	friend struct FBattleObjectHandle;
 
 private:
 	enum PartyIndex {
@@ -32,7 +32,7 @@ private:
 	};
 
 	struct Command {
-		bool           PlayerSide;
+		EPlayerGroup   PlayerSide;
 		FBattleCommand BattleCommand;
 	};
 
@@ -49,8 +49,8 @@ public:
 	void Initialize(const FParty& playerParty, const FParty& opponentParty, const FRandomStream& randStream);
 
 	/*!	行動を行う
-		@param[out] result 計算結果
-		@return     消費するコマンドが合った場合はtrue
+	@param[out] result 計算結果
+	@return     消費するコマンドが合った場合はtrue
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	bool ConsumeCommand(FBattleActionResult& result);
@@ -71,12 +71,19 @@ public:
 	void GetCharacterStatusByPos(FBattleCharacterStatus& stat, int32 posIndex, bool playerSide = true) const;
 
     /*! 指定キャラのステータスを取得
-     @param[out] stat ステータス
-     @param[it]  handle キャラハンドル
-     @param[it]  playerSide プレイヤーか敵か
-     */
+    @param[out] stat ステータス
+    @param[it]  handle キャラハンドル
+    @param[it]  playerSide プレイヤーか敵か
+    */
     UFUNCTION(BlueprintCallable, Category = "Battle")
     void GetCharacterStatusByHandle(FBattleCharacterStatus& stat, int32 handle, bool playerSide = true) const;
+
+	/*! 指定キャラのステータスを取得
+    @param[out] stat ステータス
+    @param[it]  handle オブジェクトハンドル
+    */
+    UFUNCTION(BlueprintCallable, Category = "Battle")
+    void GetCharacterStatusByHandle2(FBattleCharacterStatus& stat, const FBattleObjectHandle& handle) const;
 
 	/*!	バトル用のキャラステータス生成
 	*/
@@ -100,13 +107,13 @@ public:
 
 	/*!	コマンドリストをマージ
 	*/
-	void EnqueueCommands(const TArray<FBattleCommand>& commandList, bool playerSide);
+	void EnqueueCommands(const TArray<FBattleCommand>& commandList, EPlayerGroup playerSide);
 
 	/*!	位置からキャラを取得
 	*/
-	int32 GetCharacterHandle(int32 posIndex, bool playerSide) const
+	int32 GetCharacterIndex(int32 posIndex, EPlayerGroup side) const
 	{
-		const FBattleParty* party = GetParty(playerSide);
+		const FBattleParty* party = GetParty(side);
 		if(party) {
 			check(UBattleBoardUtil::GetCellNum() == party->Formation.Num());
 			if(0 <= posIndex && posIndex < party->Formation.Num()) {
@@ -115,6 +122,11 @@ public:
 		}
 		return -1;
 	}
+
+	/*!	位置からキャラを取得
+	*/
+	FBattleObjectHandle GetObjectHandle(int32 posIndex, EPlayerGroup side) const;
+	
 
 	//! @{
 	//! キャラ選択
@@ -137,14 +149,36 @@ public:
 		return const_cast<FBattleParty*>(static_cast<const UBattleSystem*>(this)->GetParty(playerSide));
 	}
 
+	/*!	パーティ取得
+	*/
+	const FBattleParty* GetParty(EPlayerGroup side) const
+	{
+		if(static_cast<int32>(side) < PartyList.Num()) {
+			return &PartyList[static_cast<int32>(side)];
+		}
+		return nullptr;
+	}
+	FBattleParty* GetParty(EPlayerGroup side)
+	{
+		return const_cast<FBattleParty*>(static_cast<const UBattleSystem*>(this)->GetParty(side));
+	}
+
 	/*!	指定ハンドルのキャラを取得
 	*/
 	FBattleCharacterStatus* GetCharacterByHandle(FBattleParty* party, int32 characterHandle) const;
 
+	/*!	指定ハンドルのキャラを取得
+	*/
+	const FBattleCharacterStatus* GetCharacterByHandle2(const FBattleObjectHandle& handle) const;
+
 	/*!	指定場所のキャラを取得
 	*/
 	FBattleCharacterStatus* GetCharacterByPos(FBattleParty* party, int32 posIndex) const;
-	
+
+	/*!	オブジェクトの現在位置を取得
+	*/
+	int32 GetObjectPos(const FBattleObjectHandle& handle) const;
+
 	static const FRandomStream& GetRandStream();
 protected:
 
@@ -198,11 +232,11 @@ protected:
 
 	/*!	攻撃対象選択
 	*/
-	FBattleTarget GetAttackTargetByPos(const FBattleParty* opponentParty, const FBattleCharacterStatus& attacker, int32 attackerPos, bool playerSide) const;
+	FBattleTarget GetAttackTargetByPos(const FBattleParty* opponentParty, const FBattleCharacterStatus& attacker, int32 attackerPos, EPlayerGroup playerSide) const;
 
 	/*!	攻撃対象選択
 	*/
-	void GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const FBattleCharacterStatus& attacker, int32 attackerPos, bool selectPlayerSide, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam) const;
+	void GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const FBattleCharacterStatus& attacker, int32 attackerPos, EPlayerGroup selectPlayerSide, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam) const;
 
 	/*!	死亡更新
 	*/

@@ -14,10 +14,18 @@ enum class EPlayerGroup : uint8 {
 
 	Max,
 };
+constexpr EPlayerGroup InvertGroup(EPlayerGroup group)
+{
+    return group == EPlayerGroup::One ? EPlayerGroup::Two : EPlayerGroup::One;
+}
 constexpr int32 ToIndex01(EPlayerGroup group)
 {
     static_assert(static_cast<int32>(EPlayerGroup::Max) == 2, "EPlayerGroup size have to be 2");
     return static_cast<int32>(group);
+}
+constexpr bool IsPlayerOne(EPlayerGroup group)
+{
+    return (group == EPlayerGroup::One);
 }
 
 /*!	オブジェクトタイプ

@@ -57,4 +57,9 @@ public:
 	*/
 	UFUNCTION(BlueprintPure, Category="Battle/Object")
 	static int32 GetGroupIndex(const FBattleObjectHandle& handle);
+
+	/*!	オブジェクトインデックスを取得
+	*/
+	UFUNCTION(BlueprintPure, Category="Battle/Object")
+	static int32 GetObjectIndex(const FBattleObjectHandle& handle);
 };

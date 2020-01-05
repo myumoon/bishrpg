@@ -12,6 +12,7 @@
 #include "GameData/SkillData.h"
 #include "BattleDataType.h"
 #include "BattleBoardDef.h"
+#include "BattleObjectHandle.h"
 #include "BattleData.generated.h"
 
 
@@ -25,16 +26,10 @@ struct FBattleTarget {
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
-	bool PlayerSide;
+	EPlayerGroup PlayerSide = EPlayerGroup::One;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
-	int32 TargetHandle;
-
-	FBattleTarget()
-	{
-		PlayerSide = true;
-		TargetHandle = 0;
-	}
+	int32 TargetHandle = 0;
 };
 
 UENUM(BlueprintType, meta=(Bitflags))
@@ -161,17 +156,17 @@ struct FBattleParty {
 	}
 
 	// キャラを取得
-	const FBattleCharacterStatus* GetCharacterByHandle(int32 handle) const;
-	FBattleCharacterStatus* GetCharacterByHandle(int32 handle)
+	const FBattleCharacterStatus* GetCharacterByIndex(int32 index) const;
+	FBattleCharacterStatus* GetCharacterByIndex(int32 index)
 	{
-		return const_cast<FBattleCharacterStatus*>(static_cast<const FBattleParty*>(this)->GetCharacterByHandle(handle));
+		return const_cast<FBattleCharacterStatus*>(static_cast<const FBattleParty*>(this)->GetCharacterByIndex(index));
 	}
 
 	// 位置取得
-	int32 GetCharacterPosByHandle(int32 handle) const;
+	int32 GetCharacterPosByIndex(int32 index) const;
 
 	// 位置からハンドルを取得
-	int32 GetCharacterHandleByPos(int32 pos, bool silent = false) const;
+	int32 GetCharacterIndexByPos(int32 pos, bool silent = false) const;
 
 	// 移動(fromとtoを交換)
 	void Move(int32 from, int32 to);
@@ -201,7 +196,7 @@ struct FBattleParty {
 	
 	void Filter(TArray<int32>& selectedPositions, std::function<bool(int32)> filter, std::function<bool(int32, int32)> comp = nullptr) const;
 
-	void MakeCharacterListByPositionList(TArray<int32>& characterHandles, const TArray<int32>& selectedPositions) const;
+	void MakeCharacterListByPositionList(TArray<int32>& CharacterIndexs, const TArray<int32>& selectedPositions) const;
 	//! }
 #endif
 protected:
@@ -351,7 +346,10 @@ struct FBattleCommand {
 	int32 ActionPosIndex;     //!< 発動時の位置(最終的な位置ではない)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle")
-	int32 CharacterHandle;        //!< 行動キャラハンドル
+	FBattleObjectHandle ActorHandle;  //!< 発動者
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle")
+	int32 CharacterIndex;        //!< 行動キャラハンドル
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle")
 	int32 TargetPosIndex;  //!< 対象

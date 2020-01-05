@@ -31,3 +31,9 @@ int32 UObjectHandleLibrary::GetGroupIndex(const FBattleObjectHandle& handle)
 {
     return handle.GetGroupIndex();
 }
+
+// オブジェクトインデックスを取得
+int32 UObjectHandleLibrary::GetObjectIndex(const FBattleObjectHandle& handle)
+{
+    return handle.GetObjectIndex();
+}

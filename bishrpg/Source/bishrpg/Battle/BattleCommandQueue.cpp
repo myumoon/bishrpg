@@ -13,7 +13,9 @@ void UBattleCommandQueue::Initialize(UBattleSystem* system, bool playerSide)
 		//GAME_ERROR("UBattleCommandQueue::Initialize : system is nullptr");
 	}
 	BattleSystem = system;
-	PlayerSide = playerSide;
+
+	// todo : 直接設定するようにする
+	PlayerSide = playerSide ? EPlayerGroup::One : EPlayerGroup::Two;
 }
 
 // 攻撃コマンド追加
@@ -23,8 +25,24 @@ bool UBattleCommandQueue::PushAttackCommand(int32 posIndex)
 	FBattleCommand addCommand;
 	addCommand.ActionType = ECommandType::Attack;
 	addCommand.ActionPosIndex = posIndex;
-	addCommand.CharacterHandle = BattleSystem->GetCharacterHandle(prevPosIndex, PlayerSide);
-	GAME_LOG("PushAttack PlayerSide(%s) : pos(%d) -> prev(%d) -> handle(%d)", PlayerSide ? TEXT("true") : TEXT("false"), posIndex, prevPosIndex, addCommand.CharacterHandle);
+	addCommand.CharacterIndex = BattleSystem->GetCharacterIndex(prevPosIndex, PlayerSide);
+	GAME_LOG("PushAttack PlayerSide(%s) : pos(%d) -> prev(%d) -> handle(%d)", PlayerSide == EPlayerGroup::One ? TEXT("true") : TEXT("false"), posIndex, prevPosIndex, addCommand.CharacterIndex);
+	addCommand.TargetPosIndex = 0;
+	CommandList.Add(addCommand);
+	
+	return CanStartCommand();
+}
+
+// 攻撃コマンド追加
+bool UBattleCommandQueue::PushAttackCommand2(const FBattleObjectHandle& actor)
+{
+	//const int32 prevPosIndex = GetPrevPosIndex(posIndex);
+	FBattleCommand addCommand;
+	addCommand.ActionType = ECommandType::Attack;
+	addCommand.ActionPosIndex = GetInitialCharacterPos2(actor);
+	addCommand.ActorHandle = actor;
+	//addCommand.CharacterIndex = BattleSystem->GetCharacterIndex(prevPosIndex, PlayerSide);
+	GAME_LOG("PushAttack PlayerSide(%s) : index(%d)", IsPlayerOne(PlayerSide) ? TEXT("true") : TEXT("false"), addCommand.CharacterIndex);
 	addCommand.TargetPosIndex = 0;
 	CommandList.Add(addCommand);
 	
@@ -38,7 +56,23 @@ bool UBattleCommandQueue::PushSkillCommand(int32 posIndex, const FName& skillNam
 	FBattleCommand addCommand;
 	addCommand.ActionType = ECommandType::Skill;
 	addCommand.ActionPosIndex = posIndex;
-	addCommand.CharacterHandle = BattleSystem->GetCharacterHandle(prevPosIndex, PlayerSide);
+	addCommand.CharacterIndex = BattleSystem->GetCharacterIndex(prevPosIndex, PlayerSide);
+	addCommand.TargetPosIndex = 0;
+	addCommand.SkillName = skillName;
+	CommandList.Add(addCommand);
+
+	return CanStartCommand();
+}
+
+// スキルコマンド追加
+bool UBattleCommandQueue::PushSkillCommand2(const FBattleObjectHandle& actor, const FName& skillName)
+{
+	//const int32 prevPosIndex = GetPrevPosIndex(posIndex);
+	FBattleCommand addCommand;
+	addCommand.ActionType = ECommandType::Skill;
+	addCommand.ActionPosIndex = GetInitialCharacterPos2(actor);
+	addCommand.ActorHandle = actor;
+	//addCommand.CharacterIndex = BattleSystem->GetCharacterIndex(prevPosIndex, PlayerSide);
 	addCommand.TargetPosIndex = 0;
 	addCommand.SkillName = skillName;
 	CommandList.Add(addCommand);
@@ -51,12 +85,30 @@ bool UBattleCommandQueue::PushMoveCommand(int32 posIndex, int32 moveTo)
 {
 	const int32 prevPosIndex = GetPrevPosIndex(posIndex);
 	const int32 prevMoveToPosIndex = GetPrevPosIndex(moveTo);
-	const int32 moveToCharHandle = BattleSystem->GetCharacterHandle(prevMoveToPosIndex, PlayerSide);
+	const int32 moveToCharHandle = BattleSystem->GetCharacterIndex(prevMoveToPosIndex, PlayerSide);
 
 	FBattleCommand addCommand;
 	addCommand.ActionType = (0 <= moveToCharHandle) ? ECommandType::Swap : ECommandType::Move;
 	addCommand.ActionPosIndex = posIndex;
-	addCommand.CharacterHandle = BattleSystem->GetCharacterHandle(prevPosIndex, PlayerSide);
+	addCommand.CharacterIndex = BattleSystem->GetCharacterIndex(prevPosIndex, PlayerSide);
+	addCommand.TargetPosIndex = moveTo;
+	CommandList.Add(addCommand);
+
+	return CanStartCommand();
+}
+
+// 移動コマンド追加
+bool UBattleCommandQueue::PushMoveCommand2(const FBattleObjectHandle& actor, int32 moveTo)
+{
+	//const int32 prevPosIndex = GetPrevPosIndex(posIndex);
+	const int32 prevMoveToPosIndex = GetPrevPosIndex(moveTo);
+	const int32 moveToCharHandle = BattleSystem->GetCharacterIndex(prevMoveToPosIndex, PlayerSide);
+
+	FBattleCommand addCommand;
+	addCommand.ActionType = (0 <= moveToCharHandle) ? ECommandType::Swap : ECommandType::Move;
+	addCommand.ActionPosIndex = GetInitialCharacterPos2(actor);
+	addCommand.ActorHandle = actor;
+	//addCommand.CharacterIndex = BattleSystem->GetCharacterIndex(prevPosIndex, PlayerSide);
 	addCommand.TargetPosIndex = moveTo;
 	CommandList.Add(addCommand);
 
@@ -170,14 +222,40 @@ int32 UBattleCommandQueue::GetInitialCharacterPos(int32 posIndex) const
 	return searchPosIndex;
 }
 
+// コマンド実行前のキャラの位置を取得
+int32 UBattleCommandQueue::GetInitialCharacterPos2(const FBattleObjectHandle& handle) const
+{
+	if(BattleSystem == nullptr) {
+		return -1;
+	}
+
+	for(int32 i = 0; i < CommandList.Num(); ++i) {
+		const auto& command = CommandList[i];
+		if(handle == command.ActorHandle) {
+			if((command.ActionType == ECommandType::Move) || (command.ActionType == ECommandType::Swap)) {
+				return command.ActionPosIndex;
+			}
+		}
+	}
+
+	return BattleSystem->GetObjectPos(handle);
+}
+
 // 移動コマンド実行前のキャラを取得
-int32 UBattleCommandQueue::GetMovedCharacterHandle(int32 posIndex, bool playerSide) const
+int32 UBattleCommandQueue::GetMovedCharacterIndex(int32 posIndex, bool playerSide) const
+{
+	const EPlayerGroup side = playerSide ? EPlayerGroup::One : EPlayerGroup::Two;
+	return GetOriginCharacterIndex(posIndex, side);
+}
+
+// 移動コマンド実行前のキャラを取得
+int32 UBattleCommandQueue::GetOriginCharacterIndex(int32 posIndex, EPlayerGroup side) const
 {
 	int32 initialPos = GetInitialCharacterPos(posIndex);
 	if(initialPos < 0) {
 		return -1;
 	}
-	int32 charHandle = BattleSystem->GetCharacterHandle(initialPos, playerSide);
+	const int32 charIndex = BattleSystem->GetCharacterIndex(initialPos, side);
 
-	return charHandle;
+	return charIndex;
 }

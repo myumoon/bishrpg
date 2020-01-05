@@ -76,7 +76,24 @@ public:
 	FBattleObjectHandle(const FBattleObjectHandle& handle) = default;
 	FBattleObjectHandle(int32 objectIndex, EObjectType objectType, EPlayerGroup group);
 	~FBattleObjectHandle() = default;
-	//FBattleObjectHandle& operator=(FBattleObjectHandle& handle) = default;
+
+	FBattleObjectHandle& operator=(const FBattleObjectHandle& handle) = default;
+	bool operator==(const FBattleObjectHandle& rhs) const
+	{
+		// 無効なハンドルのときは中身を見ずに判定
+		if(!IsValid() && !rhs.IsValid()) {
+			return true;
+		}
+		return (HandleValue == rhs.HandleValue);
+	}
+	bool operator!=(const FBattleObjectHandle& rhs) const
+	{
+		// 無効なハンドルのときは中身を見ずに判定
+		if(!IsValid() && !rhs.IsValid()) {
+			return false;
+		}
+		return (HandleValue != rhs.HandleValue);
+	}
 
 	/*!	有効かどうか
 	*/
@@ -108,6 +125,10 @@ public:
 	/*!	プレイヤーグループインデックスを取得
 	*/
 	int32 GetGroupIndex() const;
+
+	/*!	オブジェクトインデックスを取得
+	*/
+	int32 GetObjectIndex() const;
 	
 private:
 	int32 GetHandleValue() const { return HandleValue; }

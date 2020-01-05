@@ -38,20 +38,20 @@ const FBattleCharacterStatus* FBattleParty::GetCharacterByPos(int32 posIndex) co
 	return &Characters[charIndex];
 }
 
-const FBattleCharacterStatus* FBattleParty::GetCharacterByHandle(int32 handle) const
+const FBattleCharacterStatus* FBattleParty::GetCharacterByIndex(int32 index) const
 {
-	check(0 <= handle && handle < Characters.Num());
-	if(handle < 0 || Characters.Num() <= handle) {
+	check(0 <= index && index < Characters.Num());
+	if(index < 0 || Characters.Num() <= index) {
 		return nullptr;
 	}
-	return &Characters[handle];
+	return &Characters[index];
 }
 
-int32 FBattleParty::GetCharacterPosByHandle(int32 handle) const
+int32 FBattleParty::GetCharacterPosByIndex(int32 index) const
 {
 	for(int32 i = 0; i < Formation.Num(); ++i) {
 		if(0 <= Formation[i] && Formation[i] < Characters.Num()) {
-			if(Formation[i] == handle) {
+			if(Formation[i] == index) {
 				return i;
 			}
 		}
@@ -59,11 +59,11 @@ int32 FBattleParty::GetCharacterPosByHandle(int32 handle) const
 	return -1;
 }
 
-int32 FBattleParty::GetCharacterHandleByPos(int32 pos, bool silent) const
+int32 FBattleParty::GetCharacterIndexByPos(int32 pos, bool silent) const
 {
 	if(pos < 0 || Formation.Num() <= pos) {
 		if(!silent) {
-			GAME_ERROR("GetCharacterHandleByPos : out of range 0 <= %d < %d", pos, Formation.Num());
+			GAME_ERROR("GetCharacterIndexByPos : out of range 0 <= %d < %d", pos, Formation.Num());
 		}
 		return -1;
 	}

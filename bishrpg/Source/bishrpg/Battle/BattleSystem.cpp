@@ -7,6 +7,7 @@
 #include "GameData/CharacterAsset.h"
 #include "GameData/SkillData.h"
 #include "BattleCellSelector.h"
+#include "ObjectHandleLibrary.h"
 #include "GameData/BishRPGDataTblAccessor.h"
 
 #include "bishrpg.h"
@@ -59,9 +60,20 @@ void UBattleSystem::GetCharacterStatusByPos(FBattleCharacterStatus& stat, int32 
 }
 
 // バトル用キャラ情報取得
-void UBattleSystem::GetCharacterStatusByHandle(FBattleCharacterStatus& stat, int32 handle, bool playerSide) const
+void UBattleSystem::GetCharacterStatusByHandle(FBattleCharacterStatus& stat, int32 index, bool playerSide) const
 {
-    const FBattleCharacterStatus* status = const_cast<FBattleParty*>(GetParty(playerSide))->GetCharacterByHandle(handle);
+    const FBattleCharacterStatus* status = const_cast<FBattleParty*>(GetParty(playerSide))->GetCharacterByIndex(index);
+    check(status != nullptr);
+    if(status != nullptr) {
+        stat = *status;
+    }
+}
+
+// バトル用キャラ情報取得
+void UBattleSystem::GetCharacterStatusByHandle2(FBattleCharacterStatus& stat, const FBattleObjectHandle& handle) const
+{
+	const FBattleCharacterStatus* status = GetCharacterByHandle2(handle);
+    //const FBattleCharacterStatus* status = const_cast<FBattleParty*>(GetParty(playerSide))->GetCharacterByHandle2(handle);
     check(status != nullptr);
     if(status != nullptr) {
         stat = *status;
@@ -157,20 +169,20 @@ int32 UBattleSystem::CalcAlivePlayers() const
 
 
 // コマンド実行
-void UBattleSystem::EnqueueCommands(const TArray<FBattleCommand>& commandList, bool playerSide)
+void UBattleSystem::EnqueueCommands(const TArray<FBattleCommand>& commandList, EPlayerGroup playerSide)
 {
 	FBattleParty* insertParty   = GetParty(playerSide);
-	FBattleParty* opponentParty = GetParty(!playerSide);
+	FBattleParty* opponentParty = GetParty(InvertGroup(playerSide));
 	if((insertParty == nullptr) || (opponentParty == nullptr)) {
 		GAME_ERROR("EnqueueCommands : Party is null");
 		return;
 	}
 
 	Command addCommand;
-	int32 checkIndex = 0;
+	int32 checkIndex  = 0;
 	int32 addedCommands = 0;
 	bool existCommand = false;
-	bool prevAddSide = playerSide;
+	EPlayerGroup prevAddSide = playerSide;
 
 	TArray<Command> mergedCommands;
 	mergedCommands.Reserve(UBattleBoardUtil::GetCellNum() * 2);
@@ -193,60 +205,61 @@ void UBattleSystem::EnqueueCommands(const TArray<FBattleCommand>& commandList, b
 		tempCommands.Shrink();
 	}
 
-	auto addCommandList = [](TArray<Command>& list, const FBattleCommand& addCommand, bool PlayerSide) {
-		GAME_LOG("AddCommand : pos(%d), player(%s)", addCommand.ActionPosIndex, PlayerSide ? TEXT("true") : TEXT("false"));
+	auto addCommandList = [](TArray<Command>& list, const FBattleCommand& addCommand, EPlayerGroup playerSide) {
+		GAME_LOG("AddCommand : pos(%d), player(%s)", addCommand.ActionPosIndex, IsPlayerOne(playerSide) ? TEXT("true") : TEXT("false"));
 		Command add;
 		add.BattleCommand = addCommand;
-		add.PlayerSide = PlayerSide;
+		add.PlayerSide = playerSide;
 		list.Add(add);
 	};
 
 	// 速度が早い方から順に入れていく
-	int insertIndex = 0;
+	int32   insertIndex = 0;
+
 	for( ; insertIndex < tempCommands.Num(); ++insertIndex) {
 		// tempCommandsの余った分は外で入れる
 		if(checkIndex == MergedCommandList.Num()) {
 			break;
 		}
 
-		const int32 insertHandle = tempCommands[insertIndex].CharacterHandle;
-		if(insertHandle < 0 || insertParty->Characters.Num() <= insertHandle) {
+		const int32 insertCharacterIndex = tempCommands[insertIndex].CharacterIndex;
+		if(insertCharacterIndex < 0 || insertParty->Characters.Num() <= insertCharacterIndex) {
 			continue;
 		}
 		
-		const auto& insertChar   = insertParty->Characters[insertHandle];
+		const auto& insertChar   = insertParty->Characters[insertCharacterIndex];
 
 		for( ; checkIndex < MergedCommandList.Num(); ) {
-			const int32 checkHandle = MergedCommandList[checkIndex].BattleCommand.CharacterHandle;
-			if(checkHandle < 0 || opponentParty->Characters.Num() <= checkHandle) {
+			const int32 characterIndex = MergedCommandList[checkIndex].BattleCommand.CharacterIndex;
+			if(characterIndex < 0 || opponentParty->Characters.Num() <= characterIndex) {
 				++checkIndex;
 				continue;
 			}
 
-			const auto& checkChar = opponentParty->Characters[checkHandle];
-			if((prevAddSide && checkChar.Speed <= insertChar.Speed) || (!prevAddSide && checkChar.Speed < insertChar.Speed)) {
-				addCommandList(mergedCommands, tempCommands[insertIndex], playerSide);
+			const auto& checkChar = opponentParty->Characters[checkIndex];
+			if((IsPlayerOne(prevAddSide) && checkChar.Speed <= insertChar.Speed) || (!IsPlayerOne(prevAddSide) && checkChar.Speed < insertChar.Speed)) {
+				addCommandList(mergedCommands, tempCommands[characterIndex], playerSide);
 				prevAddSide = playerSide;
 				break;
 			}
 			else {
-				addCommandList(mergedCommands, MergedCommandList[checkIndex].BattleCommand, !playerSide);
-				prevAddSide = !playerSide;
+				addCommandList(mergedCommands, MergedCommandList[checkIndex].BattleCommand, InvertGroup(playerSide));
+				prevAddSide = InvertGroup(playerSide);
 				++checkIndex;
 			}
 		}
 	}
 
 	for(; insertIndex < tempCommands.Num(); ++insertIndex) {
-		const int32 checkHandle = tempCommands[insertIndex].CharacterHandle;
-		if(0 <= checkHandle) {
+		const int32 characterIndex = tempCommands[insertIndex].CharacterIndex;
+		if(0 <= characterIndex) {
 			addCommandList(mergedCommands, tempCommands[insertIndex], playerSide);
 		}
 	}
 	for(; checkIndex < MergedCommandList.Num(); ++checkIndex) {
-		const int32 checkHandle = MergedCommandList[checkIndex].BattleCommand.CharacterHandle;
-		if(0 <= checkHandle) {
-			addCommandList(mergedCommands, MergedCommandList[checkIndex].BattleCommand, !playerSide);
+		const int32 characterIndex = MergedCommandList[checkIndex].BattleCommand.CharacterIndex;
+		if(0 <= characterIndex) {
+			addCommandList(mergedCommands, MergedCommandList[checkIndex].BattleCommand, InvertGroup(playerSide));
 		}
 	}
 
@@ -267,9 +280,9 @@ bool UBattleSystem::ConsumeCommand(FBattleActionResult& result)
 
 	result.TargetResults.Reset();
 	result.ActionType           = ConvertAction(execCommand.BattleCommand.ActionType);
-	//result.Actor.TargetPosIndex = GetParty(execCommand.PlayerSide)->GetCharacterPosByHandle(execCommand.BattleCommand.CharacterHandle);
-	result.Actor.TargetHandle   = execCommand.BattleCommand.CharacterHandle;
-	GAME_LOG("Consume handle(%d), playerSide(%s), skill(%s)", execCommand.BattleCommand.CharacterHandle, execCommand.PlayerSide ? TEXT("true") : TEXT("false"), *execCommand.BattleCommand.SkillName.ToString());
+	//result.Actor.TargetPosIndex = GetParty(execCommand.PlayerSide)->GetCharacterPosByHandle(execCommand.BattleCommand.CharacterIndex);
+	result.Actor.TargetHandle   = execCommand.BattleCommand.CharacterIndex;
+	GAME_LOG("Consume handle(%d), playerSide(%s), skill(%s)", execCommand.BattleCommand.CharacterIndex, IsPlayerOne(execCommand.PlayerSide) ? TEXT("true") : TEXT("false"), *execCommand.BattleCommand.SkillName.ToString());
 	result.Actor.PlayerSide     = execCommand.PlayerSide;
 	
 	switch(execCommand.BattleCommand.ActionType) {
@@ -311,9 +324,9 @@ bool UBattleSystem::ConsumeMoveCommands(TArray<FBattleActionResult>& result)
 	}
 
 	for(int i = 0; i < MergedMoveCommandList.Num(); ++i) {
-		const bool playerSide = MergedMoveCommandList[i].PlayerSide;
-		const int32 actorPos  = MergedMoveCommandList[i].BattleCommand.ActionPosIndex;
-		const int32 moveto    = MergedMoveCommandList[i].BattleCommand.TargetPosIndex;
+		const EPlayerGroup playerSide = MergedMoveCommandList[i].PlayerSide;
+		const int32        actorPos   = MergedMoveCommandList[i].BattleCommand.ActionPosIndex;
+		const int32        moveto     = MergedMoveCommandList[i].BattleCommand.TargetPosIndex;
 		auto* party = GetParty(playerSide);
 
 		/*
@@ -349,7 +362,7 @@ bool UBattleSystem::ConsumeMoveCommands(TArray<FBattleActionResult>& result)
 
 				if((0 <= oldFormation[i]) && (oldFormation[i] != currentFormation[i])) {
 					moveResult.ActionType = EBattleActionType::Move;
-					moveResult.Actor.PlayerSide = (partyIndex == 0);
+					moveResult.Actor.PlayerSide = (partyIndex == 0) ? EPlayerGroup::One : EPlayerGroup::Two;
 					moveResult.Actor.TargetHandle = oldFormation[i];
 					moveResult.MoveFrom = i;
 					currentFormation.Find(oldFormation[i], moveResult.MoveTo);
@@ -426,13 +439,13 @@ float UBattleSystem::GetTypeDamageRate(EBattleStyle attackerStyle, EBattleStyle 
 // 通常攻撃は手前のキャラを対象に殴る
 void UBattleSystem::ExecAttack(FBattleActionResult& result, const Command& command)
 {
-	auto* attackChar       = GetCharacterByHandle(GetParty(command.PlayerSide), command.BattleCommand.CharacterHandle);
+	auto* attackChar       = GetCharacterByHandle(GetParty(command.PlayerSide), command.BattleCommand.CharacterIndex);
 	if(attackChar == nullptr) {
 		return;
 	}
-	const int32 attackerPos = GetParty(command.PlayerSide)->GetCharacterPosByHandle(command.BattleCommand.CharacterHandle);
-	const auto target       = GetAttackTargetByPos(GetParty(!command.PlayerSide), *attackChar, attackerPos, command.PlayerSide);
-	auto* targetChar        = GetCharacterByHandle(GetParty(!command.PlayerSide), target.TargetHandle);
+	const int32 attackerPos = GetParty(command.PlayerSide)->GetCharacterPosByIndex(command.BattleCommand.CharacterIndex);
+	const auto target       = GetAttackTargetByPos(GetParty(InvertGroup(command.PlayerSide)), *attackChar, attackerPos, command.PlayerSide);
+	auto* targetChar        = GetCharacterByHandle(GetParty(InvertGroup(command.PlayerSide)), target.TargetHandle);
 	if(targetChar == nullptr) {
 		return;
 	}
@@ -451,11 +464,11 @@ void UBattleSystem::ExecAttack(FBattleActionResult& result, const Command& comma
 // スキル
 void UBattleSystem::ExecSkill(FBattleActionResult& result, const Command& command)
 {
-	auto* attackChar = GetCharacterByHandle(GetParty(command.PlayerSide), command.BattleCommand.CharacterHandle);
+	auto* attackChar = GetCharacterByHandle(GetParty(command.PlayerSide), command.BattleCommand.CharacterIndex);
 	if(attackChar == nullptr) {
 		return;
 	}
-	const int32 attackerPos = GetParty(command.PlayerSide)->GetCharacterPosByHandle(command.BattleCommand.CharacterHandle);
+	const int32 attackerPos = GetParty(command.PlayerSide)->GetCharacterPosByIndex(command.BattleCommand.CharacterIndex);
 	const auto* skillTbl    = ABishRPGDataTblAccessor::GetTbl(ETblType::SkillTbl);
 	const auto* skillData   = skillTbl->FindRow<FSkillData>(command.BattleCommand.SkillName, FString(""));
 	if(skillData == nullptr) {
@@ -505,30 +518,30 @@ void UBattleSystem::ExecMove(FBattleActionResult& result, const Command& command
 }
 
 // 攻撃対象選択
-FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentParty, const FBattleCharacterStatus& attacker, int32 attackerPos, bool playerSide) const
+FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentParty, const FBattleCharacterStatus& attacker, int32 attackerPos, EPlayerGroup playerSide) const
 {
 	TArray<int32> selectedTarget;
 	// todo:BattleCellSelectorに差し替え
 	//opponentParty->SelectTop(selectedTarget, 0, attackerPos);
-	BattleCellSelector cellSelector(GetParty(!playerSide));
+	BattleCellSelector cellSelector(GetParty(InvertGroup(playerSide)));
 	cellSelector.SelectTarget(attackerPos, EBattleSelectMethod::E_Top1);
 	if(selectedTarget.Num() == 0) {
-		GAME_ERROR("GetAttackTargetByPos : not selected. attackerPos(%d), playerPos(%s)", attackerPos, playerSide ? TEXT("true") : TEXT("false"));
+		GAME_ERROR("GetAttackTargetByPos : not selected. attackerPos(%d), playerPos(%s)", attackerPos, IsPlayerOne(playerSide) ? TEXT("true") : TEXT("false"));
 		return FBattleTarget();
 	}
 
 	FBattleTarget target;
-	target.PlayerSide   = !playerSide;
+	target.PlayerSide   = InvertGroup(playerSide);
 	target.TargetHandle = selectedTarget[0];
 
 	return target;
 }
 
 // スキル対象
-void UBattleSystem::GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const FBattleCharacterStatus& actor, int32 actorPos, bool actorSide, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam) const
+void UBattleSystem::GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const FBattleCharacterStatus& actor, int32 actorPos, EPlayerGroup actorSide, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam) const
 {
-	const bool targetPlayerSide = (skillType == ESkillType::Heal) ? actorSide : !actorSide;
-	const auto* targetParty = GetParty(targetPlayerSide);
+	const EPlayerGroup targetPlayerSide = (skillType == ESkillType::Heal) ? actorSide : InvertGroup(actorSide);
+	const auto*        targetParty      = GetParty(targetPlayerSide);
 
 	TArray<int32> selectedTarget;
 	//targetParty->Select(selectedTarget, actorPos, selectType, selectParam, *RandStream);
@@ -552,19 +565,36 @@ void UBattleSystem::GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const F
 
 
 
-FBattleCharacterStatus* UBattleSystem::GetCharacterByHandle(FBattleParty* party, int32 characterHandle) const
+FBattleCharacterStatus* UBattleSystem::GetCharacterByHandle(FBattleParty* party, int32 CharacterIndex) const
 {
 	if(party == nullptr) {
 		GAME_ERROR("GetCharacterByPos : party is nullptr");
 		return nullptr;
 	}
-	if((characterHandle < 0) || (party->Characters.Num() <= characterHandle)) {
-		GAME_ERROR("GetCharacterByPos : characterHandle is out of range (0 <= characterHandle:%d < %d)", characterHandle, party->Characters.Num());
+	if((CharacterIndex < 0) || (party->Characters.Num() <= CharacterIndex)) {
+		GAME_ERROR("GetCharacterByPos : CharacterIndex is out of range (0 <= CharacterIndex:%d < %d)", CharacterIndex, party->Characters.Num());
 		return nullptr;
 	}
 	//check(posIndex < party->Formation.Num());
 	//check(party->Formation[posIndex] < party->Characters.Num());
-	return &party->Characters[characterHandle];
+	return &party->Characters[CharacterIndex];
+}
+
+const FBattleCharacterStatus* UBattleSystem::GetCharacterByHandle2(const FBattleObjectHandle& handle) const
+{
+	auto* party = GetParty(handle.IsManualPlayer());
+	if(party == nullptr) {
+		GAME_ERROR("GetCharacterByPos : party is nullptr");
+		return nullptr;
+	}
+	int32 index = handle.GetObjectIndex();
+	if((index < 0) || (party->Characters.Num() <= index)) {
+		GAME_ERROR("GetCharacterByPos : index is out of range (0 <= index:%d < %d)", index, party->Characters.Num());
+		return nullptr;
+	}
+	//check(posIndex < party->Formation.Num());
+	//check(party->Formation[posIndex] < party->Characters.Num());
+	return &party->Characters[index];
 }
 
 FBattleCharacterStatus* UBattleSystem::GetCharacterByPos(FBattleParty* party, int32 posIndex) const
@@ -586,7 +616,33 @@ FBattleCharacterStatus* UBattleSystem::GetCharacterByPos(FBattleParty* party, in
 	return &party->Characters[party->Formation[posIndex]];
 }
 
+FBattleObjectHandle UBattleSystem::GetObjectHandle(int32 posIndex, EPlayerGroup side) const
+{
+	const int32 index = GetCharacterIndex(posIndex, side);
+	FObjectHandleDesc desc = {};
+	if(0 <= index) {
+		desc.Index       = posIndex;
+		// todo : オブジェクトの種類を入れる
+		//desc.ObjectType  = GetParty(side)->Characters[index].Style;
+		desc.PlayerGroup = side;
+	}
+	return UObjectHandleLibrary::MakeObjectHandle(desc);
+}
+
+int32 UBattleSystem::GetObjectPos(const FBattleObjectHandle& handle) const
+{
+	if(!handle.IsValid()) {
+		return -1;
+	}
+	const auto* party  = GetParty(handle.GetGroup());
+	const int32 pos    = party->GetCharacterPosByIndex(handle.GetObjectIndex());
+	
+	return pos;
+}
+
+
 const FRandomStream& UBattleSystem::GetRandStream()
 {
 	return RandStream;
 }
+
