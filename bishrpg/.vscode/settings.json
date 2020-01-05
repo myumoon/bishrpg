@@ -2,6 +2,7 @@
 	"files.exclude": {
 		"/Users/ryunosukeide/proj/bishrpg/bishrpg/.vscode": true,
 		"/Users/ryunosukeide/proj/bishrpg/bishrpg/Content": true,
-		"/Users/ryunosukeide/proj/bishrpg/bishrpg/Intermediate": true
+		"/Users/ryunosukeide/proj/bishrpg/bishrpg/Intermediate": true,
+		"/Users/ryunosukeide/proj/bishrpg/bishrpg/Saved": true
 	}
 }
