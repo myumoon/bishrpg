@@ -32,6 +32,26 @@ struct FBattleTarget {
 	int32 TargetHandle = 0;
 };
 
+/**	削除予定
+*
+*/
+UCLASS()
+class BISHRPG_API UBattleTargetConverter : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+
+	/*!	一時的な変換(削除予定)
+	*/
+	UFUNCTION(BlueprintPure, Category = "Battle/Object")
+	static bool ConvertPlayerGroupToBool(EPlayerGroup group)
+	{
+		return (group == EPlayerGroup::One) ? true : false;
+	}
+
+};
+
 UENUM(BlueprintType, meta=(Bitflags))
 enum class EStatusFlag : uint8 {
 	None = 0,
