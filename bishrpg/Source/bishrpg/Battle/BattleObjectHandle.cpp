@@ -16,7 +16,7 @@ FBattleObjectHandle::FBattleObjectHandle(int32 objectIndex, EObjectType objectTy
 // 有効かどうか
 bool FBattleObjectHandle::IsValid() const
 {
-	return (GetHandleValue() != Invald) && (BattleSystem != nullptr);
+	return (GetHandleValue() != Invald);
 }
 
 // 操作プレイヤーかどうかを取得

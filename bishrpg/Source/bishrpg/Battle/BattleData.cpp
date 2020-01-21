@@ -31,7 +31,7 @@ namespace {
 const FBattleCharacterStatus* FBattleParty::GetCharacterByPos(int32 posIndex) const
 {
 	check(posIndex < Formation.Num());
-	int32 charIndex = Formation[posIndex];
+	const int32 charIndex = Formation[posIndex];
 	if(charIndex < 0) {
 		return nullptr;
 	}

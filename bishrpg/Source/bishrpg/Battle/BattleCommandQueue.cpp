@@ -4,6 +4,7 @@
 
 #include "bishrpg.h"
 #include "BattleSystem.h"
+#include "ObjectHandleLibrary.h"
 
 // 初期化
 void UBattleCommandQueue::Initialize(UBattleSystem* system, bool playerSide)
@@ -23,13 +24,15 @@ bool UBattleCommandQueue::PushAttackCommand(int32 posIndex)
 {
 	const int32 prevPosIndex = GetPrevPosIndex(posIndex);
 	FBattleCommand addCommand;
+	BattleCell cell(prevPosIndex);
 	addCommand.ActionType = ECommandType::Attack;
+	addCommand.ActorHandle = BattleSystem->MakeObjectHandle(cell, PlayerSide);
 	addCommand.ActionPosIndex = posIndex;
-	addCommand.CharacterIndex = BattleSystem->GetCharacterIndex(prevPosIndex, PlayerSide);
+	//addCommand.CharacterIndex = BattleSystem->GetCharacterIndex(prevPosIndex, PlayerSide);
 	GAME_LOG("PushAttack PlayerSide(%s) : pos(%d) -> prev(%d) -> handle(%d)", PlayerSide == EPlayerGroup::One ? TEXT("true") : TEXT("false"), posIndex, prevPosIndex, addCommand.CharacterIndex);
 	addCommand.TargetPosIndex = 0;
 	CommandList.Add(addCommand);
-	
+
 	return CanStartCommand();
 }
 
@@ -45,7 +48,7 @@ bool UBattleCommandQueue::PushAttackCommand2(const FBattleObjectHandle& actor)
 	GAME_LOG("PushAttack PlayerSide(%s) : index(%d)", IsPlayerOne(PlayerSide) ? TEXT("true") : TEXT("false"), addCommand.CharacterIndex);
 	addCommand.TargetPosIndex = 0;
 	CommandList.Add(addCommand);
-	
+
 	return CanStartCommand();
 }
 
@@ -258,4 +261,14 @@ int32 UBattleCommandQueue::GetOriginCharacterIndex(int32 posIndex, EPlayerGroup 
 	const int32 charIndex = BattleSystem->GetCharacterIndex(initialPos, side);
 
 	return charIndex;
+}
+
+// コマンド取得
+const FBattleCommand& UBattleCommandQueue::GetCommand(int32 index) const
+{
+	if((index < 0) || (CommandList.Num() <= index)) {
+		GAME_FATAL("ivalid index : CommandListSize(%d), index(%d)", CommandList.Num(), index);
+		return CommandList[0];
+	}
+	return CommandList[index];
 }

@@ -30,6 +30,9 @@ struct FBattleTarget {
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
 	int32 TargetHandle = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
+	FBattleObjectHandle Handle;
 };
 
 /**	削除予定
@@ -68,7 +71,10 @@ struct FBattleTargetValue {
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
-	FBattleTarget Target; //!< 対象
+	FBattleObjectHandle Target;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
+	//FBattleTarget Target; //!< 対象
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
 	int32 Value = 0;  //!< ダメージorヒール量
@@ -95,6 +101,55 @@ struct FBattleActionResult {
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
 	TArray<FBattleTargetValue> TargetResults;  //!< 対象ごとのダメージ/ヒール量
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
+	int32 MoveFrom;                 //!< 移動座標
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
+	int32 MoveTo;                   //!< 移動座標
+};
+
+/*! 攻撃行動結果
+*/
+USTRUCT(BlueprintType)
+struct FBattleAttackResult {
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
+	FBattleObjectHandle Actor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
+	EPlayerGroup TargetGroup;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
+	TArray<FBattleTargetValue> TargetResults;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
+	TArray<int32> AffectedPositions;
+};
+
+/*! スキル結果
+*/
+USTRUCT(BlueprintType)
+struct FBattleSkillResult {
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
+	FName SkillName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
+	FBattleAttackResult AttackResult;
+};
+
+
+/*! 行動結果
+*/
+USTRUCT(BlueprintType)
+struct FBattleMoveResult {
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
+	FBattleObjectHandle Actor;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
 	int32 MoveFrom;                 //!< 移動座標

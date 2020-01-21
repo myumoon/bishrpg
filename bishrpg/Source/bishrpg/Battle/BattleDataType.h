@@ -14,6 +14,8 @@ enum class EPlayerGroup : uint8 {
 
 	Max,
 };
+constexpr int32 MaxGroupNum = static_cast<int32>(EPlayerGroup::Max);
+
 constexpr EPlayerGroup InvertGroup(EPlayerGroup group)
 {
     return group == EPlayerGroup::One ? EPlayerGroup::Two : EPlayerGroup::One;

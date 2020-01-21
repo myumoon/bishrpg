@@ -18,6 +18,9 @@ class BISHRPG_API UBattleCommandQueue : public UActorComponent
 	GENERATED_BODY()
 
 public:
+	using BattleCommandList = TArray<FBattleCommand>;
+
+public:
 	/*!	バトル行動を追加
 	@return コマンド数がいっぱいになったらtrue
 	*/
@@ -105,12 +108,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	int32 GetOriginCharacterIndex(int32 posIndex, EPlayerGroup side) const;
 
+	/*!	コマンド取得
+	*/
+	const FBattleCommand& GetCommand(int32 index) const;
+
 protected:
 	int32 GetPrevPosIndex(int32 posIndex) const;
 
 private:
-	TArray<FBattleCommand> CommandList;         //!< バトルコマンドリスト
+	BattleCommandList      CommandList;         //!< バトルコマンドリスト
 	UBattleSystem*         BattleSystem = nullptr;
-	//bool                   PlayerSide = true;
-	EPlayerGroup           PlayerSide = EPlayerGroup::One;
+	EPlayerGroup           PlayerSide   = EPlayerGroup::One;
 };

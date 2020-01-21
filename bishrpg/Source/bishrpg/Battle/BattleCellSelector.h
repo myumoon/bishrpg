@@ -10,10 +10,13 @@
 struct FBattleParty;
 
 class BattleCellSelector {
+public:
+	using CellList   = TArray<BattleCell>;
+
 private:
 	using SelectFunc = void (BattleCellSelector::*)(int32);
 	using RangeFunc  = void (BattleCellSelector::*)();
-
+	
 public:
 	//BattleCellSelector();
     BattleCellSelector(const FBattleParty* party);
@@ -96,6 +99,10 @@ public:
 	//@}
 
 	//@{
+	void SelectDummy([[maybe_unused]]int32 actorPos) {}
+	//@}
+
+	//@{
 	//! 入力セルを指定ルールに従って拡張する
 	//! @param[in]  range       拡張タイプ
 	void ExpandCell(EBattleSelectRange range);
@@ -131,10 +138,16 @@ public:
 	//! 結果バッファのサイズを1にする
 	void ShurinkResultTo1();
 
+	//@{
+
+	//! 選択セルリストを取得
+	const CellList& GetResult() const { return ResultCells; }
+
+	//@}
+
 protected:
 	void         Initialize(const FBattleParty* party);
-    BattleCell   FetchTop(int32 index) const;
-    TArray<bool> MakeExistMap() const;
+	TArray<bool> MakeExistMap() const;
 
 private:
 	const FBattleParty* SelectedParty = nullptr;

@@ -12,9 +12,26 @@
 #include "BattleData.h"
 #include "BattleBoardUtil.h"
 #include "BattleObjectHandle.h"
+#include "BattleCommandQueue.h"
 #include "BattleSystem.generated.h"
 
+class UBattleCommandQueue;
 
+//! 攻撃結果デリゲート宣言
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+	FBattleAttackDelegate, 
+	const FBattleAttackResult&, result
+);
+//! スキル結果デリゲート宣言
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+	FBattleSkillDelegate,
+	const FBattleSkillResult&, result
+);
+//! バトル結果デリゲート宣言
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+	FBattleMoveDelegate,
+	const FBattleMoveResult&, result
+);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BISHRPG_API UBattleSystem : public UActorComponent
@@ -36,6 +53,30 @@ private:
 		FBattleCommand BattleCommand;
 	};
 
+	using FBattleCommandList = TArray<FBattleCommand>;
+	using FGroupCommandList  = TArray<FBattleCommandList>;
+
+	struct FGroupContext {
+		int32 ConsumedIndex = 0;
+
+		void Reset()
+		{
+			ConsumedIndex = 0;
+		}
+	};
+
+	// 戦闘進行管理
+	struct FBattleCommandContext {
+
+		FBattleCommandContext()
+		{
+			GroupContext.SetNum(MaxGroupNum);
+		}
+		~FBattleCommandContext() = default;
+
+		TArray<FGroupContext> GroupContext;
+	};
+
 public:	
 	// Sets default values for this component's properties
 	UBattleSystem();
@@ -48,12 +89,27 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	void Initialize(const FParty& playerParty, const FParty& opponentParty, const FRandomStream& randStream);
 
+	/*!	バトル開始準備
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void Prepare();
+
+	/*!	バトルコマンド処理
+		
+	AttackDelegate,SkillDelegate,MoveDelegateが呼ばれます。
+	@param[in]	groupOneCommands	グループ1コマンド
+	@param[in]	groupTwoCommands	グループ2コマンド
+	@return		消費するコマンドがあった場合はtrue
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	bool ConsumeCommand(const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands);
+
 	/*!	行動を行う
 	@param[out] result 計算結果
 	@return     消費するコマンドが合った場合はtrue
 	*/
-	UFUNCTION(BlueprintCallable, Category = "Battle")
-	bool ConsumeCommand(FBattleActionResult& result);
+	//UFUNCTION(BlueprintCallable, Category = "Battle")
+	//bool ConsumeCommand(FBattleActionResult& result);
 
 	/*!	移動だけ全消費する
 	@param[out] result 計算結果
@@ -125,7 +181,11 @@ public:
 
 	/*!	位置からキャラを取得
 	*/
-	FBattleObjectHandle GetObjectHandle(int32 posIndex, EPlayerGroup side) const;
+	FBattleObjectHandle MakeObjectHandle(int32 posIndex, EPlayerGroup side, EObjectType type = EObjectType::Character) const;
+
+	/*!	位置からキャラを取得
+	*/
+	FBattleObjectHandle MakeObjectHandle(const BattleCell& cell, EPlayerGroup side, EObjectType type = EObjectType::Character) const;
 	
 
 	//! @{
@@ -170,6 +230,10 @@ public:
 	/*!	指定ハンドルのキャラを取得
 	*/
 	const FBattleCharacterStatus* GetCharacterByHandle2(const FBattleObjectHandle& handle) const;
+	FBattleCharacterStatus*       GetCharacterByHandle2(const FBattleObjectHandle& handle)
+	{
+		return const_cast<FBattleCharacterStatus*>(static_cast<const UBattleSystem*>(this)->GetCharacterByHandle2(handle));
+	}
 
 	/*!	指定場所のキャラを取得
 	*/
@@ -203,15 +267,15 @@ protected:
 	//void PushAction(const FBattleCommand& command);
 	/*!	攻撃コマンド実行
 	*/
-	void ExecAttack(FBattleActionResult& result, const Command& command);
+	void ExecAttack(const FBattleCommand& command, EPlayerGroup group);
 
 	/*!	移動コマンド実行
 	*/
-	void ExecMove(FBattleActionResult& result, const Command& command);
+	void ExecMove(const FBattleCommand& command, EPlayerGroup group);
 
 	/*!	スキルコマンド実行
 	*/
-	void ExecSkill(FBattleActionResult& result, const Command& command);
+	void ExecSkill(const FBattleCommand& command, EPlayerGroup group);
 
 	/*!	ダメージ計算基礎式
 		@param attack        攻撃力(100～2000くらいを想定)
@@ -242,9 +306,25 @@ protected:
 	*/
 	void UpdateDie();
 
+public:
+
+	//! 攻撃デリゲート
+	UPROPERTY(BlueprintAssignable, Category = "Battle/System")
+	FBattleAttackDelegate AttackDelegate;
+
+	//! スキル使用デリゲート
+	UPROPERTY(BlueprintAssignable, Category = "Battle/System")
+	FBattleSkillDelegate SkillDelegate;
+
+	//! 移動デリゲート
+	UPROPERTY(BlueprintAssignable, Category = "Battle/System")
+	FBattleMoveDelegate MoveDelegate;
+
 private:
 	TArray<FBattleParty>             PartyList;             //!< パーティ
-	TArray<Command>                  MergedCommandList;     //!< 全バトルコマンドリスト
-	TArray<Command>                  MergedMoveCommandList; //!< 移動コマンドをまとめたやつ
+	FBattleCommandContext            CommandContext;        //!< バトル進行管理
+	//FGroupCommandList                GroupCommandList;      //!< 実行コマンドリスト
+	//TArray<Command>                  MergedCommandList;     //!< 全バトルコマンドリスト
+	//TArray<Command>                  MergedMoveCommandList; //!< 移動コマンドをまとめたやつ
 	//static const FRandomStream*      RandStream;            //!< ランダム
 };

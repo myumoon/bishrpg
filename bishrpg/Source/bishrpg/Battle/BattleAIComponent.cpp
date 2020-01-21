@@ -43,8 +43,8 @@ void UBattleAIComponent::Execute()
 	}
 
 	for(int32 i = 0; i < GetMyParty()->Formation.Num(); ++i) {
-		const int32 handle = GetMyParty()->Formation[i];
-		if(0 <= handle) {
+		const int32 index = GetMyParty()->Formation[i];
+		if(0 <= index) {
 			CommandQueue->PushAttackCommand(i);
 		}
 	}

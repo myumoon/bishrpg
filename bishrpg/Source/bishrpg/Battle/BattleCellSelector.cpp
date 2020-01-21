@@ -108,6 +108,7 @@ void BattleCellSelector::AddPos(int32 posIndex)
 void BattleCellSelector::SelectTarget(int32 actorPos, EBattleSelectMethod selectMethod)
 {
 	SelectFunc selectMethodFunc[] = {
+		&BattleCellSelector::SelectDummy,
 		&BattleCellSelector::SelectTop1,
 		&BattleCellSelector::SelectTop2,
 		&BattleCellSelector::SelectTop3,
@@ -151,7 +152,13 @@ void BattleCellSelector::SelectTarget(int32 actorPos, EBattleSelectMethod select
 		&BattleCellSelector::SelectRandom10,
 		&BattleCellSelector::SelectRandom11,
 		&BattleCellSelector::SelectRandom12,
+		&BattleCellSelector::SelectMyself_P,
+		&BattleCellSelector::SelectFront1_P,
+		&BattleCellSelector::SelectTop1_P,
+		&BattleCellSelector::SelectBack1_P,
+		&BattleCellSelector::SelectAll_P,
 	};
+	static_assert(ARRAY_COUNT(selectMethodFunc) == static_cast<int32>(EBattleSelectMethod::Max), "Invalid array size : selectMethodFunc");
 	const int32 selectMethodIndex = static_cast<int32>(selectMethod);
 	(this->*selectMethodFunc[selectMethodIndex])(actorPos);
 }
@@ -440,6 +447,31 @@ void BattleCellSelector::SelectRandom12(int32 actorPos)
 	SelectRandom(12);
 }
 
+void BattleCellSelector::SelectMyself_P(int32 actorPos)
+{
+	GAME_ERROR("未実装 : SelectMyself_P");
+}
+
+void BattleCellSelector::SelectFront1_P(int32 actorPos)
+{
+	GAME_ERROR("未実装 : SelectFront1_P");
+}
+
+void BattleCellSelector::SelectTop1_P(int32 actorPos)
+{
+	GAME_ERROR("未実装 : SelectTop1_P");
+}
+
+void BattleCellSelector::SelectBack1_P(int32 actorPos)
+{
+	GAME_ERROR("未実装 : SelectBack1_P");
+}
+
+void BattleCellSelector::SelectAll_P(int32 actorPos)
+{
+	GAME_ERROR("未実装 : SelectAll_P");
+}
+
 
 // ----- セル拡張 -----
 
@@ -450,7 +482,7 @@ void BattleCellSelector::ExpandCell(EBattleSelectRange range)
 		&BattleCellSelector::ExpandRangeCol,
 		&BattleCellSelector::ExpandRangeRow,
 		&BattleCellSelector::ExpandRangeSide,
-		&BattleCellSelector::ExpandRangeFrontBack,
+		//&BattleCellSelector::ExpandRangeFrontBack,
 		&BattleCellSelector::ExpandRangeAroundPlus4,
 		&BattleCellSelector::ExpandRangeAroundCross4,
 		&BattleCellSelector::ExpandRangeAround9,
@@ -459,6 +491,7 @@ void BattleCellSelector::ExpandCell(EBattleSelectRange range)
 		&BattleCellSelector::ExpandRangeBack3,
 		&BattleCellSelector::ExpandRangeBack4,
 	};
+	static_assert(ARRAY_COUNT(rangeFuncTbl) == static_cast<int32>(EBattleSelectRange::Max), "Invalid array size : rangeFuncTbl");
 
 	const int32 rangeFuncIndex = (int)range;
 	check(0 <= rangeFuncIndex && range < EBattleSelectRange::Max);

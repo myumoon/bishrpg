@@ -34,16 +34,16 @@ struct BISHRPG_API FSkillData : public FTableRowBase {
 	//FName NameTextLabel;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
-	UTexture* Image;
+	UTexture* Image =  nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
-	ESkillType Type;
+	ESkillType Type = ESkillType::Attack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
-	EBattleSelectMethod SelectType;
+	EBattleSelectMethod SelectType = EBattleSelectMethod::None;
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
-    EBattleSelectRange SelectRange;
+    EBattleSelectRange SelectRange = EBattleSelectRange::Single;
 
 	// Top1    : 未使用
 	// Col     : 未使用   
@@ -53,14 +53,14 @@ struct BISHRPG_API FSkillData : public FTableRowBase {
 	// All     : 未使用
 	// Random  : 何マス選択するか
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
-	int32 SelectParam;
+	int32 SelectParam = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
-	UCurveFloat* ValueAtLevel;
+	UCurveFloat* ValueAtLevel = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System", meta = (MustImplement = "IBattleAction"))
 	TSubclassOf<AActor> BattleAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
-	EBattleAnimType BattleAnim;
+	EBattleAnimType BattleAnim = EBattleAnimType::Anim000;
 };
