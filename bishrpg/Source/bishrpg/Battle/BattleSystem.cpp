@@ -287,20 +287,24 @@ void UBattleSystem::Prepare()
 	}
 }
 
-bool UBattleSystem::ConsumeCommand(const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands)
+void UBattleSystem::ConsumeCommand(bool& isConsumed, int32& consumedCommandCount, const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands)
 {
 	auto selectCommands = [&groupOneCommands, &groupTwoCommands](EPlayerGroup group) -> const UBattleCommandQueue* {
 		return (group == EPlayerGroup::One) ? groupOneCommands : groupTwoCommands;
 	};
+
+	bool isAllCommandDone = true;
+	consumedCommandCount = 0;
 
 	for(int32 groupIndex = 0; groupIndex < MaxGroupNum; ++groupIndex) {
 		const EPlayerGroup group = static_cast<EPlayerGroup>(groupIndex);
 		auto& groupContext = CommandContext.GroupContext[groupIndex];
 		auto* commandQueue = selectCommands(group);
 
-		for( ; groupContext.ConsumedIndex < commandQueue->GetCount(); ++groupContext.ConsumedIndex) {
+		for( ; groupContext.ConsumedIndex < commandQueue->GetCount(); ) {
 			const auto& execCommand = commandQueue->GetCommand(groupContext.ConsumedIndex);
-			
+			++consumedCommandCount;
+
 			switch(execCommand.ActionType) {
 				case ECommandType::Attack: {
 					ExecAttack(execCommand, group);
@@ -319,11 +323,14 @@ bool UBattleSystem::ConsumeCommand(const UBattleCommandQueue* groupOneCommands, 
 					break;
 			}
 
+			++groupContext.ConsumedIndex;
 			break;
 		}
-	}	
 
-	return true;
+		isAllCommandDone &= (groupContext.ConsumedIndex == commandQueue->GetCount());
+	}
+
+	isConsumed = !isAllCommandDone;
 }
 
 // コマンド実行
@@ -527,9 +534,16 @@ void UBattleSystem::ExecAttack(const FBattleCommand& command, EPlayerGroup group
 	targetResult.Value  = damage;
 	targetResult.Status |= static_cast<int32>(targetChar->IsDie() ? EStatusFlag::Status_Die : EStatusFlag::None);
 	result.TargetResults.Add(targetResult);
+	result.Actor = command.ActorHandle;
 	result.TargetGroup = InvertGroup(group);
 	result.AffectedPositions.Add(GetObjectPos(target.Handle));
 
+#if defined(UE_BUILD_DEBUG)
+	GAME_ASSERT(result.Actor.IsValid());
+	for(const auto& target : result.TargetResults) {
+		GAME_ASSERT(target.Target.IsValid());
+	}
+#endif
 	AttackDelegate.Broadcast(result);
 }
 
@@ -586,7 +600,12 @@ void UBattleSystem::ExecSkill(const FBattleCommand& command, EPlayerGroup group)
 				//targetChar->Heal();
 			}
 		}
-
+#if defined(UE_BUILD_DEBUG)
+		GAME_ASSERT(result.AttackResult.Actor.IsValid());
+		for(const auto& target : result.AttackResult.TargetResults) {
+			GAME_ASSERT(target.Target.IsValid());
+		}
+#endif
 		// BPにイベント送信
 		SkillDelegate.Broadcast(result);
 	}
@@ -607,6 +626,8 @@ void UBattleSystem::ExecMove(const FBattleCommand& command, EPlayerGroup group)
 	result.MoveFrom    = moveFrom;
 	result.MoveTo      = moveTo;
 	result.Actor       = command.ActorHandle;
+
+	GAME_ASSERT(result.Actor.IsValid());
 	MoveDelegate.Broadcast(result);
 
 	// 移動先に誰かいたらその人の分の移動結果も生成
@@ -617,6 +638,7 @@ void UBattleSystem::ExecMove(const FBattleCommand& command, EPlayerGroup group)
 		result.MoveTo      = moveFrom;
 		result.Actor       = targetHandle;
 
+		GAME_ASSERT(result.Actor.IsValid());
 		MoveDelegate.Broadcast(result);
 	}
 	

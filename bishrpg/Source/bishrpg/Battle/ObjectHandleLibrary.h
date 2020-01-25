@@ -38,6 +38,11 @@ public:
 	UFUNCTION(BlueprintPure, Category="Battle/Object")
     static FBattleObjectHandle MakeObjectHandle(const FObjectHandleDesc& desc);
 
+	/*!	有効かどうか
+	*/
+	UFUNCTION(BlueprintPure, Category = "Battle/Object")
+	static bool IsValid(const FBattleObjectHandle& handle);
+
     /*! プレイヤーかどうかを判定
 	*/
     UFUNCTION(BlueprintPure, Category="Battle/Object")

@@ -8,6 +8,12 @@ FBattleObjectHandle UObjectHandleLibrary::MakeObjectHandle(const FObjectHandleDe
     return FBattleObjectHandle(desc.Index, desc.ObjectType, desc.PlayerGroup);
 }
 
+// 有効かどうかを判定
+bool UObjectHandleLibrary::IsValid(const FBattleObjectHandle& handle)
+{
+	return handle.IsValid();
+}
+
 // プレイヤーかどうかを判定
 bool UObjectHandleLibrary::IsPlayer(const FBattleObjectHandle& handle)
 {

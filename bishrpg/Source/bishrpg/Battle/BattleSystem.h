@@ -97,12 +97,14 @@ public:
 	/*!	バトルコマンド処理
 		
 	AttackDelegate,SkillDelegate,MoveDelegateが呼ばれます。
-	@param[in]	groupOneCommands	グループ1コマンド
-	@param[in]	groupTwoCommands	グループ2コマンド
+	@param[out] isConsumed           コマンドが消費されたか
+	@param[out] consumedCommandCount 消費コマンド数
+	@param[in]	groupOneCommands	 グループ1コマンド
+	@param[in]	groupTwoCommands	 グループ2コマンド
 	@return		消費するコマンドがあった場合はtrue
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	bool ConsumeCommand(const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands);
+	void ConsumeCommand(bool& isConsumed, int32& consumedCommandCount, const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands);
 
 	/*!	行動を行う
 	@param[out] result 計算結果
