@@ -134,7 +134,7 @@ FBattleParty UBattleSystem::MakeFromParty(const FParty& party)
 
 
 // 初期化
-void UBattleSystem::Initialize(const FParty& playerParty, const FParty& opponentParty, const FRandomStream& randStream)
+void UBattleSystem::Initialize(const FParty& playerParty, const FParty& opponentParty, const FRandomStream& randStream, const FBattleSettings& battleSettings)
 {
 	const FParty* partyList[] = { &playerParty, &opponentParty };
 
@@ -143,7 +143,8 @@ void UBattleSystem::Initialize(const FParty& playerParty, const FParty& opponent
 		PartyList.Add(battleParty);
 	}
 
-	RandStream = randStream;
+	RandStream     = randStream;
+	BattleSettings = battleSettings;
 }
 
 
@@ -289,17 +290,12 @@ void UBattleSystem::Prepare()
 
 void UBattleSystem::ConsumeCommand(bool& isConsumed, int32& consumedCommandCount, const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands)
 {
-	auto selectCommands = [&groupOneCommands, &groupTwoCommands](EPlayerGroup group) -> const UBattleCommandQueue* {
-		return (group == EPlayerGroup::One) ? groupOneCommands : groupTwoCommands;
-	};
-
-	bool isAllCommandDone = true;
 	consumedCommandCount = 0;
 
 	for(int32 groupIndex = 0; groupIndex < MaxGroupNum; ++groupIndex) {
 		const EPlayerGroup group = static_cast<EPlayerGroup>(groupIndex);
 		auto& groupContext = CommandContext.GroupContext[groupIndex];
-		auto* commandQueue = selectCommands(group);
+		auto* commandQueue = SelectWithGroup(groupOneCommands, groupTwoCommands, group);
 
 		for( ; groupContext.ConsumedIndex < commandQueue->GetCount(); ) {
 			const auto& execCommand = commandQueue->GetCommand(groupContext.ConsumedIndex);
@@ -326,12 +322,30 @@ void UBattleSystem::ConsumeCommand(bool& isConsumed, int32& consumedCommandCount
 			++groupContext.ConsumedIndex;
 			break;
 		}
-
-		isAllCommandDone &= (groupContext.ConsumedIndex == commandQueue->GetCount());
 	}
 
+	const bool isAllCommandDone = IsDoneTurnCommand(groupOneCommands, groupTwoCommands);
 	isConsumed = !isAllCommandDone;
 }
+
+bool UBattleSystem::IsDoneTurnCommand(const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands) const
+{
+	for(int32 groupIndex = 0; groupIndex < MaxGroupNum; ++groupIndex) {
+		const EPlayerGroup group = static_cast<EPlayerGroup>(groupIndex);
+		const auto& groupContext = CommandContext.GroupContext[groupIndex];
+
+		const auto* command = SelectWithGroup(groupOneCommands, groupTwoCommands, group);
+		const bool  isLast  = command->IsLastCommandIndex(groupContext.ConsumedIndex);
+		const bool  isOver  = (BattleSettings.MaxTurnCommandNum <= groupContext.ConsumedIndex);
+
+		if(!isLast && !isOver) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 
 // コマンド実行
 #if 0

@@ -169,7 +169,8 @@ bool UBattleCommandQueue::CanStartCommand() const
 		GAME_ERROR("CanStartCommand : Not initialized");
 		return false;
 	}
-	return (BattleSystem->CalcAlivePlayers() == GetCount(true));
+
+	return (BattleSystem->GetSettings().MaxTurnCommandNum <= GetCount(true));
 }
 
 // コマンド送信
@@ -271,4 +272,10 @@ const FBattleCommand& UBattleCommandQueue::GetCommand(int32 index) const
 		return CommandList[0];
 	}
 	return CommandList[index];
+}
+
+// 最後のコマンドかどうかを判定
+bool UBattleCommandQueue::IsLastCommandIndex(int32 index) const
+{
+	return (CommandList.Num() <= index);
 }

@@ -33,6 +33,20 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
 	const FBattleMoveResult&, result
 );
 
+//! バトル設定
+USTRUCT(BlueprintType)
+struct BISHRPG_API FBattleSettings {
+	GENERATED_BODY()
+
+	//!< 1ターンの最大コマンド数
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle/System")
+	int32 MaxTurnCommandNum = 1;
+};
+
+//! バトルシステム
+//! 
+//! バトルのコマンド結果を計算するシステム
+//! 基本的に内部にコンテキストは持たない。
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BISHRPG_API UBattleSystem : public UActorComponent
 {
@@ -87,7 +101,7 @@ public:
 	/*! 初期化
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void Initialize(const FParty& playerParty, const FParty& opponentParty, const FRandomStream& randStream);
+	void Initialize(const FParty& playerParty, const FParty& opponentParty, const FRandomStream& randStream, const FBattleSettings& battleSettings);
 
 	/*!	バトル開始準備
 	*/
@@ -245,6 +259,10 @@ public:
 	*/
 	int32 GetObjectPos(const FBattleObjectHandle& handle) const;
 
+	/*!	設定取得
+	*/
+	const FBattleSettings& GetSettings() const { return BattleSettings; }
+
 	static const FRandomStream& GetRandStream();
 protected:
 
@@ -308,6 +326,18 @@ protected:
 	*/
 	void UpdateDie();
 
+	/*! ターン処理のコマンドがなくなったらtrueを返す
+	*/
+	bool IsDoneTurnCommand(const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands) const;
+
+	/*! グループで選択
+	*/
+	template<typename T>
+	static constexpr T& SelectWithGroup(T& groupOne, T& groupTwo, EPlayerGroup group)
+	{
+		return IsPlayerOne(group) ? groupOne : groupTwo;
+	}
+
 public:
 
 	//! 攻撃デリゲート
@@ -324,9 +354,6 @@ public:
 
 private:
 	TArray<FBattleParty>             PartyList;             //!< パーティ
+	FBattleSettings                  BattleSettings;        //!< バトル設定
 	FBattleCommandContext            CommandContext;        //!< バトル進行管理
-	//FGroupCommandList                GroupCommandList;      //!< 実行コマンドリスト
-	//TArray<Command>                  MergedCommandList;     //!< 全バトルコマンドリスト
-	//TArray<Command>                  MergedMoveCommandList; //!< 移動コマンドをまとめたやつ
-	//static const FRandomStream*      RandStream;            //!< ランダム
 };

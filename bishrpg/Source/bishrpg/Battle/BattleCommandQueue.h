@@ -112,6 +112,10 @@ public:
 	*/
 	const FBattleCommand& GetCommand(int32 index) const;
 
+	/*!	最後のコマンドかどうかを判定
+	*/
+	bool IsLastCommandIndex(int32 index) const;
+
 protected:
 	int32 GetPrevPosIndex(int32 posIndex) const;
 
