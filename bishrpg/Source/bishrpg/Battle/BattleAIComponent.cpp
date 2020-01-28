@@ -27,7 +27,9 @@ void UBattleAIComponent::Setup(UBattleCommandQueue* commandQueue, int32 lv, int3
 		return;
 	}
 
-	Lv = lv;
+	PlayerSide = playerSide;
+	Group      = ToGroup(playerSide);
+	Lv         = lv;
 	RandomGenerator.Initialize(randSeed);
 }
 
@@ -43,9 +45,13 @@ void UBattleAIComponent::Execute()
 	}
 
 	for(int32 i = 0; i < GetMyParty()->Formation.Num(); ++i) {
+		if(!CommandQueue->CanStartCommand()) {
+			break;
+		}
 		const int32 index = GetMyParty()->Formation[i];
 		if(0 <= index) {
-			CommandQueue->PushAttackCommand(i);
+			const auto handle = BattleSystem->MakeObjectHandle(i, Group);
+			CommandQueue->PushAttackCommand2(handle);
 		}
 	}
 	

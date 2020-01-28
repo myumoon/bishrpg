@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Battle/BattleDataType.h"
 #include "BattleAIComponent.generated.h"
 
 class UBattleSystem;
@@ -14,7 +15,7 @@ struct FBattleCharacterStatus;
 /**
  * バトルAI
  */
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class BISHRPG_API UBattleAIComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -25,13 +26,13 @@ public:
 
 	/*!	セットアップ
 		@param	lv		 強さ
-		@param	randSeed シード値	
+		@param	randSeed シード値
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void Setup(UBattleCommandQueue* commandQueue, int32 lv, int32 randSeed = 0, bool playerSide = false);
+		void Setup(UBattleCommandQueue* commandQueue, int32 lv, int32 randSeed = 0, bool playerSide = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void Execute();
+		void Execute();
 
 protected:
 	const FBattleParty* GetMyParty() const;
@@ -44,5 +45,6 @@ private:
 	UBattleCommandQueue* CommandQueue = nullptr;
 	FRandomStream        RandomGenerator;
 	bool                 PlayerSide = false;
+	EPlayerGroup         Group = EPlayerGroup::One;
 	int32                Lv = 0;
 };

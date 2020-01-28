@@ -18,7 +18,7 @@ constexpr int32 MaxGroupNum = static_cast<int32>(EPlayerGroup::Max);
 
 constexpr EPlayerGroup InvertGroup(EPlayerGroup group)
 {
-    return group == EPlayerGroup::One ? EPlayerGroup::Two : EPlayerGroup::One;
+    return (group == EPlayerGroup::One ? EPlayerGroup::Two : EPlayerGroup::One);
 }
 constexpr int32 ToIndex01(EPlayerGroup group)
 {
@@ -29,6 +29,11 @@ constexpr bool IsPlayerOne(EPlayerGroup group)
 {
     return (group == EPlayerGroup::One);
 }
+constexpr EPlayerGroup ToGroup(bool playerSide)
+{
+	return (playerSide ? EPlayerGroup::One : EPlayerGroup::Two);
+}
+
 
 /*!	オブジェクトタイプ
 */
