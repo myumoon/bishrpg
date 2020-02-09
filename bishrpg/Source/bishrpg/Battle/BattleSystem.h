@@ -172,7 +172,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
 	static FBattleParty MakeFromParty(const FParty& party);
 
-
 	/*!	生存しているプレイヤー数
 	*/
 	int32 CalcAlivePlayers() const;
@@ -264,6 +263,18 @@ public:
 	const FBattleSettings& GetSettings() const { return BattleSettings; }
 
 	static const FRandomStream& GetRandStream();
+
+
+	/*!	デバッグ用ハンドルリスト
+	*/
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Debug")
+	void DebugGetHandleList(TArray<FBattleObjectHandle>& handles, EPlayerGroup group = EPlayerGroup::One) const;
+
+	/*!	デバッグ用戦闘コマンド
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	void DebugCallBattleEvent();
+
 protected:
 
 	static EBattleActionType ConvertAction(ECommandType type)

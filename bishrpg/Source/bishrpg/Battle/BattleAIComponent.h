@@ -29,10 +29,16 @@ public:
 		@param	randSeed シード値
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-		void Setup(UBattleCommandQueue* commandQueue, int32 lv, int32 randSeed = 0, bool playerSide = false);
+	void Setup(UBattleCommandQueue* commandQueue, int32 lv, int32 randSeed = 0, bool playerSide = false, bool enabled = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-		void Execute();
+	void Execute();
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void SetEnabled(bool enabled);
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	bool IsEnabled() const;
 
 protected:
 	const FBattleParty* GetMyParty() const;
@@ -47,4 +53,6 @@ private:
 	bool                 PlayerSide = false;
 	EPlayerGroup         Group = EPlayerGroup::One;
 	int32                Lv = 0;
+
+	bool                 Enabled = false;
 };

@@ -2,6 +2,7 @@
 
 #include "BattleSystem.h"
 
+#include "bishrpg.h"
 #include "Engine/DataTable.h"
 #include "ConstructorHelpers.h"
 #include "GameData/CharacterAsset.h"
@@ -9,8 +10,6 @@
 #include "BattleCellSelector.h"
 #include "ObjectHandleLibrary.h"
 #include "GameData/BishRPGDataTblAccessor.h"
-
-#include "bishrpg.h"
 
 namespace {
 	FRandomStream RandStream;
@@ -290,6 +289,7 @@ void UBattleSystem::Prepare()
 
 void UBattleSystem::ConsumeCommand(bool& isConsumed, int32& consumedCommandCount, const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands)
 {
+	GAME_LOG("Start ConsumeCommand");
 	consumedCommandCount = 0;
 
 	for(int32 groupIndex = 0; groupIndex < MaxGroupNum; ++groupIndex) {
@@ -558,6 +558,7 @@ void UBattleSystem::ExecAttack(const FBattleCommand& command, EPlayerGroup group
 		GAME_ASSERT(target.Target.IsValid());
 	}
 #endif
+	GAME_LOG("BroadcastAttackEvent");
 	AttackDelegate.Broadcast(result);
 }
 
@@ -614,13 +615,28 @@ void UBattleSystem::ExecSkill(const FBattleCommand& command, EPlayerGroup group)
 				//targetChar->Heal();
 			}
 		}
-#if defined(UE_BUILD_DEBUG)
+
+#ifdef UE_BUILD_DEBUG
 		GAME_ASSERT(result.AttackResult.Actor.IsValid());
 		for(const auto& target : result.AttackResult.TargetResults) {
 			GAME_ASSERT(target.Target.IsValid());
 		}
+		
+		GAME_LOG("===SkillResult===");
+		GAME_LOG("- ActorSide   :%d", result.AttackResult.Actor.GetGroupIndex());
+		GAME_LOG("- ActorIndex  :%d", result.AttackResult.Actor.GetObjectIndex());
+		GAME_LOG("- Skill       :%s", *result.SkillName.ToString());
+		GAME_LOG("- TargetGroup :%d", ToIndex01(result.AttackResult.TargetGroup));
+		GAME_LOG("- Targers:");
+		int32 index = 0;
+		for(auto target : result.AttackResult.TargetResults) {
+			GAME_LOG(" - [%d]TargetGroup :%d", index, target.Target.GetGroupIndex());
+			GAME_LOG(" - [%d]TargetIndex :%d", index, target.Target.GetObjectIndex());
+			++index;
+		}
 #endif
 		// BPにイベント送信
+		GAME_LOG("BroadcastSkillEvent");
 		SkillDelegate.Broadcast(result);
 	}
 
@@ -786,4 +802,58 @@ int32 UBattleSystem::GetObjectPos(const FBattleObjectHandle& handle) const
 const FRandomStream& UBattleSystem::GetRandStream()
 {
 	return RandStream;
+}
+
+
+// デバッグ用
+// ハンドルリスト取得
+void UBattleSystem::DebugGetHandleList(TArray<FBattleObjectHandle>& handles, EPlayerGroup group) const
+{
+	const auto* party = GetParty(group);
+	for(int32 pos : party->Formation) {
+		FBattleObjectHandle handle = MakeObjectHandle(BattleCell(pos), group);
+		handles.Add(handle);
+	}
+	
+}
+
+// デバッグ用
+// ハンドルリスト取得
+void UBattleSystem::DebugCallBattleEvent()
+{
+	GAME_LOG("DebugCallBattleEvent");
+
+	auto makeDebugCommand = [this](EPlayerGroup group) {
+		FBattleCommand command;
+		const auto* party = GetParty(group);
+		BattleCell  cell(party->GetCharacterPosByIndex(0));
+		command.ActorHandle = MakeObjectHandle(cell, group);
+		command.ActionType  = ECommandType::Skill;
+		command.SkillName   = "Shout";
+		return command;
+	};
+
+	for(int32 groupIndex = 0; groupIndex < MaxGroupNum; ++groupIndex) {
+		EPlayerGroup group = static_cast<EPlayerGroup>(groupIndex);
+		auto command = makeDebugCommand(group);
+		
+		switch(command.ActionType) {
+			case ECommandType::Attack: {
+				ExecAttack(command, group);
+			} break;
+
+			case ECommandType::Skill: {
+				ExecSkill(command, group);
+			} break;
+
+			case ECommandType::Move:
+			case ECommandType::Swap: {
+				ExecMove(command, group);
+			} break;
+
+			default:
+				break;
+		}
+	}
+
 }

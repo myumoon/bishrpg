@@ -13,7 +13,7 @@ UBattleAIComponent::~UBattleAIComponent()
 {
 }
 
-void UBattleAIComponent::Setup(UBattleCommandQueue* commandQueue, int32 lv, int32 randSeed, bool playerSide)
+void UBattleAIComponent::Setup(UBattleCommandQueue* commandQueue, int32 lv, int32 randSeed, bool playerSide, bool enabled)
 {
 	BattleSystem = Cast<UBattleSystem>(GetOwner()->GetComponentByClass(UBattleSystem::StaticClass()));
 	if(BattleSystem == nullptr) {
@@ -31,6 +31,7 @@ void UBattleAIComponent::Setup(UBattleCommandQueue* commandQueue, int32 lv, int3
 	Group      = ToGroup(playerSide);
 	Lv         = lv;
 	RandomGenerator.Initialize(randSeed);
+	SetEnabled(enabled);
 }
 
 void UBattleAIComponent::Execute()
@@ -55,6 +56,16 @@ void UBattleAIComponent::Execute()
 		}
 	}
 	
+}
+
+void UBattleAIComponent::SetEnabled(bool enabled)
+{
+	Enabled = enabled;
+}
+
+bool UBattleAIComponent::IsEnabled() const
+{
+	return Enabled;
 }
 
 const FBattleParty* UBattleAIComponent::GetMyParty() const
