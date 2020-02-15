@@ -84,10 +84,13 @@ for srcPath in fileList:
 	bpy.context.scene.objects.active = bpy.data.objects[filebasename]
 
 	# scaling
-	if meshType == "static_x10":
-		bpy.context.object.scale[0] = 10
-		bpy.context.object.scale[1] = 10
-		bpy.context.object.scale[2] = 10
+	matchObj = re.match(r'^static_x([0-9]+)$', meshType)
+	if matchObj:
+		scale = int(matchObj.group(1))
+		print("resize: " + str(scale))
+		bpy.context.object.scale[0] = scale
+		bpy.context.object.scale[1] = scale
+		bpy.context.object.scale[2] = scale
 		bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 
 # ----------------------------------------------------------
