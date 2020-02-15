@@ -26,6 +26,14 @@ BiSHを題材にしたRPGゲー
 - UnrealEngine4
   - Install version 4.20.3
 
+### Version Control System for Assets
+
+- SVN
+  - Install Tortoise-1.13.1  
+    https://tortoisesvn.net/downloads.html
+  - Checkout https://myumoon.assembla.com/spaces/game/subversion/source/HEAD/trunk 
+    Trunk URL is ```https://subversion.assembla.com/svn/myumoon^game/trunk```.
+
 ### DCC Tools
 
 - Magica Voxel
