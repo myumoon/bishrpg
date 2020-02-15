@@ -1,10 +1,10 @@
 @echo off
 rem =======================================================
-rem staticãªplyã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’fbxã«å¤‰æ›ã™ã‚‹
-rem ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚°ã¯ç­‰å€
-rem åŒæ™‚ã«è¤‡æ•°ã‚¤ãƒ³ãƒãƒ¼ãƒˆã•ã‚ŒãŸå ´åˆã¯åŒã˜ã‚¢ãƒˆãƒ©ã‚¹ã«ã™ã‚‹
+rem static‚ÈplyƒIƒuƒWƒFƒNƒg‚ðfbx‚É•ÏŠ·‚·‚é
+rem ƒXƒP[ƒŠƒ“ƒO‚Í“™”{
+rem “¯Žž‚É•¡”ƒCƒ“ƒ|[ƒg‚³‚ê‚½ê‡‚Í“¯‚¶ƒAƒgƒ‰ƒX‚É‚·‚é
 rem
-rem blenderã‚’PATHã«è¿½åŠ ã™ã‚‹ã“ã¨
+rem blender‚ðPATH‚É’Ç‰Á‚·‚é‚±‚Æ
 rem =======================================================
 
 set BLENDER="blender.exe"
@@ -20,4 +20,4 @@ if not "%SRC_PLY_LIST%" == "" (
 	%BLENDER% %BASE_BLEND:\\=/% -b -P %PLY2FBX% -- "" --static_x1 %OUT_DIRNAME% %TEMP_DIRNAME% 2048 0.1 16 %SRC_PLY_LIST%
 )
 
-:pause
+pause

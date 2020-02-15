@@ -1,10 +1,10 @@
 @echo off
 rem =======================================================
-rem �L������ϊ�
-rem �f�[�^�̎�ނ��Ƃ�fbx��o��
-rem ���̖т͏�ɂ���z��
+rem ?L????????
+rem ?f?[?^????????fbx??o??
+rem ????��??????z??
 rem 
-rem blender�̃p�X��ʂ��Ă�������
+rem blender??p?X?????????????
 rem =======================================================
 
 set BLENDER="blender.exe"
@@ -23,5 +23,5 @@ if not "%SRC_PLY%" == "" (
 	%BLENDER% %BASE_BLEND:\\=/% -b -P %PLY2FBX% -- "" %SRC_PLY% %DEST_FBX% %WORK_BLEND% %TEX_SIZE% --hair_origin
 )
 
-:pause
+::pause
 exit /b 0
