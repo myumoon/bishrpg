@@ -258,6 +258,10 @@ public:
 	*/
 	int32 GetObjectPos(const FBattleObjectHandle& handle) const;
 
+	/*!	オブジェクトの現在位置を取得
+	*/
+	BattleCell GetObjectCell(const FBattleObjectHandle& handle) const;
+
 	/*!	設定取得
 	*/
 	const FBattleSettings& GetSettings() const { return BattleSettings; }
@@ -332,6 +336,14 @@ protected:
 	/*!	攻撃対象選択
 	*/
 	void GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const FBattleCharacterStatus& attacker, int32 attackerPos, EPlayerGroup selectPlayerSide, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam) const;
+
+	/*!	攻撃セル取得
+	*/
+	void GetSkillTargetPositions(TArray<BattleCell>& positions, const FBattleObjectHandle& actor, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam) const;
+
+	/*!	攻撃セル取得
+	*/
+	void GetTargetsByCell(TArray<FBattleTarget>& targets, const TArray<BattleCell>& positions, EPlayerGroup group) const;
 
 	/*!	死亡更新
 	*/

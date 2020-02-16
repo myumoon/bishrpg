@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "BattleDataType.h"
-#include "BattleData.h"
 #include "BattleBoardUtil.generated.h"
 
 
@@ -13,7 +12,7 @@ class BISHRPG_API UBattleBoardUtil : public UObject {
 	GENERATED_BODY()
 
 public:
-	static const int32 INVALID_CELL_NO = -1;
+	static constexpr int32 INVALID_CELL_NO = -1;
 	static const int32 BOARD_ROW = 4;
 	static const int32 BOARD_COL = 3;
 	static const int32 COL_LEFT = 0;

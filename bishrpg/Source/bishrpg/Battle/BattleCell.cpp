@@ -3,28 +3,22 @@
 #include "BattleCell.h"
 #include "BattleBoardUtil.h"
 
+
 BattleCell::BattleCell() : CellIndex(UBattleBoardUtil::INVALID_CELL_NO)
 {
 
 }
 
-BattleCell::BattleCell(int32 cellIndex) : CellIndex(cellIndex)
-{
-}
-
 BattleCell::BattleCell(int32 row, int32 col) : CellIndex(UBattleBoardUtil::GetBoardCol() * row + col)
 {
 	check(row < UBattleBoardUtil::GetBoardRow());
-	check(row < UBattleBoardUtil::GetBoardCol());
+	check(col < UBattleBoardUtil::GetBoardCol());
 }
 
 BattleCell::BattleCell(const BattleCell& rhs) : CellIndex(rhs.CellIndex)
 {
 }
 
-BattleCell::~BattleCell()
-{
-}
 
 bool BattleCell::IsValid() const
 {

@@ -2,8 +2,10 @@
 
 #pragma once
 
+#include <functional>
 #include "CoreMinimal.h"
 #include "BattleDataType.h"
+#include "System/CharacterStatus.h"
 #include "BattleCell.h"
 //#include "BattleCellSelector.generated.h"
 
@@ -29,7 +31,7 @@ public:
 	//@{
 
     //! 選択
-	void SelectTarget(int32 actorPos, EBattleSelectMethod selectMethod);
+	void SelectTarget(BattleCell actorPos, EBattleSelectMethod selectMethod);
 
 	//! 敵選択
 	void SelectTop(int32 actorPos, int32 index);

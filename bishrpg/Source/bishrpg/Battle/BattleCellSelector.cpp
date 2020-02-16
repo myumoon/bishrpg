@@ -105,7 +105,7 @@ void BattleCellSelector::AddPos(int32 posIndex)
 
 // ----- セル選択 -----
 
-void BattleCellSelector::SelectTarget(int32 actorPos, EBattleSelectMethod selectMethod)
+void BattleCellSelector::SelectTarget(BattleCell actorPos, EBattleSelectMethod selectMethod)
 {
 	SelectFunc selectMethodFunc[] = {
 		&BattleCellSelector::SelectDummy,
@@ -160,7 +160,7 @@ void BattleCellSelector::SelectTarget(int32 actorPos, EBattleSelectMethod select
 	};
 	static_assert(ARRAY_COUNT(selectMethodFunc) == static_cast<int32>(EBattleSelectMethod::Max), "Invalid array size : selectMethodFunc");
 	const int32 selectMethodIndex = static_cast<int32>(selectMethod);
-	(this->*selectMethodFunc[selectMethodIndex])(actorPos);
+	(this->*selectMethodFunc[selectMethodIndex])(actorPos.GetIndex());
 }
 
 void BattleCellSelector::SortResult(std::function<bool(BattleCell, BattleCell)> posComp)

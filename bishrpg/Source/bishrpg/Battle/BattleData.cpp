@@ -59,6 +59,20 @@ int32 FBattleParty::GetCharacterPosByIndex(int32 index) const
 	return -1;
 }
 
+BattleCell FBattleParty::GetCharacterCellByIndex(int32 index) const
+{
+	for(int32 i = 0; i < Formation.Num(); ++i) {
+		if(0 <= Formation[i] && Formation[i] < Characters.Num()) {
+			if(Formation[i] == index) {
+				return BattleCell(i);
+			}
+		}
+	}
+	return BattleCell();
+}
+
+
+
 int32 FBattleParty::GetCharacterIndexByPos(int32 pos, bool silent) const
 {
 	if(pos < 0 || Formation.Num() <= pos) {

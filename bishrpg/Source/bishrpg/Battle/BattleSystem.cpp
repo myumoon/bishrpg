@@ -1,4 +1,4 @@
-// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #include "BattleSystem.h"
 
@@ -584,8 +584,13 @@ void UBattleSystem::ExecSkill(const FBattleCommand& command, EPlayerGroup group)
 
 	if(skillData->Type == ESkillType::Attack || skillData->Type == ESkillType::Heal) {
 		TArray<FBattleTarget> targets;
-		//GetSkillTargetPos(result.AttackResult.AffectedPositions, *attackChar, attackerPos, group, skillData->Type, skillData->SelectType, skillData->SelectParam);
-		GetSkillTargetsByPos(targets, *attackChar, attackerPos, group, skillData->Type, skillData->SelectType, skillData->SelectParam);
+		TArray<BattleCell> positions;
+		positions.Reserve(UBattleBoardUtil::MAX_BOARD_CELLS);
+		GetSkillTargetPositions(positions, command.ActorHandle, skillData->Type, skillData->SelectType, skillData->SelectParam);
+		for(const auto& cell : positions) {
+			result.AttackResult.AffectedPositions.Add(cell.GetIndex());
+		}
+		GetTargetsByCell(targets, positions, group);
 		
 		result.AttackResult.TargetGroup = InvertGroup(command.ActorHandle.GetGroup());
 
@@ -722,6 +727,45 @@ void UBattleSystem::GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const F
 	
 }
 
+// スキル対象
+void UBattleSystem::GetSkillTargetPositions(TArray<BattleCell>& positions, const FBattleObjectHandle& actor, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam) const
+{
+	const EPlayerGroup  targetPlayerSide = (skillType == ESkillType::Heal) ? actor.GetGroup() : InvertGroup(actor.GetGroup());
+	const FBattleParty* targetParty      = GetParty(targetPlayerSide);
+	const BattleCell    actorCell        = GetObjectCell(actor);
+	BattleCellSelector cellSelector(targetParty);
+	cellSelector.SelectTarget(actorCell, selectType);
+	const auto& selectedCells = cellSelector.GetResult();
+
+	if(selectedCells.Num() == 0) {
+		//GAME_ERROR("GetSkillTargetsByPos : not selected. actorPos(%d), actorSide(%s), selectType(%d), selectParam(%d)", actorPos, actorSide ? TEXT("true") : TEXT("false"), static_cast<int32>(selectType), selectParam);
+		return;
+	}
+
+	positions.Reset();
+	positions.Reserve(selectedCells.Num());
+	for(const auto& cell : selectedCells) {
+		positions.Add(cell);
+	}
+
+}
+
+// ターゲット取得
+void UBattleSystem::GetTargetsByCell(TArray<FBattleTarget>& targets, const TArray<BattleCell>& cells, EPlayerGroup group) const
+{
+	targets.Reset();
+	targets.Reserve(UBattleBoardUtil::CELL_NUM);
+
+	const FBattleParty* party = GetParty(group);
+	FBattleTarget addTarget;
+	for(const auto& cell : cells) {
+		//party->GetCharacterByPos(cell.GetIndex());
+		addTarget.Handle = MakeObjectHandle(cell, group, EObjectType::Character);
+		targets.Add(addTarget);
+	}
+
+}
+
 
 
 FBattleCharacterStatus* UBattleSystem::GetCharacterByHandle(FBattleParty* party, int32 CharacterIndex) const
@@ -797,6 +841,18 @@ int32 UBattleSystem::GetObjectPos(const FBattleObjectHandle& handle) const
 	
 	return pos;
 }
+
+BattleCell UBattleSystem::GetObjectCell(const FBattleObjectHandle& handle) const
+{
+	if(!handle.IsValid()) {
+		return BattleCell();
+	}
+	const auto*      party = GetParty(handle.GetGroup());
+	const BattleCell cell  = party->GetCharacterCellByIndex(handle.GetObjectIndex());
+
+	return cell;
+}
+
 
 
 const FRandomStream& UBattleSystem::GetRandStream()

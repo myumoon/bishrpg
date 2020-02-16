@@ -9,14 +9,20 @@
  * 
  */
 class BattleCell {
-private:
 public:
 	BattleCell();
-	BattleCell(int32 cellIndex);
+	constexpr BattleCell(int32 cellIndex) : CellIndex(cellIndex) {}
 	BattleCell(int32 row, int32 col);
 	BattleCell(const BattleCell& rhs);
-	~BattleCell();
+	~BattleCell() = default;
 
+	/*!	無効な値を取得
+	*/
+	static constexpr BattleCell Invalid()
+	{
+		return BattleCell(UBattleBoardUtil::INVALID_CELL_NO);
+	}
+	
 	//! @brief 有効なセルかどうか
 	bool IsValid() const;
 
@@ -32,11 +38,13 @@ public:
 	*/
 	int32 GetIndex() const;
 	
+	/*
 	const BattleCell& operator=(const BattleCell& rhs)
 	{
 		CellIndex = rhs.CellIndex;
 		return *this;
 	}
+	*/
 	
 	bool operator==(const BattleCell& rhs) const
 	{
@@ -47,6 +55,8 @@ public:
 	{
 		return !this->operator==(rhs);
 	}
+
 private:
 	int32 CellIndex;
 };
+

@@ -240,6 +240,9 @@ struct FBattleParty {
 	// 位置取得
 	int32 GetCharacterPosByIndex(int32 index) const;
 
+	// 位置取得
+	BattleCell GetCharacterCellByIndex(int32 index) const;
+
 	// 位置からハンドルを取得
 	int32 GetCharacterIndexByPos(int32 pos, bool silent = false) const;
 

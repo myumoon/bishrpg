@@ -1,8 +1,9 @@
 {
 	"files.exclude": {
-		"/Users/ryunosukeide/proj/bishrpg/bishrpg/.vscode": true,
-		"/Users/ryunosukeide/proj/bishrpg/bishrpg/Content": true,
-		"/Users/ryunosukeide/proj/bishrpg/bishrpg/Intermediate": true,
-		"/Users/ryunosukeide/proj/bishrpg/bishrpg/Saved": true
+		"D:/prog/0_myprogram/bishrpg/bishrpg/.vs": true,
+		"D:/prog/0_myprogram/bishrpg/bishrpg/.vscode": true,
+		"D:/prog/0_myprogram/bishrpg/bishrpg/Content": true,
+		"D:/prog/0_myprogram/bishrpg/bishrpg/Intermediate": true,
+		"D:/prog/0_myprogram/bishrpg/bishrpg/Saved": true
 	}
 }
