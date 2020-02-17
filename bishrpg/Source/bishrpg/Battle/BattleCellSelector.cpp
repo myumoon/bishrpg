@@ -1,4 +1,4 @@
-// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #include "BattleCellSelector.h"
 
@@ -41,9 +41,11 @@ namespace {
 			if(UBattleBoardUtil::GetRow(lhs.GetIndex()) > UBattleBoardUtil::GetRow(rhs.GetIndex())) {
 				return true;
 			}
-
-			const int32 distL = FMath::Abs(UBattleBoardUtil::GetCol(BasePos.GetIndex()) - UBattleBoardUtil::GetCol(lhs.GetIndex()));
-			const int32 distR = FMath::Abs(UBattleBoardUtil::GetCol(BasePos.GetIndex()) - UBattleBoardUtil::GetCol(rhs.GetIndex()));
+			
+			const int32 facedColL = UBattleBoardUtil::GetFacedCol(lhs.GetIndex());
+			const int32 facedColR = UBattleBoardUtil::GetFacedCol(rhs.GetIndex());
+			const int32 distL     = FMath::Abs(UBattleBoardUtil::GetCol(BasePos.GetIndex()) - facedColL);
+			const int32 distR     = FMath::Abs(UBattleBoardUtil::GetCol(BasePos.GetIndex()) - facedColR);
 			return (distL < distR);
 		}
 	};
