@@ -728,13 +728,14 @@ void UBattleSystem::GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const F
 }
 
 // スキル対象
-void UBattleSystem::GetSkillTargetPositions(TArray<BattleCell>& positions, const FBattleObjectHandle& actor, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam) const
+void UBattleSystem::GetSkillTargetPositions(TArray<BattleCell>& positions, const FBattleObjectHandle& actor, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam, EBattleSelectRange expandMethod) const
 {
 	const EPlayerGroup  targetPlayerSide = (skillType == ESkillType::Heal) ? actor.GetGroup() : InvertGroup(actor.GetGroup());
 	const FBattleParty* targetParty      = GetParty(targetPlayerSide);
 	const BattleCell    actorCell        = GetObjectCell(actor);
 	BattleCellSelector cellSelector(targetParty);
 	cellSelector.SelectTarget(actorCell, selectType);
+	cellSelector.ExpandCell(expandMethod);
 	const auto& selectedCells = cellSelector.GetResult();
 
 	if(selectedCells.Num() == 0) {
@@ -759,9 +760,10 @@ void UBattleSystem::GetTargetsByCell(TArray<FBattleTarget>& targets, const TArra
 	const FBattleParty* party = GetParty(group);
 	FBattleTarget addTarget;
 	for(const auto& cell : cells) {
-		//party->GetCharacterByPos(cell.GetIndex());
-		addTarget.Handle = MakeObjectHandle(cell, group, EObjectType::Character);
-		targets.Add(addTarget);
+		if(party->ExistsPos(cell.GetIndex())) {
+			addTarget.Handle = MakeObjectHandle(cell, group, EObjectType::Character);
+			targets.Add(addTarget);
+		}
 	}
 
 }

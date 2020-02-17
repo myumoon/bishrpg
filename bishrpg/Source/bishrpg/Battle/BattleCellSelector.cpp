@@ -190,10 +190,10 @@ void BattleCellSelector::FilterResult(std::function<bool(int32)> posFilter)
 	}
 }
 
-void BattleCellSelector::ShurinkResultTo1()
+void BattleCellSelector::ShurinkResultTo(int32 size)
 {
-	if(0 < ResultCells.Num()) {
-		ResultCells.SetNum(1, false);
+	if((0 <= size) && (size < ResultCells.Num())) {
+		ResultCells.SetNum(size, false);
 	}
 }
 
@@ -237,19 +237,19 @@ void BattleCellSelector::SelectFacedTop1(int32 actorPos)
 {
 	FilterResult([=](int32 pos) { return UBattleBoardUtil::GetCol(pos) == UBattleBoardUtil::GetFacedCol(actorPos);});
 	SortResult(SortCompNearDistance(actorPos));
-	ResultCells.SetNum(1, false);
+	ShurinkResultTo(1);
 }
 void BattleCellSelector::SelectAhead1(int32 actorPos)
 {
 	FilterResult([=](int32 pos) { return UBattleBoardUtil::GetCol(pos) == UBattleBoardUtil::GetFacedCol(actorPos);});
 	SortResult(SortCompNearDistance(actorPos));
-	ResultCells.SetNum(1, false);
+	ShurinkResultTo(1);
 }
 void BattleCellSelector::SelectAhead4(int32 actorPos)
 {
 	FilterResult([=](int32 pos) { return UBattleBoardUtil::GetCol(pos) == UBattleBoardUtil::GetFacedCol(actorPos);});
 	SortResult(SortCompFarDistance(actorPos));
-	ResultCells.SetNum(1, false);
+	ShurinkResultTo(1);
 }
 
 void BattleCellSelector::SelectAttackTop1(int32 actorPos)
@@ -260,7 +260,7 @@ void BattleCellSelector::SelectAttackTop1(int32 actorPos)
 		const auto* charR = SelectedParty->GetCharacterByPos(rhs.GetIndex());
 		return (charL->Attack < charR->Attack);
 	});
-	ResultCells.SetNum(1, false);
+	ShurinkResultTo(1);
 }
 void BattleCellSelector::SelectDeffenceTop1(int32 actorPos)
 {
@@ -270,7 +270,7 @@ void BattleCellSelector::SelectDeffenceTop1(int32 actorPos)
 		const auto* charR = SelectedParty->GetCharacterByPos(rhs.GetIndex());
 		return (charL->Deffence < charR->Deffence);
 	});
-	ResultCells.SetNum(1, false);
+	ShurinkResultTo(1);
 }
 void BattleCellSelector::SelectType(EBattleStyle style, int32 actorPos, bool top)
 {
@@ -283,7 +283,7 @@ void BattleCellSelector::SelectType(EBattleStyle style, int32 actorPos, bool top
 	else {
 		SortResult(SortCompFarDistance(actorPos));
 	}
-	ShurinkResultTo1();
+	ShurinkResultTo(1);
 }
 
 void BattleCellSelector::SelectRockTop1(int32 actorPos)

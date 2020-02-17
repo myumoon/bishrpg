@@ -1,4 +1,4 @@
-// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #pragma once
 
@@ -339,7 +339,7 @@ protected:
 
 	/*!	攻撃セル取得
 	*/
-	void GetSkillTargetPositions(TArray<BattleCell>& positions, const FBattleObjectHandle& actor, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam) const;
+	void GetSkillTargetPositions(TArray<BattleCell>& positions, const FBattleObjectHandle& actor, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam, EBattleSelectRange expandMethod = EBattleSelectRange::Single) const;
 
 	/*!	攻撃セル取得
 	*/

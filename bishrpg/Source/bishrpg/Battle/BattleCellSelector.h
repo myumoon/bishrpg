@@ -1,4 +1,4 @@
-// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #pragma once
 
@@ -138,7 +138,7 @@ public:
 	//@}
 
 	//! 結果バッファのサイズを1にする
-	void ShurinkResultTo1();
+	void ShurinkResultTo(int32 size);
 
 	//@{
 
