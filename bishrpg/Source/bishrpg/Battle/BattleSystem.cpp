@@ -590,9 +590,9 @@ void UBattleSystem::ExecSkill(const FBattleCommand& command, EPlayerGroup group)
 		for(const auto& cell : positions) {
 			result.AttackResult.AffectedPositions.Add(cell.GetIndex());
 		}
-		GetTargetsByCell(targets, positions, group);
-		
-		result.AttackResult.TargetGroup = InvertGroup(command.ActorHandle.GetGroup());
+		const EPlayerGroup targetGroup = InvertGroup(command.ActorHandle.GetGroup());
+		GetTargetsByCell(targets, positions, targetGroup);
+		result.AttackResult.TargetGroup = targetGroup;
 
 		for(auto& target : targets) {
 			auto* targetChar = GetCharacterByHandle2(target.Handle);
