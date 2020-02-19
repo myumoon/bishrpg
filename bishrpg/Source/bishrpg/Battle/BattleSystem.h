@@ -157,6 +157,11 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Battle")
     void GetCharacterStatusByHandle2(FBattleCharacterStatus& stat, const FBattleObjectHandle& handle) const;
 
+	/*!	HPレートを取得
+	*/
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
+	float GetHpRate(const FBattleObjectHandle& handle) const;
+
 	/*!	バトル用のキャラステータス生成
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")

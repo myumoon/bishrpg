@@ -80,6 +80,16 @@ void UBattleSystem::GetCharacterStatusByHandle2(FBattleCharacterStatus& stat, co
     }
 }
 
+// HPレートを取得
+float UBattleSystem::GetHpRate(const FBattleObjectHandle& handle) const
+{
+	const FBattleCharacterStatus* status = GetCharacterByHandle2(handle);
+	if(status == nullptr) {
+		return 0.0f;
+	}
+	return (status->Hp / status->HpMax);
+}
+
 // バトル用キャラ情報生成
 FBattleCharacterStatus UBattleSystem::MakeBattleCharacterStatus(const FCharacterStatus& stat)
 {
