@@ -1,4 +1,4 @@
-// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #pragma once
 
@@ -128,6 +128,7 @@ struct FBattleAttackResult {
 	TArray<int32> AffectedPositions;
 };
 
+
 /*! スキル結果
 */
 USTRUCT(BlueprintType)
@@ -157,6 +158,22 @@ struct FBattleMoveResult {
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
 	int32 MoveTo;                   //!< 移動座標
 };
+
+/*!	結果
+*/
+UCLASS()
+class BISHRPG_API UBattleResultUtil : public UBlueprintFunctionLibrary {
+	GENERATED_BODY()
+
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "Battle/Result")
+	static void DebugPrintAttackResult(const FBattleAttackResult& result, const UBattleSystem* system);
+
+	UFUNCTION(BlueprintCallable, Category = "Battle/Result")
+	static void DebugPrintSkillResult(const FBattleSkillResult& result, const UBattleSystem* system);
+};
+
 
 /*! バトルステータス計算用
 */
@@ -201,6 +218,18 @@ struct FBattleCharacterStatus {
 	{
 		Hp = FMath::Clamp(Hp + heal, 0, HpMax);
 	}
+};
+
+/*!	キャラステータス
+*/
+UCLASS()
+class BISHRPG_API UBattleCharacterStatusUtil : public UBlueprintFunctionLibrary {
+	GENERATED_BODY()
+
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "Battle/Status")
+	static void DebugPrintStatus(FString label, const FBattleCharacterStatus& stat);
 };
 
 /*! パーティ情報

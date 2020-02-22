@@ -87,7 +87,7 @@ float UBattleSystem::GetHpRate(const FBattleObjectHandle& handle) const
 	if(status == nullptr) {
 		return 0.0f;
 	}
-	return (status->Hp / status->HpMax);
+	return (static_cast<float>(status->Hp) / status->HpMax);
 }
 
 // バトル用キャラ情報生成
@@ -492,30 +492,31 @@ void UBattleSystem::UpdateDie()
 }
 
 // ダメージ基礎式
-int32 UBattleSystem::CalcDamage(int32 attack, int32 deffence, int32 randMin, int32 randMax, EBattleStyle attackerStyle, EBattleStyle targetStyle, float diffAcc/*=1.3f*/, int32 minDamage/*=10*/)
+int32 UBattleSystem::CalcDamage(int32 attack, int32 deffence, int32 randMin, int32 randMax, EBattleStyle attackerStyle, EBattleStyle targetStyle, float diffAcc/*=1.3f*/, int32 minDamage, int32 maxDamage)
 {
-	// 攻撃-防御
-	const float attackDiff = FMath::Max(static_cast<float>(attack - deffence), 0.0f);
-
-	// 攻撃力に加算する
+	// 乱数取得
 	const int32 rand = FMath::RandRange(FMath::Min(randMin, randMax), FMath::Max(randMin, randMax));
+	
+	// 攻撃-防御
+	const float actualDef  = static_cast<float>(deffence) * 0.5;
+	const float attackDiff = FMath::Max(static_cast<float>(attack - actualDef), 1.0f);
+	
+	// タイプ補正
+	const int32 typeDamage = static_cast<int32>(attackDiff * GetTypeDamageRate(attackerStyle, targetStyle));
 
 	// 攻撃-防御の差が開くほどダメージが大きくなるようにする
-	const float damageBase = FMath::Pow(attackDiff * 0.01f, diffAcc) * (attack + rand);
+	const float damageAdjust = FMath::Pow(typeDamage * 0.1f, diffAcc);
 
-	// 最低ダメージ保証
-	const int32 damage = FMath::Max(FMath::FloorToInt(damageBase), minDamage);
-
-	// タイプ補正
-	const int32 typeDamage = static_cast<int32>(damage * GetTypeDamageRate(attackerStyle, targetStyle));
-
-	return typeDamage;
+	// 範囲内に収める
+	const float damage = FMath::Clamp(damageAdjust, static_cast<float>(minDamage), static_cast<float>(maxDamage));
+	GAME_LOG_FMT("Rand:{0} AtkDiff:{1} TypeDmg:{2} Adjust:{3} Damage:{4}", rand, attackDiff, typeDamage, damageAdjust, damage);
+	return damage;
 }
 
 // ダメージ補正値
 float UBattleSystem::GetTypeDamageRate(EBattleStyle attackerStyle, EBattleStyle targetStyle)
 {
-	static const float RateWeak   = 2.0f;
+	static const float RateWeak   = 1.5f;
 	static const float RateNormal = 1.0f;
 	static const float RateStrog  = 0.5f;
 
@@ -549,7 +550,7 @@ void UBattleSystem::ExecAttack(const FBattleCommand& command, EPlayerGroup group
 	}
 	const float attack     = attackChar->Attack;
 	const float deffence   = targetChar->Deffence;
-	const int32 damage     = CalcDamage(attack, deffence, -50, 50, attackChar->Style, targetChar->Style, 1.3f, 10);
+	const int32 damage     = CalcDamage(attack, deffence, -50, 50, attackChar->Style, targetChar->Style, 1.2f, BattleSettings.MinDamage, BattleSettings.MaxDamage);
 	targetChar->ReceiveDamage(damage);
 
 	FBattleAttackResult result;
@@ -614,7 +615,7 @@ void UBattleSystem::ExecSkill(const FBattleCommand& command, EPlayerGroup group)
 			if(skillData->Type == ESkillType::Attack) {
 				const float attack   = attackChar->Attack;
 				const float deffence = targetChar->Deffence;
-				const int32 damage   = CalcDamage(attack, deffence, 0, 100, attackChar->Style, targetChar->Style, 1.4f, 20);
+				const int32 damage   = CalcDamage(attack, deffence, 0, 100, attackChar->Style, targetChar->Style, 1.2f, BattleSettings.MinDamage, BattleSettings.MaxDamage);
 				targetChar->ReceiveDamage(damage);
 
 				FBattleTargetValue value;

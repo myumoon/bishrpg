@@ -1,4 +1,4 @@
-// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #include "BattleData.h"
 
@@ -25,6 +25,46 @@ namespace {
 		}
 	};
 
+}
+
+void UBattleCharacterStatusUtil::DebugPrintStatus(FString label, const FBattleCharacterStatus& stat)
+{
+	GAME_LOG_FMT("{0} {1}: Style:{2} Hp:{3}/{4} Atk:{5} Def:{6} Die:{7}", 
+		label,
+		stat.Id.ToString(), 
+		FString(ToStr(stat.Style)),
+		stat.Hp, 
+		stat.HpMax, 
+		stat.Attack, 
+		stat.Deffence, 
+		stat.IsDie());
+}
+
+void UBattleResultUtil::DebugPrintAttackResult(const FBattleAttackResult& result, const UBattleSystem* system)
+{
+	if(!result.Actor.IsValid()) {
+		return;
+	}
+	const auto* attackerStat = system->GetCharacterByHandle2(result.Actor);
+	GAME_LOG("Result---");
+	GAME_LOG("Attacker:");
+	UBattleCharacterStatusUtil::DebugPrintStatus("  - ", *attackerStat);
+
+	
+	GAME_LOG("Targets:");
+	for(auto targetResult : result.TargetResults) {
+		if(targetResult.Target.IsValid()) {
+			const auto* targetStat = system->GetCharacterByHandle2(targetResult.Target);
+			UBattleCharacterStatusUtil::DebugPrintStatus("  - ", *targetStat);
+			GAME_LOG_FMT("    Value:{0}", targetResult.Value);
+		}
+	}
+}
+
+void UBattleResultUtil::DebugPrintSkillResult(const FBattleSkillResult& result, const UBattleSystem* system)
+{
+	GAME_LOG_FMT("SkillResult [{0}]---", result.SkillName.ToString());
+	DebugPrintAttackResult(result.AttackResult, system);
 }
 
 

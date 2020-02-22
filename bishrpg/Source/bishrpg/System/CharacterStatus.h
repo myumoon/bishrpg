@@ -31,6 +31,11 @@ enum class EBattleStyle : uint8
 	Humor,   //!< 面白さ（社長、ポーポー、おハグ...）
 	Sing,    //!< 歌唱力（びりけん、おはじゃ...）
 };
+constexpr const char* ToStr(EBattleStyle style)
+{
+	constexpr const char* names[] = {"Rock", "Humor", "Sing"};
+	return names[static_cast<int32>(style)];
+}
 
 
 USTRUCT(BlueprintType)

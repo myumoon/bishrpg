@@ -41,6 +41,14 @@ struct BISHRPG_API FBattleSettings {
 	//!< 1ターンの最大コマンド数
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle/System")
 	int32 MaxTurnCommandNum = 1;
+
+	//!< 最小ダメージ
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle/System")
+	int32 MinDamage = 10;
+
+	//!< 最大ダメージ
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Battle/System")
+	int32 MaxDamage = 9999;
 };
 
 //! バトルシステム
@@ -325,10 +333,11 @@ protected:
 		@param attackerStyle 攻撃側のスタイル
 		@param targetStyle   相手側のスタイル
 		@param diffAcc       攻撃と防御の差があるときのダメージ増加量（累乗される）
-		@param minDamage     最低保証ダメージ
+		@param minDamage     最小ダメージ
+		@param maxDamage     最大ダメージ
 		@return ダメージ量
 	*/
-	static int32 CalcDamage(int32 attack, int32 deffence, int32 randMin, int32 randMax, EBattleStyle attackerStyle, EBattleStyle targetStyle, float diffAcc = 1.3f, int32 minDamage = 10);
+	static int32 CalcDamage(int32 attack, int32 deffence, int32 randMin, int32 randMax, EBattleStyle attackerStyle, EBattleStyle targetStyle, float diffAcc, int32 minDamage, int32 maxDamage);
 
 	/*!	タイプごとのダメージ補正
 	*/
