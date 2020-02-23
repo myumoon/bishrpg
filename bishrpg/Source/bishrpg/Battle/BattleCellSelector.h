@@ -27,7 +27,7 @@ public:
 	void FilterResult(std::function<bool(int32)> posFilter);
 	void SortResult(std::function<bool(BattleCell, BattleCell)> posComp);
 
-	void AddPos(int32 pos);
+	void AddPos(const BattleCell& pos);
 	//@{
 
     //! 選択
@@ -110,15 +110,17 @@ public:
 	void ExpandCell(EBattleSelectRange range);
 	
 	//@{
-	void ExpandRangeSingle_Based(int32 basePos);
-	void ExpandRangeCol_Based(int32 basePos);
-	void ExpandRangeRow_Based(int32 basePos);
-	void ExpandRangeSide_Based(int32 basePos);
-	void ExpandRangeFrontBack_Based(int32 basePos);
-	void ExpandRangeAroundPlus4_Based(int32 basePos);
-	void ExpandRangeAroundCross4_Based(int32 basePos);
-	void ExpandRangeAround9_Based(int32 basePos);
-	void ExpandRangeBack_Based(int32 basePos, int32 count);
+	void ExpandRangeSingle_Based(const BattleCell& basePos);
+	void ExpandRangeCol_Based(const BattleCell& basePos);
+	void ExpandRangeRow_Based(const BattleCell& basePos);
+	void ExpandRangeSide_Based(const BattleCell& basePos);
+	void ExpandRangeFrontBack_Based(const BattleCell& basePos);
+	void ExpandRangeAroundPlus4_Based(const BattleCell& basePos);
+	void ExpandRangeAroundCross4_Based(const BattleCell& basePos);
+	void ExpandRangeAround9_Based(const BattleCell& basePos);
+	void ExpandRangeBack_Based(const BattleCell& basePos, int32 count);
+
+	void ForeachSelectedCells(TFunction<void(const BattleCell&)> expandFunc);
 	//@}
 
 	//@{
@@ -149,12 +151,9 @@ public:
 
 protected:
 	void         Initialize(const FBattleParty* party);
-	TArray<bool> MakeExistMap() const;
 
 private:
 	const FBattleParty* SelectedParty = nullptr;
-    //TArray<BattleCell>  SourceCells;
+	TArray<BattleCell>  SelectedCells;
     TArray<BattleCell>  ResultCells;
-    TArray<bool>        SelectedCells;
-	//int32               WorkBuffer[UBattleBoardUtil::MAX_BOARD_CELLS];
 };

@@ -1,4 +1,4 @@
-// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #include "BattleCell.h"
 #include "BattleBoardUtil.h"
@@ -44,3 +44,13 @@ int32 BattleCell::GetIndex() const
 	return CellIndex;
 }
 	
+/*!	int32配列に変換
+*/
+void BattleCell::ToInt32Array(TArray<int32>& out, const TArray<BattleCell>& cells)
+{
+	out.SetNum(0);
+	out.Reserve(cells.Num());
+	for(const auto& cell : cells) {
+		out.Add(cell.GetIndex());
+	}
+}

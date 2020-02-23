@@ -1,4 +1,4 @@
-// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #pragma once
 
@@ -55,6 +55,10 @@ public:
 	{
 		return !this->operator==(rhs);
 	}
+
+	/*!	int32の配列に変換
+	*/
+	static void ToInt32Array(TArray<int32>& out, const TArray<BattleCell>& cells);
 
 private:
 	int32 CellIndex;

@@ -289,6 +289,30 @@ void UBattleSystem::EnqueueCommands(const TArray<FBattleCommand>& commandList, E
 #endif
 }
 
+// 行動結果予測
+void UBattleSystem::PredictTargetCells(TArray<int32>& resultCells, const FBattleCommand& command)
+{
+	switch(command.ActionType) {
+		case ECommandType::Attack: {
+		} break;
+
+		case ECommandType::Skill: {
+			TArray<BattleCell> cells;
+			GetSkillTargetPositions(cells, command);
+			BattleCell::ToInt32Array(resultCells, cells);
+		} break;
+
+		case ECommandType::Move:
+		case ECommandType::Swap: {
+		} break;
+
+		default:
+			break;
+	}
+	
+}
+
+
 // バトル準備
 void UBattleSystem::Prepare()
 {
@@ -736,6 +760,24 @@ void UBattleSystem::GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const F
 		targets.Add(target);
 	}
 	
+}
+
+// スキル対象
+void UBattleSystem::GetSkillTargetPositions(TArray<BattleCell>& positions, const FBattleCommand& command) const
+{
+	auto* attackChar = GetCharacterByHandle2(command.ActorHandle);
+	if(attackChar == nullptr) {
+		return;
+	}
+	const int32 attackerPos = GetObjectPos(command.ActorHandle);
+	const auto* skillTbl = ABishRPGDataTblAccessor::GetTbl(ETblType::SkillTbl);
+	const auto* skillData = skillTbl->FindRow<FSkillData>(command.SkillName, FString(""));
+	if(skillData == nullptr) {
+		GAME_ERROR("ExecSkill : Not found '%s' in the SkillTbl", *command.SkillName.ToString());
+		return;
+	}
+
+	GetSkillTargetPositions(positions, command.ActorHandle, skillData->Type, skillData->SelectType, skillData->SelectParam, skillData->SelectRange);
 }
 
 // スキル対象

@@ -96,11 +96,11 @@ void BattleCellSelector::Initialize(const FBattleParty* party)
 }
 
 // 位置追加
-void BattleCellSelector::AddPos(int32 posIndex)
+void BattleCellSelector::AddPos(const BattleCell& posIndex)
 {
-	if(UBattleBoardUtil::IsValidCellNo(posIndex)) {
-		if(!ResultCells.Contains(BattleCell(posIndex))) {
-			ResultCells.Add(BattleCell(posIndex));
+	if(posIndex.IsValid()) {
+		if(!ResultCells.Contains(posIndex)) {
+			ResultCells.Add(posIndex);
 		}
 	}
 }
@@ -163,6 +163,9 @@ void BattleCellSelector::SelectTarget(BattleCell actorPos, EBattleSelectMethod s
 	static_assert(ARRAY_COUNT(selectMethodFunc) == static_cast<int32>(EBattleSelectMethod::Max), "Invalid array size : selectMethodFunc");
 	const int32 selectMethodIndex = static_cast<int32>(selectMethod);
 	(this->*selectMethodFunc[selectMethodIndex])(actorPos.GetIndex());
+
+	// 選択済みセルとして記憶して拡張時に使用する
+	SelectedCells = ResultCells;
 }
 
 void BattleCellSelector::SortResult(std::function<bool(BattleCell, BattleCell)> posComp)
@@ -185,7 +188,7 @@ void BattleCellSelector::FilterResult(std::function<bool(int32)> posFilter)
 {
 	for(int i = 0; i < Battle::Def::MAX_BOARD_CELLS; ++i) {
 		if(posFilter(i)) {
-			AddPos(i);
+			AddPos(BattleCell(i));
 		}
 	}
 }
@@ -397,7 +400,7 @@ void BattleCellSelector::SelectRandom(int32 selectNum)
 		const int32 selectedIdx  = UBattleSystem::GetRandStream().RandHelper(cellList.Num() - 1);
 		const int32 selectedCell = cellList[selectedIdx];
 		cellList.RemoveAt(selectedIdx);
-		AddPos(selectedCell);
+		AddPos(BattleCell(selectedCell));
 	}
 }
 void BattleCellSelector::SelectRandom1(int32 actorPos)
@@ -502,34 +505,34 @@ void BattleCellSelector::ExpandCell(EBattleSelectRange range)
 }
 
 // 範囲選択
-void BattleCellSelector::ExpandRangeSingle_Based(int32 basePos)
+void BattleCellSelector::ExpandRangeSingle_Based(const BattleCell& basePos)
 {
 	// そのまま返す
 	AddPos(basePos); 
 }
 
 // 縦方向選択
-void BattleCellSelector::ExpandRangeCol_Based(int32 basePos)
+void BattleCellSelector::ExpandRangeCol_Based(const BattleCell& basePos)
 {
-	const int32 col = UBattleBoardUtil::GetCol(basePos);
+	const int32 col = UBattleBoardUtil::GetCol(basePos.GetIndex());
 	int32 base = col;
-	AddPos(base);
+	AddPos(BattleCell(base));
 
 	for(int32 i = 0; i < UBattleBoardUtil::GetBoardRow() - 1; ++i) {
 		const int32 nextPos = UBattleBoardUtil::GetPosForward(base);
 		if(base != nextPos) {
-			AddPos(nextPos);
+			AddPos(BattleCell(nextPos));
 			base = nextPos;
 		}
 	}
 }
 
 // 横方向選択
-void BattleCellSelector::ExpandRangeRow_Based(int32 basePos)
+void BattleCellSelector::ExpandRangeRow_Based(const BattleCell& basePos)
 {
-	const int32 row = UBattleBoardUtil::GetRow(basePos);
+	const int32 row = UBattleBoardUtil::GetRow(basePos.GetIndex());
 	int32 base = row;
-	AddPos(base);
+	AddPos(BattleCell(base));
 
 	for(int32 i = 0; i < UBattleBoardUtil::GetBoardCol() - 1; ++i) {
 		const int32 nextPos = UBattleBoardUtil::GetPosRight(base);
@@ -541,41 +544,41 @@ void BattleCellSelector::ExpandRangeRow_Based(int32 basePos)
 }
 
 // 左右選択
-void BattleCellSelector::ExpandRangeSide_Based(int32 basePos)
+void BattleCellSelector::ExpandRangeSide_Based(const BattleCell& basePos)
 {
-	const int32 left  = UBattleBoardUtil::GetPosLeft(basePos); 
-	const int32 right = UBattleBoardUtil::GetPosRight(basePos);
+	const int32 left  = UBattleBoardUtil::GetPosLeft(basePos.GetIndex()); 
+	const int32 right = UBattleBoardUtil::GetPosRight(basePos.GetIndex());
 	
 	AddPos(basePos);
 
-	if(left != basePos) {
+	if(left != basePos.GetIndex()) {
 		AddPos(left);
 	}
-	if(right != basePos) {
+	if(right != basePos.GetIndex()) {
 		AddPos(right);
 	}
 
 }
 
 // 上下選択
-void BattleCellSelector::ExpandRangeFrontBack_Based(int32 basePos)
+void BattleCellSelector::ExpandRangeFrontBack_Based(const BattleCell& basePos)
 {
-	const int32 forward = UBattleBoardUtil::GetPosForward(basePos); 
-	const int32 back    = UBattleBoardUtil::GetPosBack(basePos);
+	const int32 forward = UBattleBoardUtil::GetPosForward(basePos.GetIndex()); 
+	const int32 back    = UBattleBoardUtil::GetPosBack(basePos.GetIndex());
 	
 	AddPos(basePos);
 
-	if(forward != basePos) {
+	if(forward != basePos.GetIndex()) {
 		AddPos(forward);
 	}
-	if(back != basePos) {
+	if(back != basePos.GetIndex()) {
 		AddPos(back);
 	}
 
 }
 
 // 上下左右選択
-void BattleCellSelector::ExpandRangeAroundPlus4_Based(int32 basePos)
+void BattleCellSelector::ExpandRangeAroundPlus4_Based(const BattleCell& basePos)
 {
 	ExpandRangeSide_Based(basePos);
 	ExpandRangeFrontBack_Based(basePos);
@@ -583,11 +586,11 @@ void BattleCellSelector::ExpandRangeAroundPlus4_Based(int32 basePos)
 
 
 // 斜め4方向選択
-void BattleCellSelector::ExpandRangeAroundCross4_Based(int32 basePos)
+void BattleCellSelector::ExpandRangeAroundCross4_Based(const BattleCell& basePos)
 {
 	auto addPosOf = [&](bool left, bool forward) {
-		const int32 sidePos = left ? UBattleBoardUtil::GetPosLeft(basePos) : UBattleBoardUtil::GetPosRight(basePos);
-		if(sidePos == basePos) {
+		const int32 sidePos = left ? UBattleBoardUtil::GetPosLeft(basePos.GetIndex()) : UBattleBoardUtil::GetPosRight(basePos.GetIndex());
+		if(sidePos == basePos.GetIndex()) {
 			return;
 		}
 		const int32 finalPos = left ? UBattleBoardUtil::GetPosLeft(sidePos) : UBattleBoardUtil::GetPosRight(sidePos);
@@ -606,7 +609,7 @@ void BattleCellSelector::ExpandRangeAroundCross4_Based(int32 basePos)
 
 
 // 周囲選択
-void BattleCellSelector::ExpandRangeAround9_Based(int32 basePos)
+void BattleCellSelector::ExpandRangeAround9_Based(const BattleCell& basePos)
 {
 	ExpandRangeAroundPlus4_Based(basePos);
 	ExpandRangeAroundCross4_Based(basePos);
@@ -614,9 +617,9 @@ void BattleCellSelector::ExpandRangeAround9_Based(int32 basePos)
 
 
 // 後ろ選択
-void BattleCellSelector::ExpandRangeBack_Based(int32 basePos, int32 count)
+void BattleCellSelector::ExpandRangeBack_Based(const BattleCell& basePos, int32 count)
 {
-	int32 base = basePos;
+	int32 base = basePos.GetIndex();
 	int32 back = 0;
 	
 	for(int32 i = 0; i < count; ++i) {
@@ -636,123 +639,94 @@ void BattleCellSelector::ExpandRangeBack_Based(int32 basePos, int32 count)
 
 //----- 複数選択 -----
 
-TArray<bool> BattleCellSelector::MakeExistMap() const
+void BattleCellSelector::ForeachSelectedCells(TFunction<void(const BattleCell&)> expandFunc)
 {
-	TArray<bool> existMap;
-	existMap.Init(false, Battle::Def::MAX_BOARD_CELLS);
-	for(const auto& cell : ResultCells) {
-		if(cell.IsValid()) {
-			existMap[cell.GetIndex()] = true;
-		}
+	TArray<BattleCell> selectedCells = SelectedCells;
+	for(const auto& cell : selectedCells) {
+		expandFunc(cell);
 	}
-	return MoveTemp(existMap);
 }
 
 void BattleCellSelector::ExpandRangeSingle()
 {
-	TArray<bool> originCells = MakeExistMap();
-	for(const auto& base : originCells) {
-		ExpandRangeSingle_Based(base);
-	}
-	
+	ForeachSelectedCells([this](const BattleCell& cell) { 
+		ExpandRangeSingle_Based(cell); 
+	});
 }
 
 void BattleCellSelector::ExpandRangeCol()
 {
-	TArray<bool> originCells = MakeExistMap();
-	for(const auto& base : originCells) {
-		ExpandRangeCol_Based(base);
-	}
-	
+	ForeachSelectedCells([this](const BattleCell& cell) {
+		ExpandRangeCol_Based(cell);
+	});	
 }
 
 void BattleCellSelector::ExpandRangeRow()
 {
-	TArray<bool> originCells = MakeExistMap();
-	for(const auto& base : originCells) {
-		ExpandRangeRow_Based(base);
-	}
-	
+	ForeachSelectedCells([this](const BattleCell& cell) {
+		ExpandRangeRow_Based(cell);
+	});	
 }
 
 void BattleCellSelector::ExpandRangeSide()
 {
-	TArray<bool> originCells = MakeExistMap();
-	for(const auto& base : originCells) {
-		ExpandRangeSide_Based(base);
-	}
-	
+	ForeachSelectedCells([this](const BattleCell& cell) {
+		ExpandRangeSide_Based(cell);
+	});	
 }
 
 void BattleCellSelector::ExpandRangeFrontBack()
 {
-	TArray<bool> originCells = MakeExistMap();
-	for(const auto& base : originCells) {
-		ExpandRangeFrontBack_Based(base);
-	}
-	
+	ForeachSelectedCells([this](const BattleCell& cell) {
+		ExpandRangeFrontBack_Based(cell);
+	});
 }
 
 void BattleCellSelector::ExpandRangeAroundPlus4()
 {
-	TArray<bool> originCells = MakeExistMap();
-	for(const auto& base : originCells) {
-		ExpandRangeAroundPlus4_Based(base);
-	}
-	
+	ForeachSelectedCells([this](const BattleCell& cell) {
+		ExpandRangeAroundPlus4_Based(cell);
+	});
 }
 
 void BattleCellSelector::ExpandRangeAroundCross4()
 {
-	TArray<bool> originCells = MakeExistMap();
-	for(const auto& base : originCells) {
-		ExpandRangeAroundCross4_Based(base);
-	}
-	
+	ForeachSelectedCells([this](const BattleCell& cell) {
+		ExpandRangeAroundCross4_Based(cell);
+	});
 }
 
 void BattleCellSelector::ExpandRangeAround9()
 {
-	TArray<bool> originCells = MakeExistMap();
-	for(const auto& base : originCells) {
-		ExpandRangeAround9_Based(base);
-	}
-	
+	ForeachSelectedCells([this](const BattleCell& cell) {
+		ExpandRangeAround9_Based(cell);
+	});
 }
 
 void BattleCellSelector::ExpandRangeBack1()
 {
-	TArray<bool> originCells = MakeExistMap();
-	for(const auto& base : originCells) {
-		ExpandRangeBack_Based(base, 1);
-	}
-	
+	ForeachSelectedCells([this](const BattleCell& cell) {
+		ExpandRangeBack_Based(cell, 1);
+	});
 }
 
 void BattleCellSelector::ExpandRangeBack2()
 {
-	TArray<bool> originCells = MakeExistMap();
-	for(const auto& base : originCells) {
-		ExpandRangeBack_Based(base, 2);
-	}
-	
+	ForeachSelectedCells([this](const BattleCell& cell) {
+		ExpandRangeBack_Based(cell, 2);
+	});
 }
 
 void BattleCellSelector::ExpandRangeBack3()
 {
-	TArray<bool> originCells = MakeExistMap();
-	for(const auto& base : originCells) {
-		ExpandRangeBack_Based(base, 3);
-	}
-	
+	ForeachSelectedCells([this](const BattleCell& cell) {
+		ExpandRangeBack_Based(cell, 3);
+	});
 }
 
 void BattleCellSelector::ExpandRangeBack4()
 {
-	TArray<bool> originCells = MakeExistMap();
-
-	for(const auto& base : originCells) {
-		ExpandRangeBack_Based(base, 4);
-	}
-	
+	ForeachSelectedCells([this](const BattleCell& cell) {
+		ExpandRangeBack_Based(cell, 4);
+	});
 }

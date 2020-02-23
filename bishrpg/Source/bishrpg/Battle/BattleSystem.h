@@ -111,6 +111,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	void Initialize(const FParty& playerParty, const FParty& opponentParty, const FRandomStream& randStream, const FBattleSettings& battleSettings);
 
+	/*!	効果範囲を予測する
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void PredictTargetCells(TArray<int32>& cells, const FBattleCommand& command);
+
 	/*!	バトル開始準備
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
@@ -350,6 +355,10 @@ protected:
 	/*!	攻撃対象選択
 	*/
 	void GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const FBattleCharacterStatus& attacker, int32 attackerPos, EPlayerGroup selectPlayerSide, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam) const;
+
+	/*!	攻撃セル取得
+	*/
+	void GetSkillTargetPositions(TArray<BattleCell>& positions, const FBattleCommand& command) const;
 
 	/*!	攻撃セル取得
 	*/
