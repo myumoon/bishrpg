@@ -589,8 +589,8 @@ void UBattleSystem::ExecAttack(const FBattleCommand& command, EPlayerGroup group
 
 #if defined(UE_BUILD_DEBUG)
 	GAME_ASSERT(result.Actor.IsValid());
-	for(const auto& target : result.TargetResults) {
-		GAME_ASSERT(target.Target.IsValid());
+	for(const auto& checkTarget : result.TargetResults) {
+		GAME_ASSERT(checkTarget.Target.IsValid());
 	}
 #endif
 	GAME_LOG("BroadcastAttackEvent");
