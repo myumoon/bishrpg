@@ -11,14 +11,14 @@
 class BattleCell {
 public:
 	BattleCell();
-	constexpr BattleCell(int32 cellIndex) : CellIndex(cellIndex) {}
+	BattleCell(int32 cellIndex);
 	BattleCell(int32 row, int32 col);
 	BattleCell(const BattleCell& rhs);
 	~BattleCell() = default;
 
 	/*!	無効な値を取得
 	*/
-	static constexpr BattleCell Invalid()
+	static BattleCell Invalid()
 	{
 		return BattleCell(UBattleBoardUtil::INVALID_CELL_NO);
 	}

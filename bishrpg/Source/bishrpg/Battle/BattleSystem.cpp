@@ -621,7 +621,7 @@ void UBattleSystem::ExecSkill(const FBattleCommand& command, EPlayerGroup group)
 		TArray<FBattleTarget> targets;
 		TArray<BattleCell> positions;
 		positions.Reserve(UBattleBoardUtil::MAX_BOARD_CELLS);
-		GetSkillTargetPositions(positions, command.ActorHandle, skillData->Type, skillData->SelectType, skillData->SelectParam);
+		GetSkillTargetPositions(positions, command.ActorHandle, skillData->Type, skillData->SelectType, skillData->SelectParam, skillData->SelectRange);
 		for(const auto& cell : positions) {
 			result.AttackResult.AffectedPositions.Add(cell.GetIndex());
 		}
@@ -647,6 +647,7 @@ void UBattleSystem::ExecSkill(const FBattleCommand& command, EPlayerGroup group)
 				value.Value  = damage;
 				value.Status |= static_cast<int32>(targetChar->IsDie() ? EStatusFlag::Status_Die : EStatusFlag::None);
 
+				//GAME_LOG_FMT("AddResult {0} {1}", value.Target.GetIndex(), value.Value);
 				result.AttackResult.TargetResults.Add(value);
 			}
 			else {

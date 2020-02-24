@@ -9,10 +9,20 @@ BattleCell::BattleCell() : CellIndex(UBattleBoardUtil::INVALID_CELL_NO)
 
 }
 
+BattleCell::BattleCell(int32 cellIndex) : CellIndex(cellIndex)
+{
+	if(!IsValid()) {
+		CellIndex = UBattleBoardUtil::INVALID_CELL_NO;
+	}
+}
+
 BattleCell::BattleCell(int32 row, int32 col) : CellIndex(UBattleBoardUtil::GetBoardCol() * row + col)
 {
-	check(row < UBattleBoardUtil::GetBoardRow());
-	check(col < UBattleBoardUtil::GetBoardCol());
+	const bool isRowValid = (0 <= row) && (row < UBattleBoardUtil::GetBoardRow());
+	const bool isColValid = (0 <= col) && (col < UBattleBoardUtil::GetBoardCol());
+	if(!isRowValid || !isColValid) {
+		CellIndex = UBattleBoardUtil::INVALID_CELL_NO;
+	}
 }
 
 BattleCell::BattleCell(const BattleCell& rhs) : CellIndex(rhs.CellIndex)

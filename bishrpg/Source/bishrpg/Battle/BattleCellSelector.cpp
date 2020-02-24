@@ -36,9 +36,9 @@ namespace {
 		{
 		}
 
-		bool operator()(const BattleCell lhs, const BattleCell rhs) const
+		bool operator()(const BattleCell& lhs, const BattleCell& rhs) const
 		{
-			if(UBattleBoardUtil::GetRow(lhs.GetIndex()) > UBattleBoardUtil::GetRow(rhs.GetIndex())) {
+			if(rhs.GetRow() < lhs.GetRow()) {
 				return true;
 			}
 			
@@ -487,7 +487,7 @@ void BattleCellSelector::ExpandCell(EBattleSelectRange range)
 		&BattleCellSelector::ExpandRangeCol,
 		&BattleCellSelector::ExpandRangeRow,
 		&BattleCellSelector::ExpandRangeSide,
-		//&BattleCellSelector::ExpandRangeFrontBack,
+		&BattleCellSelector::ExpandRangeFrontBack,
 		&BattleCellSelector::ExpandRangeAroundPlus4,
 		&BattleCellSelector::ExpandRangeAroundCross4,
 		&BattleCellSelector::ExpandRangeAround9,
@@ -515,15 +515,16 @@ void BattleCellSelector::ExpandRangeSingle_Based(const BattleCell& basePos)
 void BattleCellSelector::ExpandRangeCol_Based(const BattleCell& basePos)
 {
 	const int32 col = UBattleBoardUtil::GetCol(basePos.GetIndex());
-	int32 base = col;
-	AddPos(BattleCell(base));
+	//int32 base = col;
+	//AddPos(BattleCell(base));
 
-	for(int32 i = 0; i < UBattleBoardUtil::GetBoardRow() - 1; ++i) {
-		const int32 nextPos = UBattleBoardUtil::GetPosForward(base);
-		if(base != nextPos) {
-			AddPos(BattleCell(nextPos));
-			base = nextPos;
-		}
+	for(int32 i = 0; i < UBattleBoardUtil::GetBoardRow(); ++i) {
+		AddPos(BattleCell(i, col));
+		//const int32 nextPos = UBattleBoardUtil::GetPosForward(base);
+		//if(base != nextPos) {
+		//	AddPos(BattleCell(nextPos));
+		//	base = nextPos;
+		//}
 	}
 }
 
@@ -531,25 +532,29 @@ void BattleCellSelector::ExpandRangeCol_Based(const BattleCell& basePos)
 void BattleCellSelector::ExpandRangeRow_Based(const BattleCell& basePos)
 {
 	const int32 row = UBattleBoardUtil::GetRow(basePos.GetIndex());
-	int32 base = row;
-	AddPos(BattleCell(base));
+	//int32 base = row;
+	//AddPos(BattleCell(base));
 
-	for(int32 i = 0; i < UBattleBoardUtil::GetBoardCol() - 1; ++i) {
-		const int32 nextPos = UBattleBoardUtil::GetPosRight(base);
-		if(base != nextPos) {
-			AddPos(nextPos);
-			base = nextPos;
-		}
+	for(int32 i = 0; i < UBattleBoardUtil::GetBoardCol(); ++i) {
+		AddPos(BattleCell(row, i));
+		//const int32 nextPos = UBattleBoardUtil::GetPosRight(base);
+		//if(base != nextPos) {
+		//	AddPos(nextPos);
+		//	base = nextPos;
+		//}
 	}
 }
 
 // 左右選択
 void BattleCellSelector::ExpandRangeSide_Based(const BattleCell& basePos)
 {
+	AddPos(BattleCell(basePos.GetRow(), basePos.GetCol() + 1));
+	AddPos(BattleCell(basePos.GetRow(), basePos.GetCol() - 1));
+#if 0
 	const int32 left  = UBattleBoardUtil::GetPosLeft(basePos.GetIndex()); 
 	const int32 right = UBattleBoardUtil::GetPosRight(basePos.GetIndex());
 	
-	AddPos(basePos);
+	//AddPos(basePos);
 
 	if(left != basePos.GetIndex()) {
 		AddPos(left);
@@ -557,16 +562,20 @@ void BattleCellSelector::ExpandRangeSide_Based(const BattleCell& basePos)
 	if(right != basePos.GetIndex()) {
 		AddPos(right);
 	}
+#endif
 
 }
 
 // 上下選択
 void BattleCellSelector::ExpandRangeFrontBack_Based(const BattleCell& basePos)
 {
+	AddPos(BattleCell(basePos.GetRow() + 1, basePos.GetCol()));
+	AddPos(BattleCell(basePos.GetRow() - 1, basePos.GetCol()));
+#if 0
 	const int32 forward = UBattleBoardUtil::GetPosForward(basePos.GetIndex()); 
 	const int32 back    = UBattleBoardUtil::GetPosBack(basePos.GetIndex());
 	
-	AddPos(basePos);
+	//AddPos(basePos);
 
 	if(forward != basePos.GetIndex()) {
 		AddPos(forward);
@@ -574,7 +583,7 @@ void BattleCellSelector::ExpandRangeFrontBack_Based(const BattleCell& basePos)
 	if(back != basePos.GetIndex()) {
 		AddPos(back);
 	}
-
+#endif
 }
 
 // 上下左右選択
@@ -588,6 +597,11 @@ void BattleCellSelector::ExpandRangeAroundPlus4_Based(const BattleCell& basePos)
 // 斜め4方向選択
 void BattleCellSelector::ExpandRangeAroundCross4_Based(const BattleCell& basePos)
 {
+	AddPos(BattleCell(basePos.GetRow() + 1, basePos.GetCol() + 1));
+	AddPos(BattleCell(basePos.GetRow() + 1, basePos.GetCol() - 1));
+	AddPos(BattleCell(basePos.GetRow() - 1, basePos.GetCol() + 1));
+	AddPos(BattleCell(basePos.GetRow() - 1, basePos.GetCol() - 1));
+#if 0
 	auto addPosOf = [&](bool left, bool forward) {
 		const int32 sidePos = left ? UBattleBoardUtil::GetPosLeft(basePos.GetIndex()) : UBattleBoardUtil::GetPosRight(basePos.GetIndex());
 		if(sidePos == basePos.GetIndex()) {
@@ -605,6 +619,7 @@ void BattleCellSelector::ExpandRangeAroundCross4_Based(const BattleCell& basePos
 	addPosOf(true, false);
 	addPosOf(false, true);
 	addPosOf(false, false);
+#endif
 }
 
 

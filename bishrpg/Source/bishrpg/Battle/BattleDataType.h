@@ -154,6 +154,7 @@ enum class EBattleSelectRange : uint8 {
     Col,           //!< 縦1列
     Row,           //!< 横1列
     Side,          //!< 左右
+	FrontBack,     //!< 前後
     AroundPlus4,   //!< 選択マスと上下左右4マス
     AroundCross4,  //!< 選択マスとななめ4マス
     Around9,       //!< 選択マスと周囲8マス
