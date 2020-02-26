@@ -290,15 +290,17 @@ void UBattleSystem::EnqueueCommands(const TArray<FBattleCommand>& commandList, E
 }
 
 // 行動結果予測
-void UBattleSystem::PredictTargetCells(TArray<int32>& resultCells, const FBattleCommand& command)
+void UBattleSystem::PredictTargetCells(int32& mainCellPos, TArray<int32>& resultCells, const FBattleCommand& command)
 {
 	switch(command.ActionType) {
 		case ECommandType::Attack: {
 		} break;
 
 		case ECommandType::Skill: {
+			BattleCell mainCell;
 			TArray<BattleCell> cells;
-			GetSkillTargetPositions(cells, command);
+			GetSkillTargetPositions(mainCell, cells, command);
+			mainCellPos = mainCell.GetIndex();
 			BattleCell::ToInt32Array(resultCells, cells);
 		} break;
 
@@ -620,8 +622,9 @@ void UBattleSystem::ExecSkill(const FBattleCommand& command, EPlayerGroup group)
 	if(skillData->Type == ESkillType::Attack || skillData->Type == ESkillType::Heal) {
 		TArray<FBattleTarget> targets;
 		TArray<BattleCell> positions;
+		BattleCell mainCell;
 		positions.Reserve(UBattleBoardUtil::MAX_BOARD_CELLS);
-		GetSkillTargetPositions(positions, command.ActorHandle, skillData->Type, skillData->SelectType, skillData->SelectParam, skillData->SelectRange);
+		GetSkillTargetPositions(mainCell, positions, command.ActorHandle, skillData->Type, skillData->SelectType, skillData->SelectParam, skillData->SelectRange);
 		for(const auto& cell : positions) {
 			result.AttackResult.AffectedPositions.Add(cell.GetIndex());
 		}
@@ -764,37 +767,41 @@ void UBattleSystem::GetSkillTargetsByPos(TArray<FBattleTarget>& targets, const F
 }
 
 // スキル対象
-void UBattleSystem::GetSkillTargetPositions(TArray<BattleCell>& positions, const FBattleCommand& command) const
+bool UBattleSystem::GetSkillTargetPositions(BattleCell& mainCell, TArray<BattleCell>& positions, const FBattleCommand& command) const
 {
 	auto* attackChar = GetCharacterByHandle2(command.ActorHandle);
 	if(attackChar == nullptr) {
-		return;
+		return false;
 	}
 	const int32 attackerPos = GetObjectPos(command.ActorHandle);
 	const auto* skillTbl = ABishRPGDataTblAccessor::GetTbl(ETblType::SkillTbl);
 	const auto* skillData = skillTbl->FindRow<FSkillData>(command.SkillName, FString(""));
 	if(skillData == nullptr) {
 		GAME_ERROR("ExecSkill : Not found '%s' in the SkillTbl", *command.SkillName.ToString());
-		return;
+		return false;
 	}
 
-	GetSkillTargetPositions(positions, command.ActorHandle, skillData->Type, skillData->SelectType, skillData->SelectParam, skillData->SelectRange);
+	return GetSkillTargetPositions(mainCell, positions, command.ActorHandle, skillData->Type, skillData->SelectType, skillData->SelectParam, skillData->SelectRange);
 }
 
 // スキル対象
-void UBattleSystem::GetSkillTargetPositions(TArray<BattleCell>& positions, const FBattleObjectHandle& actor, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam, EBattleSelectRange expandMethod) const
+bool UBattleSystem::GetSkillTargetPositions(BattleCell& mainCell, TArray<BattleCell>& positions, const FBattleObjectHandle& actor, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam, EBattleSelectRange expandMethod) const
 {
 	const EPlayerGroup  targetPlayerSide = (skillType == ESkillType::Heal) ? actor.GetGroup() : InvertGroup(actor.GetGroup());
 	const FBattleParty* targetParty      = GetParty(targetPlayerSide);
 	const BattleCell    actorCell        = GetObjectCell(actor);
 	BattleCellSelector cellSelector(targetParty);
 	cellSelector.SelectTarget(actorCell, selectType);
+	if(cellSelector.GetResult().Num() <= 0) {
+		return false;
+	}
+	mainCell = cellSelector.GetResult()[0];
 	cellSelector.ExpandCell(expandMethod);
 	const auto& selectedCells = cellSelector.GetResult();
 
 	if(selectedCells.Num() == 0) {
 		//GAME_ERROR("GetSkillTargetsByPos : not selected. actorPos(%d), actorSide(%s), selectType(%d), selectParam(%d)", actorPos, actorSide ? TEXT("true") : TEXT("false"), static_cast<int32>(selectType), selectParam);
-		return;
+		return false;
 	}
 
 	positions.Reset();
@@ -803,6 +810,7 @@ void UBattleSystem::GetSkillTargetPositions(TArray<BattleCell>& positions, const
 		positions.Add(cell);
 	}
 
+	return true;
 }
 
 // ターゲット取得

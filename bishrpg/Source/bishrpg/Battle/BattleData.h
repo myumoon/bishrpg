@@ -126,6 +126,9 @@ struct FBattleAttackResult {
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
 	TArray<int32> AffectedPositions;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Battle")
+	int32 MainTargetPosition = 0;
 };
 
 

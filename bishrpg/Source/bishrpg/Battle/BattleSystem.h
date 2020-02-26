@@ -114,7 +114,7 @@ public:
 	/*!	効果範囲を予測する
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void PredictTargetCells(TArray<int32>& cells, const FBattleCommand& command);
+	void PredictTargetCells(int32& mainCellPos, TArray<int32>& cells, const FBattleCommand& command);
 
 	/*!	バトル開始準備
 	*/
@@ -358,11 +358,11 @@ protected:
 
 	/*!	攻撃セル取得
 	*/
-	void GetSkillTargetPositions(TArray<BattleCell>& positions, const FBattleCommand& command) const;
+	bool GetSkillTargetPositions(BattleCell& mainCell, TArray<BattleCell>& positions, const FBattleCommand& command) const;
 
 	/*!	攻撃セル取得
 	*/
-	void GetSkillTargetPositions(TArray<BattleCell>& positions, const FBattleObjectHandle& actor, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam, EBattleSelectRange expandMethod = EBattleSelectRange::Single) const;
+	bool GetSkillTargetPositions(BattleCell& mainCell, TArray<BattleCell>& positions, const FBattleObjectHandle& actor, ESkillType skillType, EBattleSelectMethod selectType, int32 selectParam, EBattleSelectRange expandMethod = EBattleSelectRange::Single) const;
 
 	/*!	攻撃セル取得
 	*/
