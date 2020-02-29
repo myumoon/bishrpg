@@ -16,6 +16,9 @@ enum class ETblType : uint8 {
 	Num                /*UMETA(Hidden)*/,
 };
 
+/*!	ゲーム共通データテーブル
+	インゲームアウトゲームの両方で参照される
+*/
 UCLASS()
 class BISHRPG_API ABishRPGDataTblAccessor : public AActor
 {
@@ -23,18 +26,9 @@ class BISHRPG_API ABishRPGDataTblAccessor : public AActor
 	
 public:	
 
-
-	// Sets default values for this actor's properties
 	ABishRPGDataTblAccessor();
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
+	
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	
 	static UDataTable* GetTbl(ETblType type);
 };

@@ -23,9 +23,11 @@ ABishRPGDataTblAccessor::ABishRPGDataTblAccessor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	GAME_LOG("ABishRPGDataTblAccessor Created");
 	for(int i = 0; i < static_cast<int>(ETblType::Num); ++i) {
-		if(s_dataTbl[i] == nullptr) {
-			UE_LOG(BishRPG, Log, TEXT("Register data tbl : %s"), s_dataPathList[i]);
+		//if(s_dataTbl[i] == nullptr) 
+		{
+			GAME_LOG_FMT("ABishRPGDataTblAccessor Load : {0}", s_dataPathList[i]);
 			ConstructorHelpers::FObjectFinder<UDataTable> charAssetTable(s_dataPathList[i]);
 			s_dataTbl[i] = charAssetTable.Object;
 		}
@@ -37,19 +39,5 @@ UDataTable* ABishRPGDataTblAccessor::GetTbl(ETblType type)
 {
 	check(s_dataTbl[static_cast<int32>(type)] != nullptr);
 	return s_dataTbl[static_cast<int32>(type)];
-}
-
-// Called when the game starts or when spawned
-void ABishRPGDataTblAccessor::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void ABishRPGDataTblAccessor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
