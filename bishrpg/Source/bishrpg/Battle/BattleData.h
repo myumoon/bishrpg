@@ -286,6 +286,7 @@ struct FBattleParty {
 	{
 		return Formation[posIndex] != Battle::Def::INVALID_CELL_NO;
 	}
+
 #if 0
 	/*!	指定の方法でキャラを取得
 	@param[out] selectedHandles 取得結果

@@ -13,6 +13,7 @@
 #include "BattleBoardUtil.h"
 #include "BattleObjectHandle.h"
 #include "BattleCommandQueue.h"
+#include "Battle/Data/BattleDataTableHolder.h"
 #include "BattleSystem.generated.h"
 
 class UBattleCommandQueue;
@@ -109,7 +110,7 @@ public:
 	/*! 初期化
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void Initialize(const FParty& playerParty, const FParty& opponentParty, const FRandomStream& randStream, const FBattleSettings& battleSettings);
+	void Initialize(const FParty& playerParty, const FParty& opponentParty, const UBattleDataTableHolder* dataAccessor, const FRandomStream& randStream, const FBattleSettings& battleSettings);
 
 	/*!	効果範囲を予測する
 	*/
@@ -178,17 +179,17 @@ public:
 	/*!	バトル用のキャラステータス生成
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
-	static FBattleCharacterStatus MakeBattleCharacterStatus(const FCharacterStatus& stat);
+	static FBattleCharacterStatus MakeBattleCharacterStatus(const FCharacterStatus& stat, const UBattleDataTableHolder* dataAccessor);
 
 	/*!	バトル用のキャラステータス生成（数値オフセット付き）
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
-	static FBattleCharacterStatus MakeBattleCharacterStatusWithOffset(const FCharacterStatus& stat, int32 offsetHp, int32 offsetAttack, int32 offsetDeffence, int32 offsetSpeed);
+	static FBattleCharacterStatus MakeBattleCharacterStatusWithOffset(const FCharacterStatus& stat, const UBattleDataTableHolder* dataAccessor, int32 offsetHp, int32 offsetAttack, int32 offsetDeffence, int32 offsetSpeed);
 	
 	/*!	バトル用パーティ生成
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
-	static FBattleParty MakeFromParty(const FParty& party);
+	static FBattleParty MakeFromParty(const FParty& party, const UBattleDataTableHolder* dataAccessor);
 
 	/*!	生存しているプレイヤー数
 	*/

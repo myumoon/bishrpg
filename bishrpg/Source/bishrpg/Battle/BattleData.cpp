@@ -137,6 +137,7 @@ void FBattleParty::Move(int32 from, int32 to)
 	Formation[from] = oldTo;
 }
 
+
 #if 0
 void FBattleParty::Select(TArray<int32>& selectedHandles, int32 actorPos, EBattleSelectMethod pattern, int32 param, const FRandomStream& randStream, bool clearResult) const
 {

@@ -91,50 +91,41 @@ float UBattleSystem::GetHpRate(const FBattleObjectHandle& handle) const
 }
 
 // バトル用キャラ情報生成
-FBattleCharacterStatus UBattleSystem::MakeBattleCharacterStatus(const FCharacterStatus& stat)
+FBattleCharacterStatus UBattleSystem::MakeBattleCharacterStatus(const FCharacterStatus& stat, const UBattleDataTableHolder* dataAccessor)
 {
-	return MakeBattleCharacterStatusWithOffset(stat, 0, 0, 0, 0);
+	return MakeBattleCharacterStatusWithOffset(stat, dataAccessor, 0, 0, 0, 0);
 }
 
 // バトル用モンスター情報生成
-FBattleCharacterStatus UBattleSystem::MakeBattleCharacterStatusWithOffset(const FCharacterStatus& stat, int32 offsetHp, int32 offsetAttack, int32 offsetDeffence, int32 offsetSpeed)
+FBattleCharacterStatus UBattleSystem::MakeBattleCharacterStatusWithOffset(const FCharacterStatus& stat, const UBattleDataTableHolder* dataAccessor, int32 offsetHp, int32 offsetAttack, int32 offsetDeffence, int32 offsetSpeed)
 {
 	FBattleCharacterStatus battleStatus;
 	battleStatus.Id = stat.Id;
 
-	const auto* characterAssetTbl = ABishRPGDataTblAccessor::GetTbl(ETblType::CharacterAssetTbl);
-	const FCharacterAsset* charData = characterAssetTbl->FindRow<FCharacterAsset>(battleStatus.Id, "");
+	const auto*            characterAssetTbl = ABishRPGDataTblAccessor::GetTbl(ETblType::CharacterAssetTbl);
+	const FCharacterAsset* charData          = characterAssetTbl->FindRow<FCharacterAsset>(battleStatus.Id, "");
 
-	const auto* hpTbl       = charData ? charData->HpTbl : nullptr;
-	const auto* attackTbl   = charData ? charData->AttackTbl : nullptr;
-	const auto* deffenceTbl = charData ? charData->DeffenceTbl : nullptr;
-	const auto* speedTbl    = charData ? charData->SpeedTbl : nullptr;
-
-	auto getCurveFrom = [](const UCurveFloat* curve, int32 lv, int32 defaultValue) {
-		return curve ? static_cast<int32>(curve->GetFloatValue(static_cast<float>(lv))) : defaultValue;
-	};
-
-	battleStatus.Hate     = 0;	battleStatus.Style    = charData ? charData->Style : EBattleStyle::Humor;
-	battleStatus.HpMax    = getCurveFrom(hpTbl, stat.HpLv, 1) + offsetHp;
+	GAME_ASSERT(dataAccessor);
+	battleStatus.Hate     = 0;
+	battleStatus.Style    = charData ? charData->Style : EBattleStyle::Humor;
+	battleStatus.HpMax    = dataAccessor->GetHpByLevel(stat.Id, stat.HpLv);
 	battleStatus.Hp       = battleStatus.HpMax;
-	battleStatus.Attack   = getCurveFrom(attackTbl, stat.AttackLv, 1) + offsetAttack;
-	battleStatus.Deffence = getCurveFrom(deffenceTbl, stat.DeffenceLv, 1) + offsetDeffence;
-	battleStatus.Speed    = getCurveFrom(speedTbl, stat.SpeedLv, 1) + offsetSpeed;
-
-
+	battleStatus.Attack   = dataAccessor->GetAttackByLevel(stat.Id, stat.AttackLv);
+	battleStatus.Deffence = dataAccessor->GetAttackByLevel(stat.Id, stat.DeffenceLv);
+	
 	return battleStatus;
 }
 
 
 
 // バトル用パーティ情報生成
-FBattleParty UBattleSystem::MakeFromParty(const FParty& party)
+FBattleParty UBattleSystem::MakeFromParty(const FParty& party, const UBattleDataTableHolder* dataAccessor)
 {
 	FBattleParty battleParty;
 	battleParty.Characters.AddUninitialized(UBattleBoardUtil::GetCellNum());
-
+	
 	for(int i = 0; i < party.Characters.Num(); ++i) {
-		battleParty.Characters[i] = MakeBattleCharacterStatus(party.Characters[i]);
+		battleParty.Characters[i] = MakeBattleCharacterStatus(party.Characters[i], dataAccessor);
 	}
 	battleParty.Formation = party.Formation;
 
@@ -143,17 +134,17 @@ FBattleParty UBattleSystem::MakeFromParty(const FParty& party)
 
 
 // 初期化
-void UBattleSystem::Initialize(const FParty& playerParty, const FParty& opponentParty, const FRandomStream& randStream, const FBattleSettings& battleSettings)
+void UBattleSystem::Initialize(const FParty& playerParty, const FParty& opponentParty, const UBattleDataTableHolder* dataAccessor, const FRandomStream& randStream, const FBattleSettings& battleSettings)
 {
 	const FParty* partyList[] = { &playerParty, &opponentParty };
-
+	
 	for(auto* party : partyList) {
-		FBattleParty battleParty = MakeFromParty(*party);
+		FBattleParty battleParty = MakeFromParty(*party, dataAccessor);
 		PartyList.Add(battleParty);
 	}
 
-	RandStream     = randStream;
-	BattleSettings = battleSettings;
+	RandStream         = randStream;
+	BattleSettings     = battleSettings;
 }
 
 
@@ -977,3 +968,4 @@ void UBattleSystem::DebugCallBattleEvent()
 	}
 
 }
+
