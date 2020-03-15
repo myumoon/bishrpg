@@ -64,3 +64,8 @@ BiSHを題材にしたRPGゲー
 ## Lisence
 
 (TBE)
+
+## Acknowledgments
+
+- M+ BITMAP FONTS  
+  http://mplus-fonts.osdn.jp/mplus-bitmap-fonts/
