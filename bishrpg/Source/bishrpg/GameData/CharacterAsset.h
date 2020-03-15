@@ -10,27 +10,27 @@
 #include "Battle/BattleDataType.h"
 #include "CharacterAsset.generated.h"
 
+constexpr TCHAR* EndTag = TEXT("[End]");
+
 USTRUCT(BlueprintType)
 struct FAttackTimingDataAsset : public FTableRowBase {
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameData")
-	FName Name;
+	float TimingSec = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameData")
-	float TimingSec = 0.0f;
+	FName SkillCommandName = EndTag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameData")
 	float AttackRate = 1.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameData")
-	EBattleSelectMethod SelectMethod = EBattleSelectMethod::E_Ahead1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameData")
-	EBattleSelectRange SelectRange = EBattleSelectRange::Single;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameData")
-	TSoftObjectPtr<UTexture> Icon;
+	/*!	終了タイミングデータかどうかを判定
+	*/
+	bool IsEndData() const
+	{
+		return (SkillCommandName.IsEqual(EndTag));
+	}
 };
 
 

@@ -1,4 +1,4 @@
-// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #include "BattleObjectHandle.h"
 
@@ -7,6 +7,11 @@
 
 FBattleObjectHandle::FBattleObjectHandle(int32 objectIndex, EObjectType objectType, EPlayerGroup group)
 {
+	if(objectIndex < 0) {
+		HandleValue = Invald;
+		return;
+	}
+
 	HandleValue = 
 		(objectIndex & static_cast<int32>(BitMask::Index)) << static_cast<int32>(BitField::Index) | 
 		(static_cast<int32>(objectType) & static_cast<int32>(BitMask::ObjectType)) << static_cast<int32>(BitField::ObjectType) |

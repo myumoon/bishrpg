@@ -63,7 +63,8 @@ void UBattleSystem::GetCharacterStatusByPos(FBattleCharacterStatus& stat, int32 
 void UBattleSystem::GetCharacterStatusByHandle(FBattleCharacterStatus& stat, int32 index, bool playerSide) const
 {
     const FBattleCharacterStatus* status = const_cast<FBattleParty*>(GetParty(playerSide))->GetCharacterByIndex(index);
-    check(status != nullptr);
+	GAME_ASSERT(status != nullptr);
+    //check(status != nullptr);
     if(status != nullptr) {
         stat = *status;
     }
@@ -74,7 +75,8 @@ void UBattleSystem::GetCharacterStatusByHandle2(FBattleCharacterStatus& stat, co
 {
 	const FBattleCharacterStatus* status = GetCharacterByHandle2(handle);
     //const FBattleCharacterStatus* status = const_cast<FBattleParty*>(GetParty(playerSide))->GetCharacterByHandle2(handle);
-    check(status != nullptr);
+	GAME_ASSERT(status != nullptr);
+    //check(status != nullptr);
     if(status != nullptr) {
         stat = *status;
     }
@@ -334,7 +336,7 @@ void UBattleSystem::ConsumeCommand(bool& isConsumed, int32& consumedCommandCount
 				} break;
 
 				case ECommandType::Skill: {
-					ExecSkill(execCommand, group);
+					ExecSkill(execCommand);
 				} break;
 
 				case ECommandType::Move: 
@@ -547,7 +549,7 @@ float UBattleSystem::GetTypeDamageRate(EBattleStyle attackerStyle, EBattleStyle 
 	};
 	
 	const int32 index = static_cast<int32>(attackerStyle) * 3 + static_cast<int32>(targetStyle);
-	check(0 <= index && index < ARRAY_COUNT(damageRateTbl));
+	GAME_ASSERT(0 <= index && index < ARRAY_COUNT(damageRateTbl));
 	return damageRateTbl[index];
 }
 
@@ -591,7 +593,7 @@ void UBattleSystem::ExecAttack(const FBattleCommand& command, EPlayerGroup group
 }
 
 // スキル
-void UBattleSystem::ExecSkill(const FBattleCommand& command, EPlayerGroup group)
+void UBattleSystem::ExecSkill(const FBattleCommand& command)
 {
 	auto* attackChar = GetCharacterByHandle2(command.ActorHandle);
 	if(attackChar == nullptr) {
@@ -651,7 +653,8 @@ void UBattleSystem::ExecSkill(const FBattleCommand& command, EPlayerGroup group)
 			}
 		}
 
-#ifdef UE_BUILD_DEBUG
+//#ifdef UE_BUILD_DEBUG
+#if 0
 		GAME_ASSERT(result.AttackResult.Actor.IsValid());
 		for(const auto& target : result.AttackResult.TargetResults) {
 			GAME_ASSERT(target.Target.IsValid());
@@ -886,6 +889,22 @@ FBattleObjectHandle UBattleSystem::MakeObjectHandle(const BattleCell& cell, EPla
 	return MakeObjectHandle(cell.GetIndex(), side, type);
 }
 
+void UBattleSystem::MakeObjectHandleList(TArray<FBattleObjectHandle>& out) const
+{
+	for(int32 partyIdx = 0; partyIdx < MaxGroupNum; ++partyIdx) {
+		auto        group = static_cast<EPlayerGroup>(partyIdx);
+		const auto* party = GetParty(group);
+		for(int32 pos = 0; pos < UBattleBoardUtil::CELL_NUM; ++pos) {
+			auto handle = MakeObjectHandle(pos, group);
+			//GAME_LOG_FMT("Make party:{0} pos:{1} valid:{2} handle:{3}", partyIdx, cell, handle.IsValid()?TEXT("valid"):TEXT("invalid"), handle.GetObjectIndex());
+			if(handle.IsValid()) {
+				out.Emplace(handle);
+			}
+		}
+	}
+	
+}
+
 int32 UBattleSystem::GetObjectPos(const FBattleObjectHandle& handle) const
 {
 	if(!handle.IsValid()) {
@@ -954,7 +973,7 @@ void UBattleSystem::DebugCallBattleEvent()
 			} break;
 
 			case ECommandType::Skill: {
-				ExecSkill(command, group);
+				ExecSkill(command);
 			} break;
 
 			case ECommandType::Move:

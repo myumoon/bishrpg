@@ -220,6 +220,10 @@ public:
 	/*!	位置からキャラを取得
 	*/
 	FBattleObjectHandle MakeObjectHandle(const BattleCell& cell, EPlayerGroup side, EObjectType type = EObjectType::Character) const;
+
+	/*!	キャラのハンドルリストを取得
+	*/
+	void MakeObjectHandleList(TArray<FBattleObjectHandle>& out) const;
 	
 
 	//! @{
@@ -298,6 +302,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Debug")
 	void DebugCallBattleEvent();
 
+	/*!	スキルコマンド実行
+	*/
+	void ExecSkill(const FBattleCommand& command);
+
 protected:
 
 	static EBattleActionType ConvertAction(ECommandType type)
@@ -326,10 +334,6 @@ protected:
 	/*!	移動コマンド実行
 	*/
 	void ExecMove(const FBattleCommand& command, EPlayerGroup group);
-
-	/*!	スキルコマンド実行
-	*/
-	void ExecSkill(const FBattleCommand& command, EPlayerGroup group);
 
 	/*!	ダメージ計算基礎式
 		@param attack        攻撃力(100～2000くらいを想定)
