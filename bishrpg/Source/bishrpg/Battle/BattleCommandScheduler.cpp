@@ -16,6 +16,10 @@ void UBattleCommandScheduler::FCharacterScheduler::Update(TArray<FCommandSchedul
 	FBattleCharacterStatus status;
 	system->GetCharacterStatusByHandle2(status, Handle);
 
+	if(status.IsDie()) {
+		return;
+	}
+
 	//GAME_LOG_FMT("FCharacterScheduler : {0}", status.Id.ToString());
 	TArray<TPair<const FAttackTimingDataAsset*, float>> timingDataList;
 	dataHolder->GetTimingTblRange(timingDataList, status.Id, prevTime, currentTime);

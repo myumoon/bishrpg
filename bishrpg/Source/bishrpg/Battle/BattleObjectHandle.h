@@ -129,6 +129,10 @@ public:
 	/*!	オブジェクトインデックスを取得
 	*/
 	int32 GetObjectIndex() const;
+
+	/*!	ハンドルのハッシュ値を取得
+	*/
+	uint32 CalcHash() const;
 	
 private:
 	int32 GetHandleValue() const { return HandleValue; }

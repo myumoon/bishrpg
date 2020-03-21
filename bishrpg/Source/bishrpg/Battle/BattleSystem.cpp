@@ -643,7 +643,7 @@ void UBattleSystem::ExecSkill(const FBattleCommand& command)
 				value.Value  = damage;
 				value.Status |= static_cast<int32>(targetChar->IsDie() ? EStatusFlag::Status_Die : EStatusFlag::None);
 
-				//GAME_LOG_FMT("AddResult {0} {1}", value.Target.GetIndex(), value.Value);
+				GAME_LOG_FMT("AddResult {0} {1} {2}", value.Target.GetObjectIndex(), value.Value, value.Status);
 				result.AttackResult.TargetResults.Add(value);
 			}
 			else {
@@ -816,10 +816,14 @@ void UBattleSystem::GetTargetsByCell(TArray<FBattleTarget>& targets, const TArra
 	const FBattleParty* party = GetParty(group);
 	FBattleTarget addTarget;
 	for(const auto& cell : cells) {
-		if(party->ExistsPos(cell.GetIndex())) {
-			addTarget.Handle = MakeObjectHandle(cell, group, EObjectType::Character);
-			targets.Add(addTarget);
+		if(!party->ExistsPos(cell.GetIndex())) {
+			continue;
 		}
+		if(party->GetCharacterByCell(cell)->IsDie()) {
+			continue;
+		}
+		addTarget.Handle = MakeObjectHandle(cell, group, EObjectType::Character);
+		targets.Add(addTarget);
 	}
 
 }

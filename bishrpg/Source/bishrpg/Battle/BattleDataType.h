@@ -69,6 +69,14 @@ enum class EBattleActionEffect : uint8 {
 	DebufDeffence, //!< 防御力減少
 };
 
+UENUM(BlueprintType, meta = (Bitflags))
+enum class EStatusFlag : uint8 {
+	None = 0,
+	Status_Die = 1 << 0,
+};
+ENUM_CLASS_FLAGS(EStatusFlag)
+
+
 /*! 選択方法
     並び順を変えるときは FBattleParty::SelectTarget のテーブルも変えること！
 */

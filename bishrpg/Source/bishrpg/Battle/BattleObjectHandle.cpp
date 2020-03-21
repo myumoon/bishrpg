@@ -2,6 +2,7 @@
 
 #include "BattleObjectHandle.h"
 
+#include "Hash/CityHash.h"
 #include "Battle/BattleSystem.h"
 #include "bishrpg.h"
 
@@ -52,5 +53,13 @@ int32 FBattleObjectHandle::GetGroupIndex() const
 int32 FBattleObjectHandle::GetObjectIndex() const
 {
 	return _GetIndex(GetHandleValue());
+}
+
+// ハンドルのハッシュ値を取得
+uint32 FBattleObjectHandle::CalcHash() const
+{
+	const int32  value = GetHandleValue();
+	const uint32 size  = sizeof(value);
+	return CityHash32(reinterpret_cast<const char*>(&value), size);
 }
 

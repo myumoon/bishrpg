@@ -6,6 +6,7 @@
 #include "Runtime/Core/Public/GenericPlatform/GenericPlatform.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "SharedPointer.h"
 #include "BattleCell.h"
 #include "System/CharacterStatus.h"
@@ -55,13 +56,6 @@ public:
 
 };
 
-UENUM(BlueprintType, meta=(Bitflags))
-enum class EStatusFlag : uint8 {
-	None = 0,
-	Status_Die = 1 << 0,
-};
-ENUM_CLASS_FLAGS( EStatusFlag )
-
 
 struct FBattleCharacterStatus;
 /*! ターゲットに対してのダメージ/ヒール量
@@ -73,16 +67,34 @@ struct FBattleTargetValue {
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
 	FBattleObjectHandle Target;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
-	//FBattleTarget Target; //!< 対象
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle")
 	int32 Value = 0;  //!< ダメージorヒール量
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Battle", meta=(Bitmask, BitmaskEnum=EStatusFlag))
-	int32 Status; //!< EStatusFlagのand
+	int32 Status = static_cast<int32>(EStatusFlag::None); //!< EStatusFlagのand
 };
 
+UCLASS()
+class BISHRPG_API UBattleResultLibrary : public UBlueprintFunctionLibrary {
+	GENERATED_BODY()
+
+public:
+
+	/*!	ステータスを持っているか
+	*/
+	UFUNCTION(BlueprintPure, Category = "Battle/Result")
+	static bool HasStatus(int checkStatus, EStatusFlag status);
+
+	/*!	生きているか(==!IsDead())
+	*/
+	UFUNCTION(BlueprintPure, Category = "Battle/Result")
+	static bool IsAlive(int checkStatus);
+
+	/*!	死んでいるか(==!IsAlive())
+	*/
+	UFUNCTION(BlueprintPure, Category = "Battle/Result")
+	static bool IsDead(int checkStatus);
+};
 
 /*! 行動結果
 */
@@ -211,16 +223,14 @@ struct FBattleCharacterStatus {
 	 //	死亡判定
 	bool IsDie() const { return (Hp <= 0); }
 
-	// ダメージを受ける
-	void ReceiveDamage(int32 damage)
-	{
-		Hp = FMath::Clamp(Hp - damage, 0, HpMax);
-	}
+	//	生存判定
+	bool IsAlive() const { return !IsDie(); }
 
-	void Heal(int32 heal)
-	{
-		Hp = FMath::Clamp(Hp + heal, 0, HpMax);
-	}
+	// ダメージを受ける
+	void ReceiveDamage(int32 damage);
+
+	// HP回復
+	void Heal(int32 heal);
 };
 
 /*!	キャラステータス
@@ -260,6 +270,15 @@ struct FBattleParty {
 	FBattleCharacterStatus* GetCharacterByPos(int32 posIndex)
 	{
 		return const_cast<FBattleCharacterStatus*>(static_cast<const FBattleParty*>(this)->GetCharacterByPos(posIndex));
+	}
+
+	//キャラを取得
+	const FBattleCharacterStatus* GetCharacterByCell(const BattleCell& cell) const;
+
+	// キャラを取得 非const
+	FBattleCharacterStatus* GetCharacterByCell(const BattleCell& cell)
+	{
+		return const_cast<FBattleCharacterStatus*>(static_cast<const FBattleParty*>(this)->GetCharacterByCell(cell));
 	}
 
 	// キャラを取得

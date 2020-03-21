@@ -27,6 +27,16 @@ namespace {
 
 }
 
+void FBattleCharacterStatus::ReceiveDamage(int32 damage)
+{
+	Hp = FMath::Clamp(Hp - damage, 0, HpMax);
+}
+
+void FBattleCharacterStatus::Heal(int32 heal)
+{
+	Hp = FMath::Clamp(Hp + heal, 0, HpMax);
+}
+
 void UBattleCharacterStatusUtil::DebugPrintStatus(FString label, const FBattleCharacterStatus& stat)
 {
 	GAME_LOG_FMT("{0} {1}: Style:{2} Hp:{3}/{4} Atk:{5} Def:{6} Die:{7}", 
@@ -76,6 +86,11 @@ const FBattleCharacterStatus* FBattleParty::GetCharacterByPos(int32 posIndex) co
 		return nullptr;
 	}
 	return &Characters[charIndex];
+}
+
+const FBattleCharacterStatus* FBattleParty::GetCharacterByCell(const BattleCell& cell) const
+{
+	return GetCharacterByPos(cell.GetIndex());
 }
 
 const FBattleCharacterStatus* FBattleParty::GetCharacterByIndex(int32 index) const
@@ -135,6 +150,23 @@ void FBattleParty::Move(int32 from, int32 to)
 	const int32 oldTo = Formation[to];
 	Formation[to]   = Formation[from];
 	Formation[from] = oldTo;
+}
+
+
+
+bool UBattleResultLibrary::HasStatus(int32 checkStatus, EStatusFlag status)
+{
+	return (checkStatus & static_cast<int32>(status));
+}
+
+bool UBattleResultLibrary::IsAlive(int32 checkStatus)
+{
+	return !IsDead(checkStatus);
+}
+
+bool UBattleResultLibrary::IsDead(int32 checkStatus)
+{
+	return HasStatus(checkStatus, EStatusFlag::Status_Die);
 }
 
 

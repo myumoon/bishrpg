@@ -9,12 +9,12 @@
 #include "bishrpg.h"
 
 namespace {
-	struct FilterAll {
-		const FBattleParty* TargetParty = nullptr;
-
-		FilterAll(const FBattleParty* party) : TargetParty(party)
+	class FilterBase {
+	public:
+		FilterBase(const FBattleParty* party) : TargetParty(party)
 		{
 		}
+		virtual ~FilterBase() = default;
 
 		bool operator()(int32 pos) const
 		{
@@ -25,10 +25,40 @@ namespace {
 			if(!UBattleBoardUtil::IsValidCellNo(pos)) {
 				return false;
 			}
+			if(!TargetParty->ExistsPos(pos)) {
+				return false;
+			}
 
-			return TargetParty->ExistsPos(pos);
+			return FilterCell(BattleCell(pos), *TargetParty);
+		}
+
+	protected:
+		virtual bool FilterCell(const BattleCell& cell, const FBattleParty& party) const = 0;
+
+	private:
+		const FBattleParty* TargetParty = nullptr;
+	};
+
+	// 全セルをフィルタリング
+	class FilterAll : public FilterBase {
+		using FilterBase::FilterBase;
+	protected:
+		bool FilterCell(const BattleCell& cell, const FBattleParty& party) const override
+		{
+			return true;
 		}
 	};
+
+	// 生きているオブジェクトをフィルタリング
+	class FilterAlive : public FilterBase {
+		using FilterBase::FilterBase;
+	protected:
+		bool FilterCell(const BattleCell& cell, const FBattleParty& party) const override
+		{
+			return party.GetCharacterByCell(cell)->IsAlive();
+		}
+	};
+
 	struct SortCompNearDistance {
 		BattleCell BasePos = 0;
 
@@ -202,7 +232,7 @@ void BattleCellSelector::ShurinkResultTo(int32 size)
 
 void BattleCellSelector::SelectTop(int32 actorPos, int32 index)
 {
-	FilterResult(FilterAll(SelectedParty));
+	FilterResult(FilterAlive(SelectedParty));
 	SortResult(SortCompNearDistance(actorPos));
 
 	const int32 selectedIndex = FMath::Clamp(index, 0, ResultCells.Num() - 1);
@@ -257,7 +287,7 @@ void BattleCellSelector::SelectAhead4(int32 actorPos)
 
 void BattleCellSelector::SelectAttackTop1(int32 actorPos)
 {
-	FilterResult(FilterAll(SelectedParty));
+	FilterResult(FilterAlive(SelectedParty));
 	SortResult([&](BattleCell lhs, BattleCell rhs) {
 		const auto* charL = SelectedParty->GetCharacterByPos(lhs.GetIndex());
 		const auto* charR = SelectedParty->GetCharacterByPos(rhs.GetIndex());
@@ -267,7 +297,7 @@ void BattleCellSelector::SelectAttackTop1(int32 actorPos)
 }
 void BattleCellSelector::SelectDeffenceTop1(int32 actorPos)
 {
-	FilterResult(FilterAll(SelectedParty));
+	FilterResult(FilterAlive(SelectedParty));
 	SortResult([&](BattleCell lhs, BattleCell rhs) {
 		const auto* charL = SelectedParty->GetCharacterByPos(lhs.GetIndex());
 		const auto* charR = SelectedParty->GetCharacterByPos(rhs.GetIndex());
