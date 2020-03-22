@@ -720,7 +720,7 @@ FBattleTarget UBattleSystem::GetAttackTargetByPos(const FBattleParty* opponentPa
 	const auto& selectedCells = cellSelector.GetResult();
 
 	if(selectedCells.Num() == 0) {
-		GAME_ERROR("GetAttackTargetByPos : not selected. attackerPos(%d), playerPos(%s)", attackerPos, IsPlayerOne(playerSide) ? TEXT("true") : TEXT("false"));
+		//GAME_ERROR("GetAttackTargetByPos : not selected. attackerPos(%d), playerPos(%s)", attackerPos, IsPlayerOne(playerSide) ? TEXT("true") : TEXT("false"));
 		return FBattleTarget();
 	}
 

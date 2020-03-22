@@ -1,4 +1,4 @@
-﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #include "BattleCellSelector.h"
 
@@ -234,9 +234,12 @@ void BattleCellSelector::SelectTop(int32 actorPos, int32 index)
 {
 	FilterResult(FilterAlive(SelectedParty));
 	SortResult(SortCompNearDistance(actorPos));
+	if(ResultCells.Num() == 0) {
+		return;
+	}
 
 	const int32 selectedIndex = FMath::Clamp(index, 0, ResultCells.Num() - 1);
-	check(0 <= selectedIndex && selectedIndex < ResultCells.Num());
+	ensure(0 <= selectedIndex && selectedIndex < ResultCells.Num());
 	const BattleCell selectedCell = ResultCells[selectedIndex];
 	ResultCells.SetNum(1, false);
 	ResultCells[0] = selectedCell;
@@ -529,7 +532,7 @@ void BattleCellSelector::ExpandCell(EBattleSelectRange range)
 	static_assert(ARRAY_COUNT(rangeFuncTbl) == static_cast<int32>(EBattleSelectRange::Max), "Invalid array size : rangeFuncTbl");
 
 	const int32 rangeFuncIndex = (int)range;
-	check(0 <= rangeFuncIndex && range < EBattleSelectRange::Max);
+	ensure(0 <= rangeFuncIndex && range < EBattleSelectRange::Max);
 	(this->*rangeFuncTbl[rangeFuncIndex])();
 
 }
