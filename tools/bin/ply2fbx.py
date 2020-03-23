@@ -44,7 +44,7 @@ print("dest -> " + outFileDir)
 # ----------------------------------------------------------
 # set descriotion
 # ----------------------------------------------------------
-destDir = outFileDir
+destDir = outFileDir if outFileDir.endswith("/") else outFileDir + "/"
 srcpath = inFilePath
 
 
@@ -149,6 +149,27 @@ else: #if meshType == "hair" or meshType == "hair_origin" or meshType == "face" 
 bpy.ops.object.editmode_toggle()
 bpy.ops.mesh.remove_doubles()
 
+# reduction vertex
+#bpy.ops.object.editmode_toggle()
+#bpy.context.space_data.context = 'MODIFIER'
+bpy.ops.object.modifier_add(type='DECIMATE')
+
+# COLLAPSEを使うと頂点数が変わらなくなったのでDISSOLVEのみにする
+if True:
+	bpy.context.object.modifiers["Decimate"].decimate_type = 'DISSOLVE'
+else:
+	if meshType == "hair" or meshType == "face" or meshType.startswith("static"):
+		bpy.context.object.modifiers["Decimate"].decimate_type = 'DISSOLVE'
+	else:
+		bpy.context.object.modifiers["Decimate"].decimate_type = 'COLLAPSE'
+		bpy.context.object.modifiers["Decimate"].ratio = 0.4
+
+
+# bebel
+bpy.ops.object.modifier_add(type='BEVEL')
+bpy.context.object.modifiers["Bevel"].width = 1
+bpy.context.object.modifiers["Bevel"].segments = 3
+bpy.context.object.modifiers["Bevel"].profile = 0.35
 
 # ----------------------------------------------------------
 # make texture
@@ -168,7 +189,7 @@ image.save()
 
 # bake
 bpy.data.screens['UV Editing'].areas[1].spaces[0].image = image
-bpy.data.scenes["Scene"].render.bake_margin = 16
+bpy.data.scenes["Scene"].render.bake_margin = 32
 bpy.data.scenes["Scene"].render.bake_type = 'VERTEX_COLORS'
 bpy.ops.object.bake_image()
 image.save()
@@ -176,20 +197,7 @@ image.save()
 # remove vertex color
 bpy.ops.mesh.vertex_color_remove()
 
-# reduction vertex
 bpy.ops.object.editmode_toggle()
-#bpy.context.space_data.context = 'MODIFIER'
-bpy.ops.object.modifier_add(type='DECIMATE')
-if meshType == "hair" or meshType == "face" or meshType.startswith("static"):
-	bpy.context.object.modifiers["Decimate"].decimate_type = 'DISSOLVE'
-else:
-	bpy.context.object.modifiers["Decimate"].decimate_type = 'COLLAPSE'
-	bpy.context.object.modifiers["Decimate"].ratio = 0.4
-
-#bpy.ops.object.modifier_apply(apply_as='DATA', modifier="Decimate")
-
-# set parent
-#bpy.context.area.type = 'OUTLINER'
 
 if not meshType.startswith("static"):
 	#bpy.ops.object.parent_drop(child=filebasename, parent="metarig", type='ARMATURE_AUTO')

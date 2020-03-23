@@ -7,11 +7,15 @@ rem
 rem blender??p?X?????????????
 rem =======================================================
 
+call project_def.bat
+
 set BLENDER="blender.exe"
 set PLY2FBX=%~dp0\ply2fbx.py
 set SRC_PLY=%~1
-set DEST_FBX=%~dp1out\
-set WORK_BLEND=%~dp1temp\%~n1.blend
+rem set DEST_FBX=%~dp1out\
+set DEST_FBX=%ASSET_CHARACTER_DIR%\_out\
+rem set WORK_BLEND=%~dp1temp\%~n1.blend
+set WORK_BLEND=%ASSET_CHARACTER_DIR%\_temp\
 set BASE_BLEND=%~dp0ply2fbx_base_character.blend
 set TEX_SIZE=256
 
