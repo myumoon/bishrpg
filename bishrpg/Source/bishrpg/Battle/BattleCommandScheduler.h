@@ -1,4 +1,4 @@
-﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #pragma once
 
@@ -42,10 +42,16 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void Initialize(UBattleSystem* system, const UBattleDataTableHolder* dataHolder);
+	void Initialize(UBattleSystem* system, const UBattleDataTableHolder* dataHolder, bool play = true);
 
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	void EnqueueCommand(const FBattleCommand& command);
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void Resume();
+
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void Pause();
 
 public:	
 	// Called every frame
@@ -68,5 +74,5 @@ private:
 	// ゲーム進行状況
 	float                         CurrentTime  = 0.0f;
 	float                         PrevTime     = 0.0f;
-
+	bool                          Playing      = true;
 };

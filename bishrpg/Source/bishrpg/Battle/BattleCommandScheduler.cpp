@@ -1,4 +1,4 @@
-﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #include "BattleCommandScheduler.h"
 #include "bishrpg.h"
@@ -82,7 +82,7 @@ void UBattleCommandScheduler::TickComponent(float DeltaTime, ELevelTick TickType
 	UpdateSchedule(DeltaTime);
 }
 
-void UBattleCommandScheduler::Initialize(UBattleSystem* system, const UBattleDataTableHolder* dataHolder)
+void UBattleCommandScheduler::Initialize(UBattleSystem* system, const UBattleDataTableHolder* dataHolder, bool play)
 {
 	BattleSystem = system;
 	DataHolder   = dataHolder;
@@ -97,6 +97,8 @@ void UBattleCommandScheduler::Initialize(UBattleSystem* system, const UBattleDat
 	for(const auto& handle : hanleList) {
 		CharacterSchedulers.Emplace(FCharacterScheduler(handle));
 	}
+
+	Playing = play;
 }
 
 void UBattleCommandScheduler::EnqueueCommand(const FBattleCommand& command)
@@ -104,8 +106,22 @@ void UBattleCommandScheduler::EnqueueCommand(const FBattleCommand& command)
 
 }
 
+void UBattleCommandScheduler::Resume()
+{
+	Playing = true;
+}
+
+void UBattleCommandScheduler::Pause()
+{
+	Playing = false;
+}
+
 void UBattleCommandScheduler::UpdateSchedule(float deltaTime)
 {
+	if(!Playing) {
+		return;
+	}
+
 	TArray<FCommandSchedule> scheduleList;
 
 	UpdateCharacterSchedule(scheduleList);
