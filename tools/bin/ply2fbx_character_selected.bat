@@ -28,4 +28,4 @@ rem 		call %CMD% %%I
 rem 	)
 rem )
 
-pause
+rem pause

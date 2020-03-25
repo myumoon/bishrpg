@@ -14,6 +14,7 @@ import bmesh
 import os
 import sys
 import re
+import json
 from optparse import OptionParser
 
 # ----------------------------------------------------------
@@ -64,22 +65,33 @@ srcpath = inFilePath
 
 filedir = os.path.dirname(srcpath)
 filebasename, fileext = os.path.splitext(os.path.basename(srcpath))
- 
+
 partsIndex = argStart + 4
 if partsIndex < len(sys.argv):
 	meshType = sys.argv[partsIndex].replace("-", "")
-elif filebasename.endswith("-0"):
-	meshType = "hair"
-elif filebasename.endswith("-1"):
-	meshType = "face"
-elif filebasename.endswith("-2"):
-	meshType = "upper"
-elif filebasename.endswith("-3"):
-	meshType = "lower"
-elif filebasename.endswith("-4"):
-	meshType = "accessory"
 else:
-	meshType = "onemesh"
+	# 同フォルダにplyindex.jsonがあればそのマッピング情報からパーツを指定
+	partsIndexFilePath = os.path.join(filedir, "plyindex.json")
+	if os.path.exists(partsIndexFilePath):
+		with open(partsIndexFilePath) as f:
+			partsInfo  = json.load(f)
+			partsIndex = filebasename.split("-")[1]
+			if str(partsIndex) in partsInfo:
+				meshType = partsInfo[str(partsIndex)]
+				if meshType == "hut":
+					meshType = "accessory"
+	elif filebasename.endswith("-0"):
+		meshType = "lower"
+	elif filebasename.endswith("-1"):
+		meshType = "upper"
+	elif filebasename.endswith("-2"):
+		meshType = "face"
+	elif filebasename.endswith("-3"):
+		meshType = "hair"
+	elif filebasename.endswith("-4"):
+		meshType = "accessory"
+	else:
+		meshType = "onemesh"
 
 meshTypeName = ""
 if meshType == "hair_origin":
@@ -120,6 +132,12 @@ bpy.ops.import_mesh.ply(filepath=srcpath)
 # ----------------------------------------------------------
 print("loaded")
 bpy.context.scene.objects.active = bpy.data.objects[filebasename]
+
+# バージョンアップでMagicaVoxcelのスケール値が0.1倍されていたのでここで10倍しておく
+bpy.context.object.scale[0] = 10
+bpy.context.object.scale[1] = 10
+bpy.context.object.scale[2] = 10
+bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 
 if meshType == "hair":
 	bpy.data.objects[filebasename].location[2] = 35
