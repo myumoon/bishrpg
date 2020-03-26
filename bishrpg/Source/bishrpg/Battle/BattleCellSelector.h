@@ -1,4 +1,4 @@
-﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #pragma once
 
@@ -101,7 +101,7 @@ public:
 	//@}
 
 	//@{
-	void SelectDummy([[maybe_unused]]int32 actorPos) {}
+	void SelectDummy(int32 actorPos) {}
 	//@}
 
 	//@{
