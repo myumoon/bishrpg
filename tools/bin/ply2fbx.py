@@ -140,8 +140,9 @@ bpy.context.object.scale[2] = 10
 bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 
 if meshType == "hair":
-	bpy.data.objects[filebasename].location[2] = 35
-	bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
+	#bpy.data.objects[filebasename].location[2] = 35
+	#bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
+	pass
 elif meshType == "accessory":
 	bpy.data.objects[filebasename].location[2] = 98
 	bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
@@ -161,33 +162,24 @@ else: #if meshType == "hair" or meshType == "hair_origin" or meshType == "face" 
 	#bpy.data.objects[filebasename].scale[2] = 2.5
 	bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 
+
+
 # ----------------------------------------------------------
 # reduction
 # ----------------------------------------------------------
 bpy.ops.object.editmode_toggle()
 bpy.ops.mesh.remove_doubles()
-
-# reduction vertex
 #bpy.ops.object.editmode_toggle()
-#bpy.context.space_data.context = 'MODIFIER'
-bpy.ops.object.modifier_add(type='DECIMATE')
 
-# COLLAPSEを使うと頂点数が変わらなくなったのでDISSOLVEのみにする
-if True:
-	bpy.context.object.modifiers["Decimate"].decimate_type = 'DISSOLVE'
-else:
-	if meshType == "hair" or meshType == "face" or meshType.startswith("static"):
-		bpy.context.object.modifiers["Decimate"].decimate_type = 'DISSOLVE'
-	else:
-		bpy.context.object.modifiers["Decimate"].decimate_type = 'COLLAPSE'
-		bpy.context.object.modifiers["Decimate"].ratio = 0.4
+# 頂点カラーのベイク準備
+# 
+# blender2.8からEeveeというレンダリングエンジンになったらしいが
+# まだベイク機能が搭載されていないようなのでエンジンを変更する
+#bpy.context.scene.render.engine = 'CYCLES'
+# マテリアル選択
+#bpy.context.object.active_material_index = 0
+#bpy.data.materials["Material"].node_tree.nodes["Vertex Color"].layer_name = "Col"
 
-
-# bebel
-bpy.ops.object.modifier_add(type='BEVEL')
-bpy.context.object.modifiers["Bevel"].width = 1
-bpy.context.object.modifiers["Bevel"].segments = 3
-bpy.context.object.modifiers["Bevel"].profile = 0.35
 
 # ----------------------------------------------------------
 # make texture
@@ -198,16 +190,22 @@ bpy.ops.uv.smart_project(island_margin=0.1)
 
 imagePath = destTexPath
 imageName = filebasename + "_tex.png"
-image = bpy.data.images.new(imageName, width=1024, height=1024)
+image = bpy.data.images.new(imageName, width=texSize, height=texSize)
 image.use_alpha = True
 image.alpha_mode = 'STRAIGHT'
 image.filepath_raw = imagePath
 image.file_format = 'PNG'
 image.save()
 
+#bpy.context.scene.cycles.bake_type = 'DIFFUSE'
+#bpy.context.scene.render.bake.use_pass_indirect = False
+#bpy.context.scene.render.bake.use_pass_direct = False
+#bpy.context.scene.render.bake.use_pass_color = True
+#bpy.context.area.ui_type = 'ShaderNodeTree'
+
 # bake
 bpy.data.screens['UV Editing'].areas[1].spaces[0].image = image
-bpy.data.scenes["Scene"].render.bake_margin = 32
+bpy.data.scenes["Scene"].render.bake_margin = 16
 bpy.data.scenes["Scene"].render.bake_type = 'VERTEX_COLORS'
 bpy.ops.object.bake_image()
 image.save()
@@ -215,10 +213,37 @@ image.save()
 # remove vertex color
 bpy.ops.mesh.vertex_color_remove()
 
+#bpy.ops.object.editmode_toggle()
+#bpy.context.space_data.context = 'MODIFIER'
+
+# 頂点削減でUVが汚くなったので除去
+if False:
+    # reduction vertex
+	
+	bpy.ops.object.modifier_add(type='DECIMATE')
+	
+    # COLLAPSEを使うと頂点数が変わらなくなったのでDISSOLVEのみにする
+	if True:
+		bpy.context.object.modifiers["Decimate"].decimate_type = 'DISSOLVE'
+	else:
+		if meshType == "hair" or meshType == "face" or meshType.startswith("static"):
+			bpy.context.object.modifiers["Decimate"].decimate_type = 'DISSOLVE'
+		else:
+			bpy.context.object.modifiers["Decimate"].decimate_type = 'COLLAPSE'
+			bpy.context.object.modifiers["Decimate"].ratio = 0.4
+
+# bebel
+bpy.ops.object.modifier_add(type='BEVEL')
+bpy.context.object.modifiers["Bevel"].limit_method = 'ANGLE'
+bpy.context.object.modifiers["Bevel"].angle_limit = 1.0472
+bpy.context.object.modifiers["Bevel"].width = 1
+bpy.context.object.modifiers["Bevel"].segments = 3
+bpy.context.object.modifiers["Bevel"].profile = 0.35
+
 bpy.ops.object.editmode_toggle()
 
 if not meshType.startswith("static"):
-	#bpy.ops.object.parent_drop(child=filebasename, parent="metarig", type='ARMATURE_AUTO')
+    	#bpy.ops.object.parent_drop(child=filebasename, parent="metarig", type='ARMATURE_AUTO')
 	#bpy.ops.outliner.parent_drop(child=filebasename, parent="metarig", type='ARMATURE_AUTO')
 	#bpy.data.objects[filebasename].parent = bpy.data.objects["metarig"]
 	bpy.ops.object.select_all(action='DESELECT')
