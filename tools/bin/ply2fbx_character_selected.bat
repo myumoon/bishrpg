@@ -12,7 +12,7 @@ set DEST_FBX=%ASSET_CHARACTER_DIR%\_out
 rem set WORK_BLEND=%~dp1temp\%~n1.blend
 set WORK_DIR=%ASSET_CHARACTER_DIR%\_temp
 set BASE_BLEND=%~dp0ply2fbx_base_character.blend
-set TEX_SIZE=1024
+set TEX_SIZE=256
 
 
 python %~dp0ply2fbx_recursive.py %SRC_FILE_OR_DIR% --destDir %DEST_FBX% --workDir %WORK_DIR% --texSize %TEX_SIZE%
