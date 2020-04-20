@@ -8,7 +8,7 @@
 
 class USkeletalMesh;
 class UTexture;
-class UMaterial;
+class UMaterialInterface;
 class IAssetRegistry;
 class IAssetTools;
 
@@ -28,14 +28,14 @@ public:
 
 private:
 	struct ParsedParams;
-	void               ShowHelp();
-	bool               ParseArgs(ParsedParams* out, const FString& params) const;
-	USkeletalMesh*     ImportFbx(const FString& fbxPath, const FString& partsName, const FString& destFileName);
-	UTexture*          ImportTexture(const FString& texPath, const FString& partsName, const FString& destFileName);
-	UMaterial*         MakeMaterialInstance(UTexture* tex, const FString& partsName, const FString& destFileName);
-	void               SetMaterialToMesh(USkeletalMesh* mesh, UMaterial* material);
+	void                ShowHelp();
+	bool                ParseArgs(ParsedParams* out, const FString& params) const;
+	USkeletalMesh*      ImportFbx(const FString& fbxPath, const FString& partsName, const FString& destFileName);
+	UTexture*           ImportTexture(const FString& texPath, const FString& partsName, const FString& destFileName);
+	UMaterialInterface* MakeMaterialInstance(UTexture* tex, const FString& partsName, const FString& destFileName);
+	void                SetMaterialToMesh(USkeletalMesh* mesh, UMaterialInterface* material);
 
 private:
-	IAssetRegistry*    AssetRegistry = nullptr;
-	IAssetTools*       AssetTools    = nullptr;
+	IAssetRegistry*     AssetRegistry = nullptr;
+	IAssetTools*        AssetTools    = nullptr;
 };
