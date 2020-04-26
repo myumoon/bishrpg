@@ -12,8 +12,23 @@ class UMaterialInterface;
 class IAssetRegistry;
 class IAssetTools;
 
-/**
+/**	モデルインポートコマンドレット
  * 
+ *  examples:
+ *	  CharacterModelImporter -csv=csvpath
+ *    CharacterModelImporter -fbx_path=*.fbx -tex_path=*.png -parts=Lower -filename=filenme
+ *
+ *  options:
+ *    - csv      : Import from csv with a specified csv file.
+ *                 Other options are ignored.
+ *    - fbx_path : A fbx path to be imported.
+ *    - tex_path : A texture path to be imported.
+ *    - parts    : This model's category. [Head, Face, Upper, Lower, Accessory]
+ *    - filename : This model's file name.
+ * 
+ *  csv format:
+ *    fbx_path,tex_path,parts,filename
+ *     :
  */
 UCLASS()
 class BISHRPG_API UCharacterModelImporterCommandlet : public UCommandlet
@@ -30,10 +45,19 @@ private:
 	struct ParsedParams;
 	void                ShowHelp();
 	bool                ParseArgs(ParsedParams* out, const FString& params) const;
+
+	//!@{
+	bool                ImportFromCsv(const FString& csvPath);
+	bool                Import(const FString& fbxPath, const FString& texPath, const FString& partsName, const FString& filename);
+	//!@}
+
+	//@{
 	USkeletalMesh*      ImportFbx(const FString& fbxPath, const FString& partsName, const FString& destFileName);
 	UTexture*           ImportTexture(const FString& texPath, const FString& partsName, const FString& destFileName);
 	UMaterialInterface* MakeMaterialInstance(UTexture* tex, const FString& partsName, const FString& destFileName);
 	void                SetMaterialToMesh(USkeletalMesh* mesh, UMaterialInterface* material);
+	//@}
+	//@}
 
 private:
 	IAssetRegistry*     AssetRegistry = nullptr;

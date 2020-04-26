@@ -2,6 +2,7 @@
 
 #include "CharacterModelImporterCommandlet.h"
 #include <cctype>
+#include "Templates/UnrealTemplate.h"
 #include "UObject/ScriptInterface.h"
 #include "Engine/Texture.h"
 #include "Engine/SkeletalMesh.h"
@@ -30,27 +31,61 @@
 #include "UObject/SoftObjectPath.h"
 #include "EditorAssetLibrary.h"
 //#include "FbxImporter.h"
+#include "HAL/PlatformFilemanager.h"
+#include "HAL/FileManager.h"
 
 #include "Commandlet/Utility/FileUtil.h"
 
 //#include "bishrpg.h"
 
-
 DEFINE_LOG_CATEGORY_STATIC(CharacterModelImporterCommandlet, Log, All);
+
+namespace {
+	// 文字列を区切り文字単位で分割する
+	TArray<FString> SplitString(const FString& origin, const FString& splitStr)
+	{
+		FString workStr = origin;
+		TArray<FString> splitString;
+		splitString.Reserve(32);
+
+		FString left, right;
+		while(workStr.Split(splitStr, &left, &right)) {
+			workStr = right;
+			splitString.Add(left);
+			//UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("split=%s"), *left);
+		}
+		if(!right.IsEmpty()) {
+			splitString.Add(right);
+			//UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("split=%s"), *right);
+		}
+		return MoveTemp(splitString);
+	}
+}
+
 
 namespace {
 	constexpr TCHAR* CharacterAssetDir = TEXT("/Game/Character/");
 }
 
 struct UCharacterModelImporterCommandlet::ParsedParams {
-	TOptional<FString> fbxPath;
-	TOptional<FString> texPath;
-	TOptional<FString> partsName;
-	TOptional<FString> fileName;
+	TOptional<FString>         csvFile;
+	TOptional<FString>         fbxPath;
+	TOptional<FString>         texPath;
+	TOptional<FString>         partsName;
+	TOptional<FString>         fileName;
 
-	bool IsValid() const 
+	bool ImportingFromCsvFile() const
+	{
+		return csvFile.IsSet();
+	}
+	bool IsFileImport() const 
 	{
 		return partsName.IsSet() && fileName.IsSet() && (fbxPath.IsSet() || texPath.IsSet());
+	}
+
+	bool HasValidOption() const
+	{
+		return ImportingFromCsvFile() || IsFileImport();
 	}
 };
 
@@ -85,11 +120,11 @@ int32 UCharacterModelImporterCommandlet::Main(const FString& commandlineParams)
 		return 1;
 	}
 
-	USkeletalMesh* mesh = ImportFbx(params.fbxPath.GetValue(), params.partsName.GetValue(), params.fileName.GetValue());
-	UTexture*      tex  = ImportTexture(params.texPath.GetValue(), params.partsName.GetValue(), params.fileName.GetValue());
-	if(tex) {
-		UMaterialInterface* mat  = MakeMaterialInstance(tex, params.partsName.GetValue(), params.fileName.GetValue());
-		SetMaterialToMesh(mesh, mat);
+	if(params.ImportingFromCsvFile()) {
+		ImportFromCsv(params.csvFile.GetValue());
+	}
+	if(params.IsFileImport()) {
+		Import(params.fbxPath.GetValue(), params.texPath.GetValue(), params.partsName.GetValue(), params.fileName.GetValue());
 	}
 
 	return 0;
@@ -102,7 +137,7 @@ void UCharacterModelImporterCommandlet::ShowHelp()
 			"Import and make character model.\n" \
 			"\n" \
 			"Arguments:\n" \
-			"  CharacterModelImporter [-fbx_path=*.fbx] [-tex_path=*.png] -parts=[\"Hair\",\"Face\",\"Upper\",\"Lower\"] -filename=string"
+			"  CharacterModelImporter [-csv=*.csv] [-fbx_path=*.fbx] [-tex_path=*.png] -parts=[\"Hair\",\"Face\",\"Upper\",\"Lower\"] -filename=string"
 		), 
 		{ TEXT("") }
 		);
@@ -113,6 +148,12 @@ bool UCharacterModelImporterCommandlet::ParseArgs(ParsedParams* out, const FStri
 {
 	if(!out) {
 		return false;
+	}
+
+	// テキストファイルの中身を一括変換
+	FString csvFilePath;
+	if(FParse::Value(*params, TEXT("csv="), csvFilePath)) {
+		out->csvFile = csvFilePath;
 	}
 
 	FString fbxPath;
@@ -140,7 +181,60 @@ bool UCharacterModelImporterCommandlet::ParseArgs(ParsedParams* out, const FStri
 		out->fileName = fileName;
 	}
 
-	return out->IsValid();
+	return out->HasValidOption();
+}
+
+bool UCharacterModelImporterCommandlet::ImportFromCsv(const FString& csvPath)
+{
+	UE_LOG(CharacterModelImporterCommandlet, Error, TEXT("%s"), *FString::Format(TEXT("Importing from text file : {0}"), {csvPath}));
+
+	TArray<FString> resultLines;
+	if(!FFileHelper::LoadFileToStringArray(resultLines, *csvPath)) {
+		UE_LOG(CharacterModelImporterCommandlet, Error, TEXT("%s"), *FString::Format(TEXT("Not found {0}"), {csvPath}));
+		return false;
+	}
+
+	constexpr int32 SplitCols = 4;
+	TArray<FString> splittedLine;
+
+	bool result = true;
+	for(const FString& line : resultLines) {
+		UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Line : {0}"), {line}));
+		splittedLine.Reset();
+		const int32 splittedCount = line.ParseIntoArray(splittedLine, TEXT(","));
+		if(splittedCount < SplitCols) {
+			continue;
+		}
+
+		// fbx_path,texture_path,parts,outname
+		const FString& fbxPath   = splittedLine[0];
+		const FString& texPath   = splittedLine[1];
+		const FString& partsName = splittedLine[2];
+		const FString& outName   = splittedLine[3];
+		result &= Import(fbxPath, texPath, partsName, outName);
+	}
+
+	return result;
+}
+
+
+bool UCharacterModelImporterCommandlet::Import(const FString& fbxPath, const FString& texPath, const FString& partsName, const FString& filename)
+{
+	USkeletalMesh* mesh = ImportFbx(fbxPath, partsName, filename);
+	if(!mesh) {
+		return false;
+	}
+	UTexture*      tex = ImportTexture(texPath, partsName, filename);
+	if(!tex) {
+		return false;
+	}
+	UMaterialInterface* mat = MakeMaterialInstance(tex, partsName, filename);
+	if(!mat) {
+		return false;
+	}
+	SetMaterialToMesh(mesh, mat);
+
+	return true;
 }
 
 USkeletalMesh* UCharacterModelImporterCommandlet::ImportFbx(const FString& fbxPath, const FString& partsName, const FString& destFileName)
