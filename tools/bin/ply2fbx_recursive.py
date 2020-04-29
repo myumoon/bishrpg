@@ -19,64 +19,82 @@ import threading
 import time
 from optparse import OptionParser
 from concurrent.futures import ThreadPoolExecutor
+import proj_def
+from model_build import ply_path
 
 def execCommand(command):
-    print("convert {}".format(command)) 
-    subprocess.call(command)
-    #subprocess.run(command)
+	print("convert {}".format(command)) 
+	subprocess.call(command)
+	#subprocess.run(command)
 
-def convert(plyFile, destDir, workDir, texSize, threadPool):
-    currentDir      = os.path.dirname(os.path.normpath(__file__)).replace("\\", "/")
-    baseBlenderFile = currentDir + "/ply2fbx_base_character.blend"
-    ply2fbxPath     = currentDir + "/ply2fbx.py"
-    workPath        = workDir + "/" + os.path.basename(plyFile).split('.')[0] + ".blend"
-    command         = ["blender.exe", baseBlenderFile, "-b", "-P", ply2fbxPath, "--", "", plyFile.replace("\\", "/"), destDir, workPath, str(texSize)]
+def convert(plyFile, destDir, workDir, texSize, threadPool, touch):
+	currentDir      = os.path.dirname(os.path.normpath(__file__)).replace("\\", "/")
+	baseBlenderFile = currentDir + "/ply2fbx_base_character.blend"
+	ply2fbxPath     = currentDir + "/ply2fbx.py"
+	workPath        = workDir + "/" + os.path.basename(plyFile).split('.')[0] + ".blend"
+
+	# plypath partsname fbxpath texpath workblendpath texsize
+	destFbxPath     = os.path.join(destDir, ply_path.makeRelativeFbxContentsPath(plyFile))
+	destTexPath     = os.path.join(destDir, ply_path.makeRelativeTexContentsPath(plyFile))
+	partsType       = ply_path.getPartsName(plyFile)
+	destBlendPath   = os.path.join(workDir, os.path.splitext(os.path.basename(plyFile))[0] + ".blend")
+	command         = ["blender.exe", baseBlenderFile, "-b", "-P", ply2fbxPath, "--", "", plyFile.replace("\\", "/"), partsType, destFbxPath, destTexPath, destBlendPath, str(texSize)]
+
+    #command         = ["blender.exe", baseBlenderFile, "-b", "-P", ply2fbxPath, "--", "", plyFile.replace("\\", "/"), destDir, workPath, str(texSize)]
     
-    threadPool.submit(execCommand, command)
-    #worker = threading.Thread(target=execCommand, args=(command,))
-    #worker.start()
-    #return worker
+	threadPool.submit(execCommand, command)
+	#worker = threading.Thread(target=execCommand, args=(command,))
+	#worker.start()
+	#return worker
+	if touch:
+		createTouchFile(os.path.extsep(os.path.basename(destFbxPath))[0])
 
-def convertRecursive(d, dest, work, texSize, threads=4):
-    #workerThreads = []
-    for f in glob.glob(d + "/**", recursive=True):
-        print("f:{}".format(f))
-        if os.path.isfile(f) and f.endswith(".ply"):
-            print("conv:{}".format(f))
-            workerThread = convert(f, dest, work, texSize, threads)
-    #        workerThreads.append(workerThread)
-    #for worker in workerThreads:
-    #    worker.join()
+def createTouchFile(name):
+	if name != None and name != "":
+		with open(os.path.join(proj_def.TempDir, name + ".touch"), "w") as f:
+			f.write("")
+
+def convertRecursive(d, dest, work, texSize, threads=4, touch=False):
+	#workerThreads = []
+	for f in glob.glob(d + "/**", recursive=True):
+		print("f:{}".format(f))
+		if os.path.isfile(f) and f.endswith(".ply"):
+			print("conv:{}".format(f))
+			workerThread = convert(f, dest, work, texSize, threads, touch)
+	#        workerThreads.append(workerThread)
+	#for worker in workerThreads:
+	#    worker.join()
 
 def main():
-    startTime = time.time()
+	startTime = time.time()
 
-    parser = OptionParser()
-    #parser.add_option("source", nargs='+', help=u"source .ply file")
-    parser.add_option("--destDir", default="./out", help=u"destination directory")
-    parser.add_option("--workDir", default="./_work", help=u"destination of tempolary files directory")
-    parser.add_option("--texSize", default=16, type=int, help="texture atlas size")
-    parser.add_option("--threads", default=4, type=int, help="thread num")
+	parser = OptionParser()
+	#parser.add_option("source", nargs='+', help=u"source .ply file")
+	parser.add_option("--destDir", default="./out", help=u"destination directory")
+	parser.add_option("--workDir", default="./_work", help=u"destination of tempolary files directory")
+	parser.add_option("--texSize", default=16, type=int, help="texture atlas size")
+	parser.add_option("--threads", default=4, type=int, help="thread num")
+	parser.add_option("--touch", default=False, action="store_false", help="create touch file")
+
+	options, args = parser.parse_args()
+	print(args)
+
+	threadPool = ThreadPoolExecutor(max_workers=options.threads)
+
+	for f in args:
+		# ディレクトリ指定の場合は階層以下をすべて変換
+		if os.path.isdir(f):
+			print(u"recursive")
+			convertRecursive(f, options.destDir, options.workDir, options.texSize, threadPool, options.touch)
+		# ファイル指定は単体で変換
+		elif os.path.isfile(f):
+			print(u"file")
+			convert(f, options.destDir, options.workDir, options.texSize, threadPool, options.touch)
     
-    options, args = parser.parse_args()
-    print(args)
+	threadPool.shutdown()
 
-    threadPool = ThreadPoolExecutor(max_workers=options.threads)
-
-    for f in args:
-        # ディレクトリ指定の場合は階層以下をすべて変換
-        if os.path.isdir(f):
-            print(u"recursive")
-            convertRecursive(f, options.destDir, options.workDir, options.texSize, threadPool)
-        # ファイル指定は単体で変換
-        elif os.path.isfile(f):
-            print(u"file")
-            convert(f, options.destDir, options.workDir, options.texSize, threadPool)
-    
-    threadPool.shutdown()
-
-    elapsedTime = time.time() - startTime
-    print("Done convert. (time={}s)".format(elapsedTime))
+	elapsedTime = time.time() - startTime
+	print("Done convert. (time={}s)".format(elapsedTime))
 
 if __name__ == "__main__":
-    exit(main())
+	exit(main())

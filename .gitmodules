@@ -1,0 +1,3 @@
+[submodule "tools/thirdparty/ninja"]
+	path = tools/thirdparty/ninja
+	url = https://github.com/ninja-build/ninja.git
