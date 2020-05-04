@@ -16,7 +16,12 @@ ToolDir = os.path.abspath(os.path.join(Root, 'tools', 'bin'))
 # リソースディレクトリ
 ResRoot = os.path.abspath(os.path.join(Root, '..', 'bishrpg_resources'))
 
-# モデル変換csv
-TempDir        = os.path.abspath(os.path.join(os.path.dirname(__file__), "model_build", 'temp'))
+# fbx出力ディレクトリ
+DestFbxDir = os.path.join(ResRoot, "models", "_out", "Content")
+
+# 変換時の一時ファイルディレクトリ
+TempDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "model_build", 'temp'))
+
+# モデル変換csvファイル
 ConvertCsvPath = os.path.abspath(os.path.join(TempDir, 'convert_list.csv'))
 

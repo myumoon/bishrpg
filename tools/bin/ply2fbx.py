@@ -133,11 +133,11 @@ fbxDestDir    = os.path.dirname(fbxDestPath)
 texDestDir    = os.path.dirname(texDestPath)
 blendDestDir  = os.path.dirname(workBlendPath)
 if not os.path.exists(fbxDestDir):
-	os.mkdirs(fbxDestDir)
+	os.makedirs(fbxDestDir)
 if not os.path.exists(texDestDir):
-	os.mkdirs(texDestDir)
+	os.makedirs(texDestDir)
 if not os.path.exists(blendDestDir):
-	os.mkdirs(blendDestDir)
+	os.makedirs(blendDestDir)
 
 """
 if not os.path.exists(destDir):

@@ -27,8 +27,6 @@ def getCharacterVersion(plyPath):
 
 	p002_01-2.ply の01部分
 	"""
-	if isOneMesh(plyPath):
-		return "-1"
 	filename = os.path.basename(plyPath)
 	return filename[5:7]
 

@@ -8,7 +8,7 @@ import optparse
 import codecs
 
 # ninja/miscにパスを通す 
-sys.path.append(os.path.join(os.path.dirname(__file__),'..','..','thirdparty','ninja','misc'))
+sys.path.append(os.path.join(os.path.dirname(__file__),'..','..','..','thirdparty','ninja','misc'))
 from ninja_syntax import Writer
 
 def main():	
@@ -19,6 +19,9 @@ def main():
 	parser.add_option("-c", "--config", default="config.ninja", help=u"ninja config path")
 
 	options, args = parser.parse_args()
+
+	if not os.path.exists(os.path.dirname(options.out)):
+		os.makedirs(os.path.dirname(options.out))
 
 	with codecs.open(options.out, 'w', 'utf-8') as f:
 		writer = Writer(f)
@@ -34,17 +37,17 @@ def main():
 
 		# UE4インポート
 		commandStr = '"D:\\Program Files\\Epic Games\\UE_4.24\\Engine\\Binaries\\Win64\\UE4Editor-Cmd.exe" ${ue4_proj_root}\\bishrpg.uproject -run=CharacterModelImporter -csv=$in -stdout -UTF8Output'
-		write.rule(name=u"import_ue4", command=commandStr, description=u"UE4にインポート")
+		writer.rule(name=u"import_ue4", command=commandStr, description=u"UE4にインポート")
 		writer.newline()
 
 		# インポート用csv生成
-		commandStr = "python $import_csv_name --in $in --out $out";
-		write.rule(name=u"make_import_csv", command=commandStr, description=u"UE4にインポートするファイル一覧csvを生成")
+		commandStr = "python $import_csv_name $in --out $out --destrootdir $res_dest --projroot $ue4_proj_root";
+		writer.rule(name=u"make_import_csv", command=commandStr, description=u"UE4にインポートするファイル一覧csvを生成")
 		writer.newline()
 
 		# plyからfbxへの変換
-		commandStr = "python $ply2fbx $in --destDir $res_root/models/characters/_out --workDir $res_root/models/characters/temp --texSize 256 --touch"
-		write.rule(name=u"convert_ply", command=commandStr, description=u"plyフォルダをfbxに変換")
+		commandStr = "python $ply2fbx $in --destDir $res_dest/Characters --workDir $temp_dir --texSize 256 --touch --dummy"
+		writer.rule(name=u"convert_ply", command=commandStr, description=u"plyフォルダをfbxに変換")
 		writer.newline()
 
 	return 0

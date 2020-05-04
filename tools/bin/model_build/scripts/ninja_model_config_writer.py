@@ -8,10 +8,11 @@ import optparse
 import codecs
 
 # プロジェクト変数
-from .. import proj_def
+sys.path.append(os.path.join(os.path.dirname(__file__),'..','..'))
+import proj_def
 
 # ninja/miscにパスを通す 
-sys.path.append(os.path.join(os.path.dirname(__file__),'..','..','thirdparty','ninja','misc'))
+sys.path.append(os.path.join(os.path.dirname(__file__),'..','..','..','thirdparty','ninja','misc'))
 from ninja_syntax import Writer
 
 def main():	
@@ -21,6 +22,9 @@ def main():
 	parser.add_option("-o", "--out", default=os.path.join(current_dir, "ninja", "config.ninja"), help=u"ninja config path")
 
 	options, args = parser.parse_args()
+
+	if not os.path.exists(os.path.dirname(options.out)):
+		os.makedirs(os.path.dirname(options.out))
 
 	with codecs.open(options.out, 'w', 'utf-8') as f:
 		writer = Writer(f)
@@ -44,17 +48,25 @@ def main():
 		writer.comment("リソースディレクトリ")
 		writer.variable(key="res_root", value=proj_def.ResRoot)
 
+		# リソース出力ディレクトリ
+		writer.comment("出力ディレクトリ")
+		writer.variable(key="res_dest", value=proj_def.DestFbxDir)
+
+		# 一時ディレクトリ
+		writer.comment("一時ディレクトリ")
+		writer.variable(key="temp_dir", value=proj_def.TempDir)
+
 		# モデル変換csv
 		writer.comment("モデル変換csv")
 		writer.variable(key="convert_csv", value=proj_def.ConvertCsvPath)
 
 		# モデル変換用csv生成
 		writer.comment("インポートcsv作成")
-		writer.variable(key="import_csv_name", value="import_csv_maker.py")
+		writer.variable(key="import_csv_name", value="../scripts/import_csv_maker.py")
 
 		# モデル変換
 		writer.comment("fbx生成")
-		writer.variable(key="ply2fbx", value="ply2fbx_recursive.py")
+		writer.variable(key="ply2fbx", value="../../ply2fbx_recursive.py")
 
 	return 0
 
