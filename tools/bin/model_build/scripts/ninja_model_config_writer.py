@@ -32,6 +32,10 @@ def main():
 		writer.comment("設定定義")
 		writer.newline()
 
+		# UE4エンジンコマンド
+		writer.comment("UE4エンジンコマンド")
+		writer.variable(key="ue4_cmd", value=os.path.join(proj_def.UE4EngineDir, "UE4Editor-Cmd.exe"))
+
 		# リポジトリルート
 		writer.comment("プロジェクトルート")
 		writer.variable(key="proj_root", value=proj_def.Root)
@@ -39,6 +43,10 @@ def main():
 		# UE4プロジェクトルート
 		writer.comment("UE4プロジェクトルート")
 		writer.variable(key="ue4_proj_root", value=proj_def.UE4ProjRoot)
+
+		# UE4プロジェクトファイル
+		writer.comment("UE4プロジェクトファイル")
+		writer.variable(key="ue4_proj_file", value=os.path.join(proj_def.UE4ProjRoot, proj_def.ProjectName + ".uproject"))
 
 		# ツールディレクトリ
 		writer.comment("ツールディレクトリ")

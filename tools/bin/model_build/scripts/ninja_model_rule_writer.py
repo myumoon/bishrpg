@@ -36,7 +36,7 @@ def main():
 		# ---- ルール定義 ----
 
 		# UE4インポート
-		commandStr = '"D:\\Program Files\\Epic Games\\UE_4.24\\Engine\\Binaries\\Win64\\UE4Editor-Cmd.exe" ${ue4_proj_root}\\bishrpg.uproject -run=CharacterModelImporter -csv=$in -stdout -UTF8Output'
+		commandStr = '"${ue4_cmd}" ${ue4_proj_file} -run=CharacterModelImporter -csv=$in -stdout -UTF8Output'
 		writer.rule(name=u"import_ue4", command=commandStr, description=u"UE4にインポート")
 		writer.newline()
 

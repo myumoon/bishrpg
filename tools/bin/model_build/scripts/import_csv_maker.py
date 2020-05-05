@@ -15,12 +15,12 @@ from ninja_syntax import Writer
 def mappingDirectory(assetPath, resDestRoot):
 	contentName    = os.path.splitext(os.path.basename(assetPath))[0]
 	contentRelPath = os.path.dirname(os.path.relpath(assetPath, resDestRoot))
-	contentPath    = os.path.join("Game", contentRelPath, contentName)
+	contentPath    = os.path.join("/Game", contentRelPath, contentName)
 	#print("mapping asset({}) \nroot({}) \nrel({}) \nname({})".format(assetPath, resDestRoot, contentRelPath, contentName))
 	return (assetPath.replace(os.path.sep, "/"), contentPath.replace(os.path.sep, "/"))
 
 def convertGamePathToContentPath(gameDir):
-	return gameDir.replace("Game/", "Content/") + ".uasset"
+	return gameDir.replace("/Game/", "/Content/") + ".uasset"
 
 def convertFbxPathToTexPath(fbxPath, texExt="png"):
 	texPath = fbxPath.replace("Meshes", "Textures")

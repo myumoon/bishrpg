@@ -35,10 +35,11 @@ def makeDummyFile(dummyPath, fileText=""):
 		f.write(fileText)
 
 def convert(plyFile, destDir, workDir, texSize, threadPool, dummy=False):
-	currentDir      = os.path.dirname(os.path.normpath(__file__)).replace("\\", "/")
+	currentDir      = os.path.abspath(os.path.dirname(os.path.normpath(__file__))).replace("\\", "/")
 	baseBlenderFile = currentDir + "/ply2fbx_base_character.blend"
 	ply2fbxPath     = currentDir + "/ply2fbx.py"
 	workPath        = workDir + "/" + os.path.basename(plyFile).split('.')[0] + ".blend"
+	print("convert! : cur({}), blend({}), file({})".format(currentDir, baseBlenderFile, __file__))
 
 	# plypath partsname fbxpath texpath workblendpath texsize
 	destFbxPath     = os.path.join(destDir, ply_path.makeRelativeFbxContentsPath(plyFile))

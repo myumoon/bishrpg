@@ -41,10 +41,18 @@ def main():
 		
 		writer.comment("plyをfbxにビルド")
 		fbxList = []
-		for path in glob.glob(os.path.join(proj_def.ResRoot, "models", "characters") + "/**/**.ply", recursive=True):
-			fbxPath    = ply_path.makeRelativeFbxContentsPath(path)
-			#texPath = ply_path.makeRelativeTexContentsPath(path)
-			#destFbxPath = os.path.join("$res_root", "Content", "Characters", fbxPath)
+		if False:
+			for path in glob.glob(os.path.join(proj_def.ResRoot, "models", "characters") + "/**/**.ply", recursive=True):
+				fbxPath    = ply_path.makeRelativeFbxContentsPath(path)
+				#texPath = ply_path.makeRelativeTexContentsPath(path)
+				#destFbxPath = os.path.join("$res_root", "Content", "Characters", fbxPath)
+				destFbxPath = os.path.join("$res_dest", "Characters", fbxPath)
+				inputPath   = os.path.join("$res_root", os.path.relpath(path, proj_def.ResRoot))
+				writer.build(outputs=[destFbxPath], rule="convert_ply", inputs=[inputPath], implicit=None)
+				fbxList.append(destFbxPath)
+		else:
+			path = "D:/prog/0_myprogram/bishrpg_resources/models/characters/p005_lingling/01_otnk/p005_01-2.ply"
+			fbxPath     = ply_path.makeRelativeFbxContentsPath(path)
 			destFbxPath = os.path.join("$res_dest", "Characters", fbxPath)
 			inputPath   = os.path.join("$res_root", os.path.relpath(path, proj_def.ResRoot))
 			writer.build(outputs=[destFbxPath], rule="convert_ply", inputs=[inputPath], implicit=None)
@@ -54,8 +62,8 @@ def main():
 		writer.build(outputs=["$convert_csv"], rule="make_import_csv", inputs=fbxList, implicit=None)
 
 		writer.comment("UE4にインポート")
-		writer.comment("todo")
-		#writer.build(outputs=None, rule="import_ue4", inputs="$convert_csv", implicit=None)
+		writer.build(outputs="import_ue4", rule="import_ue4", inputs="$convert_csv", implicit=None)
+
 	return 0
 
 if __name__ == "__main__":

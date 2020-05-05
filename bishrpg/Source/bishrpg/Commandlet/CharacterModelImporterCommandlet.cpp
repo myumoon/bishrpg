@@ -187,11 +187,11 @@ bool UCharacterModelImporterCommandlet::ParseArgs(ParsedParams* out, const FStri
 
 bool UCharacterModelImporterCommandlet::ImportFromCsv(const FString& csvPath)
 {
-	UE_LOG(CharacterModelImporterCommandlet, Error, TEXT("%s"), *FString::Format(TEXT("Importing from text file : {0}"), {csvPath}));
+	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Importing from text file : {0}"), {csvPath}));
 
 	TArray<FString> resultLines;
 	if(!FFileHelper::LoadFileToStringArray(resultLines, *csvPath)) {
-		UE_LOG(CharacterModelImporterCommandlet, Error, TEXT("%s"), *FString::Format(TEXT("Not found {0}"), {csvPath}));
+		UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Not found {0}"), {csvPath}));
 		return false;
 	}
 
@@ -368,12 +368,19 @@ UMaterialInterface* UCharacterModelImporterCommandlet::MakeMaterialInstance(UTex
 	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Making material instance with {0}"), {tex->GetFName().ToString()}));
 	
 	const FString srcMaterialPath  = TEXT("/Game/Characters/Materials/CharacterMatInstBase");
-	const FString destMaterialPath = FString::Format(TEXT("/Game/Characters/Lower/Materials/{0}"), {*destFileName});
+	const FString destMaterialPath = FString::Format(TEXT("/Game/Characters/Parts/{0}/Materials/{1}"), {*partsName, *destFileName});
 
 	// 複製元が存在しなかったらエラー
 	if(!UEditorAssetLibrary::DoesAssetExist(srcMaterialPath)) {
 		UE_LOG(CharacterModelImporterCommandlet, Error, TEXT("%s"), *FString::Format(TEXT("Duplicate error. Not exists src material instance : {0}"), {srcMaterialPath}));
 		return nullptr;
+	}
+
+	// Materialフォルダの作成
+	FString asserDir, _dummyName, _dummyExt;
+	FPaths::Split(destMaterialPath, asserDir, _dummyName, _dummyExt);
+	if(!FPaths::DirectoryExists(asserDir)) {
+		IFileManager::Get().MakeDirectory(*asserDir, true);
 	}
 
 	if(!UEditorAssetLibrary::DoesAssetExist(destMaterialPath)) {
