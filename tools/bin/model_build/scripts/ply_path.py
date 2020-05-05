@@ -85,23 +85,28 @@ def makeContentsInfo(plyPath):
 	partsName = getPartsName(plyPath)
 	return (charId, charVer, partsName)
 
-def makeRelativeFbxContentsPath(plyPath):
+def makeRelativeContentPath(plyPath, resType, ext):
 	u"""
-	Lower/Textures/Lower_pl000_01.fbx
+	Parts/Lower/[resType]/Lower_pl000_01.[ext]
 	"""
 	charId, charVer, partsName = makeContentsInfo(plyPath)
-	fileName        = makeContentsFileName(charId, charVer, partsName, "fbx")
-	fbxContentsPath = os.path.join(partsName, "Meshes", fileName)
-	return fbxContentsPath
+	fileName        = makeContentsFileName(charId, charVer, partsName, ext)
+	if partsName.lower() == "onemesh":
+		return os.path.join(partsName, resType, fileName)
+	else:
+		return os.path.join("Parts/", partsName, resType, fileName)
+
+def makeRelativeFbxContentsPath(plyPath):
+	u"""
+	Parts/Lower/Textures/Lower_pl000_01.fbx
+	"""
+	return makeRelativeContentPath(plyPath, "Meshes", "fbx")
 
 def makeRelativeTexContentsPath(plyPath):
 	u"""
-	Lower/Textures/Lower_pl000_01.png
+	Parts/Lower/Textures/Lower_pl000_01.png
 	"""
-	charId, charVer, partsName = makeContentsInfo(plyPath)
-	fileName        = makeContentsFileName(charId, charVer, partsName, "png")
-	texContentsPath = os.path.join(partsName, "Textures", fileName)
-	return texContentsPath
+	return makeRelativeContentPath(plyPath, "Textures", "png")
 
 class TestPlyPath(unittest.TestCase):
 	def test_plyindex(self):

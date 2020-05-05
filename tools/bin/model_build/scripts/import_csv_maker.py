@@ -61,11 +61,13 @@ def main():
 	with codecs.open(options.out, 'w', 'utf-8') as f:
 		csvWriter = csv.writer(f)
 		for inFbxPath in args:
-			inTexPath               = convertFbxPathToTexPath(inFbxPath)
 			fbxPath, contentFbxPath = mappingDirectory(inFbxPath, options.destrootdir)
-			texPath, contentTexPath = mappingDirectory(inTexPath, options.destrootdir)
 			checkContentPath        = os.path.join(options.projroot, convertGamePathToContentPath(contentFbxPath))
-			if getLastModifiedTime(checkContentPath) < getLastModifiedTime(fbxPath):
+
+			# インポートされていないものだけインポート対象にする
+			if not os.path.exists(checkContentPath):
+				inTexPath               = convertFbxPathToTexPath(inFbxPath)
+				texPath, contentTexPath = mappingDirectory(inTexPath, options.destrootdir)
 				csvWriter.writerow([fbxPath, contentFbxPath, texPath, contentTexPath, extractPartsName(fbxPath), makeDestFileName(fbxPath)])
 	return 0
 
