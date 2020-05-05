@@ -13,7 +13,9 @@
 #include "Factories/FbxFactory.h"
 #include "Factories/FbxSkeletalMeshImportData.h"
 #include "Factories/ReimportFbxSkeletalMeshFactory.h"
-#include "Factories/TextureFactory.h"
+//#include "Factories/TextureFactory.h"
+#include "Factories/ReimportTextureFactory.h"
+#include "Factories/TrueTypeFontFactory.h"
 #include "Factories/MaterialFactoryNew.h"
 #include "Factories/MaterialFunctionInstanceFactory.h"
 //#include "Factories/MaterialParameterCollectionFactoryNew.h"
@@ -36,7 +38,7 @@
 
 #include "Commandlet/Utility/FileUtil.h"
 
-//#include "bishrpg.h"
+#include "bishrpg.h"
 
 DEFINE_LOG_CATEGORY_STATIC(CharacterModelImporterCommandlet, Log, All);
 
@@ -124,7 +126,7 @@ int32 UCharacterModelImporterCommandlet::Main(const FString& commandlineParams)
 		ImportFromCsv(params.csvFile.GetValue());
 	}
 	if(params.IsFileImport()) {
-		Import(params.fbxPath.GetValue(), params.texPath.GetValue(), params.partsName.GetValue(), params.fileName.GetValue());
+		Import(params.fbxPath.GetValue(), params.fbxPath.GetValue(), params.texPath.GetValue(), params.texPath.GetValue(), params.partsName.GetValue(), params.fileName.GetValue());
 	}
 
 	return 0;
@@ -159,7 +161,6 @@ bool UCharacterModelImporterCommandlet::ParseArgs(ParsedParams* out, const FStri
 	FString fbxPath;
 	if(FParse::Value(*params, TEXT("fbx_path="), fbxPath)) {
 		out->fbxPath = fbxPath;
-		//UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("dir=%s"), *dir);
 	}
 
 	FString texPath;
@@ -207,24 +208,26 @@ bool UCharacterModelImporterCommandlet::ImportFromCsv(const FString& csvPath)
 		}
 
 		// fbx_path,texture_path,parts,outname
-		const FString& fbxPath   = splittedLine[0];
-		const FString& texPath   = splittedLine[1];
-		const FString& partsName = splittedLine[2];
-		const FString& outName   = splittedLine[3];
-		result &= Import(fbxPath, texPath, partsName, outName);
+		const FString& fbxSrcPath     = splittedLine[0];
+		const FString& fbxContentPath = splittedLine[1];
+		const FString& texSrcPath     = splittedLine[2];
+		const FString& texContentPath = splittedLine[3];
+		const FString& partsName      = splittedLine[4];
+		const FString& outName        = splittedLine[5];
+		result &= Import(fbxSrcPath, fbxContentPath, texSrcPath, texContentPath, partsName, outName);
 	}
 
 	return result;
 }
 
 
-bool UCharacterModelImporterCommandlet::Import(const FString& fbxPath, const FString& texPath, const FString& partsName, const FString& filename)
+bool UCharacterModelImporterCommandlet::Import(const FString& fbxPath, const FString& fbxContentPath, const FString& texPath, const FString& texContentPath, const FString& partsName, const FString& filename)
 {
-	USkeletalMesh* mesh = ImportFbx(fbxPath, partsName, filename);
+	USkeletalMesh* mesh = ImportFbx(fbxPath, fbxContentPath, partsName, filename);
 	if(!mesh) {
 		return false;
 	}
-	UTexture*      tex = ImportTexture(texPath, partsName, filename);
+	UTexture*      tex = ImportTexture(texPath, texContentPath, partsName, filename);
 	if(!tex) {
 		return false;
 	}
@@ -237,36 +240,31 @@ bool UCharacterModelImporterCommandlet::Import(const FString& fbxPath, const FSt
 	return true;
 }
 
-USkeletalMesh* UCharacterModelImporterCommandlet::ImportFbx(const FString& fbxPath, const FString& partsName, const FString& destFileName)
+USkeletalMesh* UCharacterModelImporterCommandlet::ImportFbx(const FString& fbxPath, const FString& fbxContentPath, const FString& partsName, const FString& destFileName)
 {
-	FString importContentFbxPath;
+	//FString importContentFbxPath;
 
-	const FName assetName = *FString::Format(TEXT("/Game/Characters/{0}/Meshes/{1}.{1}"), {partsName, destFileName});
-	const auto  meshAsset = AssetRegistry->GetAssetByObjectPath(assetName);
-	if(auto foundAsset = Cast<USkeletalMesh>(meshAsset.GetAsset())) {
-		UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Importing fbx : AssetDeleted {0}"), {assetName.ToString()}));
-		// 再インポート時に設定が上書きされないので一度消す
-		UEditorAssetLibrary::DeleteAsset(assetName.ToString());
-		//foundAsset->MarkPackageDirty();
-		//AssetRegistry->AssetDeleted(foundAsset);
-		//AssetRegistry->PackageDeleted(meshAsset.GetPackage());
-	}
+	//const FName assetName = *FString::Format(TEXT("/Game/Characters/{0}/Meshes/{1}.{1}"), {partsName, destFileName});
+	//const auto  meshAsset = AssetRegistry->GetAssetByObjectPath(assetName);
+	//if(auto foundAsset = Cast<USkeletalMesh>(meshAsset.GetAsset())) {
+	//	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Importing fbx : AssetDeleted {0}"), {assetName.ToString()}));
+	//	// 再インポート時に設定が上書きされないので一度消す
+	//	UEditorAssetLibrary::DeleteAsset(assetName.ToString());
+	//}
 	
-	if constexpr (false) {
-		// プロジェクトファイルにfbxをコピー
-		const auto fbxFileName         = FPaths::GetCleanFilename(fbxPath);
-		const auto importContentFbxDir = FString::Format(TEXT("{0}/Content/Characters/{1}/Meshes"), {FPaths::GameDir(), *partsName});
-		importContentFbxPath           = FString::Format(TEXT("{0}/{1}"), {importContentFbxDir, *fbxFileName });
-		FileUtil::CopyFile(fbxPath, importContentFbxPath);
+	// コピーせずにインポート
+	//importContentFbxPath = fbxPath;
+	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Importing fbx from {0}"), {fbxPath}));
+	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Importing fbx to   {0}"), {fbxContentPath}));
+
+	UFbxFactory* fbxFactory = nullptr;
+	if(IsReimport(fbxContentPath)) {
+		fbxFactory = NewObject<UReimportFbxSkeletalMeshFactory>(UReimportFbxSkeletalMeshFactory::StaticClass(), FName("ReimportFbxSkeletalMeshFactory"), RF_Public | RF_Standalone);
 	}
 	else {
-		// コピーせずにインポート
-		importContentFbxPath = fbxPath;
+		fbxFactory = NewObject<UFbxFactory>(UFbxFactory::StaticClass(), FName("FbxFactory"), RF_Public | RF_Standalone);
 	}
-	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Importing fbx from {0}"), {importContentFbxPath}));
-	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Importing fbx to   {0}"), {importContentFbxPath}));
-	
-	auto* fbxFactory             = NewObject<UFbxFactory>(UFbxFactory::StaticClass(), FName("Factory"), RF_Public | RF_Standalone);
+	//auto* fbxFactory             = NewObject<UFbxFactory>(UFbxFactory::StaticClass(), FName("Factory"), RF_Public | RF_Standalone);
 	auto* skeletalMeshImportData = NewObject<UFbxSkeletalMeshImportData>(UFbxSkeletalMeshImportData::StaticClass(), FName("FbxSkeletalMeshImportData"), RF_Public | RF_Standalone);
 	skeletalMeshImportData->VertexColorImportOption      = EVertexColorImportOption::Type::Ignore;
 	skeletalMeshImportData->bUpdateSkeletonReferencePose = false;
@@ -291,87 +289,78 @@ USkeletalMesh* UCharacterModelImporterCommandlet::ImportFbx(const FString& fbxPa
 	importUIOption->bImportTextures     = false;
 	importUIOption->SkeletalMeshImportData = skeletalMeshImportData;
 
-	const FString assetImportingDir  = FString::Format(TEXT("/Game/Characters/{0}/Meshes/"), {*partsName});
-	const FString assetImportingName = ObjectTools::SanitizeObjectName(destFileName);
-	const FString assetImoprtingPath = assetImportingDir + assetImportingName;
+	//const FString assetImportingDir  = FString::Format(TEXT("/Game/Characters/{0}/Meshes/"), {*partsName});
+	//const FString assetImportingName = ObjectTools::SanitizeObjectName(destFileName);
+	//const FString assetImoprtingPath = assetImportingDir + assetImportingName;
+	FString asserDir, assetName, extension;
+	FPaths::Split(fbxContentPath, asserDir, assetName, extension);
 
 	UAssetImportTask* importTask = NewObject<UAssetImportTask>(UAssetImportTask::StaticClass(), FName("AssetFbxImportTask"), RF_Public | RF_Standalone);
 	importTask->bAutomated       = true;
 	importTask->bReplaceExisting = true;
 	importTask->bSave            = true;
-	importTask->DestinationPath  = assetImportingDir;
-	importTask->DestinationName  = assetImportingName;
-	importTask->Filename         = importContentFbxPath;
+	importTask->DestinationPath  = asserDir;
+	importTask->DestinationName  = assetName;
+	importTask->Filename         = fbxPath;
 	importTask->Options          = importUIOption;
 	importTask->Factory          = fbxFactory;
 
-	//const FString packageName = FString::Format(TEXT("/Game/Characters/{0}/Meshes/{1}"), {partsName, assetImportingName});
-	//UPackage* pakage = CreatePackage(nullptr, *packageName);
-
-	const FString importText = FString::Format(
-		TEXT("vars:\n - assetImportingName({0})\n - packageName({1})\n - DestinationPath({2})\n - DestinationName({3})\n - FileName({4})\n - importContentFbx({5})"), 
-		{
-		assetImportingName,
-		//packageName,
-		TEXT("None"),
-		importTask->DestinationPath,
-		importTask->DestinationName,
-		importTask->Filename,
-		importContentFbxPath
-		});
-	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *importText);
-
-	if constexpr(false) {
-		//bool canceled = false;
-		//auto* createdMesh = fbxFactory->FactoryCreateFile(USkeletalMesh::StaticClass(), pakage, *assetImportingName, RF_Public | RF_Standalone, importContentFbxPath, TEXT("Warn"), nullptr, canceled);
-		//AssetRegistry->AssetCreated(createdMesh);
-	}
-	else {
-		TArray<UAssetImportTask*> tasks = {importTask};
-		AssetTools->ImportAssetTasks(tasks);
-	}
+	TArray<UAssetImportTask*> tasks = {importTask};
+	AssetTools->ImportAssetTasks(tasks);
 	
-	FSoftObjectPath       importedMeshPath(assetImoprtingPath);
+	FSoftObjectPath       importedMeshPath(fbxContentPath);
 	UObject*              loadedObj = importedMeshPath.TryLoad();
 	return Cast<USkeletalMesh>(loadedObj);
-	//auto* importedMesh = Cast<USkeletalMesh>(AssetRegistry->GetAssetByObjectPath(*assetImoprtingPath).GetAsset());
-	//return importedMesh;
 }
 
-UTexture* UCharacterModelImporterCommandlet::ImportTexture(const FString& texPath, const FString& partsName, const FString& destFileName)
+UTexture* UCharacterModelImporterCommandlet::ImportTexture(const FString& texPath, const FString& texContentPath, const FString& partsName, const FString& destFileName)
 {
 	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Importing texture from {0}"), {texPath}));
 
-	auto* texFactory = NewObject<UTextureFactory>(UTextureFactory::StaticClass(), FName("TextureFactory"), RF_Public | RF_Standalone);
-	texFactory->bCreateMaterial     = false;
-	texFactory->bDeferCompression   = true;
-	texFactory->CompressionSettings = TextureCompressionSettings::TC_Default;
-	texFactory->NoAlpha             = true;
-	texFactory->bTwoSided           = true;
-	texFactory->NoCompression       = false;
-	texFactory->MipGenSettings      = TextureMipGenSettings::TMGS_FromTextureGroup;
+	
+	if(IsReimport(texContentPath)) {
+		// リンクエラーになるのでUReimportTextureFactoryは使わない
+		//auto* reimportTexFactory = NewObject<UReimportTextureFactory>(/*UReimportTextureFactory::StaticClass()*/this, FName("ReimportTextureFactory"), RF_NoFlags);
+		//reimportTexFactory->pOriginalTex = Cast<UTexture>(FSoftObjectPath(texContentPath).TryLoad());
+		//texFactory                       = reimportTexFactory;
 
-	const FString assetImportingDir = FString::Format(TEXT("/Game/Characters/{0}/Textures/"), {*partsName});
-	const FString assetImportingName = ObjectTools::SanitizeObjectName(destFileName);
-	const FString assetImoprtingPath = assetImportingDir + assetImportingName;
+		auto* reimportTarget = FSoftObjectPath(texContentPath).TryLoad();
+
+		const bool success = FReimportManager::Instance()->Reimport(reimportTarget, false, false, "", nullptr, INDEX_NONE, false);
+		return Cast<UTexture>(reimportTarget);
+	}
+
+
+	UTextureFactory* texFactory = NewObject<UTextureFactory>(UTextureFactory::StaticClass(), FName("TextureFactory"), RF_Public | RF_Standalone);
+	texFactory->bCreateMaterial = false;
+	texFactory->bDeferCompression = true;
+	texFactory->CompressionSettings = TextureCompressionSettings::TC_Default;
+	texFactory->NoAlpha = true;
+	texFactory->bTwoSided = true;
+	texFactory->NoCompression = false;
+	texFactory->MipGenSettings = TextureMipGenSettings::TMGS_FromTextureGroup;
+
+	//const FString assetImportingDir = FString::Format(TEXT("/Game/Characters/{0}/Textures/"), {*partsName});
+	//const FString assetImportingName = ObjectTools::SanitizeObjectName(destFileName);
+	//const FString assetImoprtingPath = assetImportingDir + assetImportingName;
+	FString asserDir, assetName, extension;
+	FPaths::Split(texContentPath, asserDir, assetName, extension);
 
 	UAssetImportTask* importTask = NewObject<UAssetImportTask>(UAssetImportTask::StaticClass(), FName("AssetTextureImportTask"), RF_Public | RF_Standalone);
-	importTask->bAutomated = true;
+	importTask->bAutomated       = true;
 	importTask->bReplaceExisting = true;
-	importTask->bSave = true;
-	importTask->DestinationPath = assetImportingDir;
-	importTask->DestinationName = assetImportingName;
-	importTask->Filename        = texPath;
-	importTask->Options         = nullptr;
-	importTask->Factory         = texFactory;
+	importTask->bSave            = true;
+	importTask->DestinationPath  = asserDir;
+	importTask->DestinationName  = assetName;
+	importTask->Filename         = texPath;
+	importTask->Options          = nullptr;
+	importTask->Factory          = texFactory;
 	
 	TArray<UAssetImportTask*> tasks = {importTask};
 	AssetTools->ImportAssetTasks(tasks);
 
-	//auto* importedTex = Cast<UTexture>(AssetRegistry->GetAssetByObjectPath(*assetImoprtingPath).GetAsset());
-	//return importedTex;
-	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Imported texture {0}"), {assetImoprtingPath}));
-	return Cast<UTexture>(FSoftObjectPath(assetImoprtingPath).TryLoad());
+	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Imported texture {0}"), {texContentPath}));
+	return Cast<UTexture>(FSoftObjectPath(texContentPath).TryLoad());
 }
 
 UMaterialInterface* UCharacterModelImporterCommandlet::MakeMaterialInstance(UTexture* tex, const FString& partsName, const FString& destFileName)
@@ -532,4 +521,9 @@ void UCharacterModelImporterCommandlet::SetMaterialToMesh(USkeletalMesh* mesh, U
 	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("Save mesh %s"), *meshPath);
 
 	UEditorAssetLibrary::SaveAsset(meshPath, false);
+}
+
+bool UCharacterModelImporterCommandlet::IsReimport(const FString& contentPath) const
+{
+	return UEditorAssetLibrary::DoesAssetExist(contentPath);
 }

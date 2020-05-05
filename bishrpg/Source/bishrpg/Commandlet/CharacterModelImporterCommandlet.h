@@ -48,12 +48,13 @@ private:
 
 	//!@{
 	bool                ImportFromCsv(const FString& csvPath);
-	bool                Import(const FString& fbxPath, const FString& texPath, const FString& partsName, const FString& filename);
+	bool                Import(const FString& fbxPath, const FString& fbxContentPath, const FString& texPath, const FString& texContentPath, const FString& partsName, const FString& filename);
+	bool                IsReimport(const FString& contentPath) const;
 	//!@}
 
 	//@{
-	USkeletalMesh*      ImportFbx(const FString& fbxPath, const FString& partsName, const FString& destFileName);
-	UTexture*           ImportTexture(const FString& texPath, const FString& partsName, const FString& destFileName);
+	USkeletalMesh*      ImportFbx(const FString& fbxPath, const FString& fbxContentPath, const FString& partsName, const FString& destFileName);
+	UTexture*           ImportTexture(const FString& texPath, const FString& texContentPath, const FString& partsName, const FString& destFileName);
 	UMaterialInterface* MakeMaterialInstance(UTexture* tex, const FString& partsName, const FString& destFileName);
 	void                SetMaterialToMesh(USkeletalMesh* mesh, UMaterialInterface* material);
 	//@}
