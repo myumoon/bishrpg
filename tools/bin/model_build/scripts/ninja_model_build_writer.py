@@ -41,18 +41,10 @@ def main():
 		
 		writer.comment("plyをfbxにビルド")
 		fbxList = []
-		if False:
-			for path in glob.glob(os.path.join(proj_def.ResRoot, "models", "characters") + "/**/**.ply", recursive=True):
-				fbxPath    = ply_path.makeRelativeFbxContentsPath(path)
-				#texPath = ply_path.makeRelativeTexContentsPath(path)
-				#destFbxPath = os.path.join("$res_root", "Content", "Characters", fbxPath)
-				destFbxPath = os.path.join("$res_dest", "Characters", fbxPath)
-				inputPath   = os.path.join("$res_root", os.path.relpath(path, proj_def.ResRoot))
-				writer.build(outputs=[destFbxPath], rule="convert_ply", inputs=[inputPath], implicit=None)
-				fbxList.append(destFbxPath)
-		else:
-			path = "D:/prog/0_myprogram/bishrpg_resources/models/characters/p005_lingling/01_otnk/p005_01-2.ply"
-			fbxPath     = ply_path.makeRelativeFbxContentsPath(path)
+		for path in glob.glob(os.path.join(proj_def.ResRoot, "models", "characters") + "/**/**.ply", recursive=True):
+			fbxPath    = ply_path.makeRelativeFbxContentsPath(path)
+			#texPath = ply_path.makeRelativeTexContentsPath(path)
+			#destFbxPath = os.path.join("$res_root", "Content", "Characters", fbxPath)
 			destFbxPath = os.path.join("$res_dest", "Characters", fbxPath)
 			inputPath   = os.path.join("$res_root", os.path.relpath(path, proj_def.ResRoot))
 			writer.build(outputs=[destFbxPath], rule="convert_ply", inputs=[inputPath], implicit=None)
