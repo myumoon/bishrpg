@@ -46,7 +46,7 @@ def main():
 		writer.newline()
 
 		# plyからfbxへの変換
-		commandStr = "python $ply2fbx $in --destDir $res_dest/Characters --workDir $temp_dir --texSize 256 --touch --dummy"
+		commandStr = "python $ply2fbx $in --destDir $res_dest/Characters --workDir $temp_dir --texSize 256"
 		writer.rule(name=u"convert_ply", command=commandStr, description=u"plyフォルダをfbxに変換")
 		writer.newline()
 
