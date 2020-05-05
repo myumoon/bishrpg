@@ -76,3 +76,11 @@ bishrpg/DerivedDataCache/*
 
 #out
 /bin/
+
+# temp dir
+__pycache__/
+temp/
+ninja/
+
+# temp file
+*.pyc
