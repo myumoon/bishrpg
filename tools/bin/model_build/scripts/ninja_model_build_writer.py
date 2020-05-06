@@ -17,6 +17,22 @@ import proj_def
 sys.path.append(os.path.join(os.path.dirname(__file__),'..','..','..','thirdparty','ninja','misc'))
 from ninja_syntax import Writer
 
+def getUE4ContentPath(fbxPath):
+	meshPath = fbxPath.replace("$res_dest", "$ue4_proj_root")
+	meshPath = meshPath.replace(".fbx", ".uasset")
+	texPath  = meshPath.replace("Meshes", "Textures")
+	matPath  = meshPath.replace("Meshes", "Material")
+	return (meshPath, texPath, matPath)
+
+def makeUE4ImportingFileList(fbxList):
+	importFiles = []
+	for f in fbxList:
+		meshPath, texPath, materialPath = getUE4ContentPath(f)
+		importFiles.append(meshPath)
+		importFiles.append(texPath)
+		importFiles.append(materialPath)
+	return importFiles
+
 def main():	
 	print("{}".format(os.path.basename(__file__)))
 	current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -60,7 +76,8 @@ def main():
 		writer.build(outputs=["$convert_csv"], rule="make_import_csv", inputs=fbxList, implicit=None)
 
 		writer.comment("UE4にインポート")
-		writer.build(outputs="import_ue4", rule="import_ue4", inputs="$convert_csv", implicit=None)
+		ue4ImportFiles = makeUE4ImportingFileList(fbxList)
+		writer.build(outputs=ue4ImportFiles, rule="import_ue4", inputs="$convert_csv", implicit=None)
 
 	return 0
 
