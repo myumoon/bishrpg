@@ -64,7 +64,7 @@ def getPartsName(plyPath):
 	return getPartsNameDefault(getPartsIndexInt(plyPath))
 
 def getPartsNameDefault(index):
-	partsNameList = ["Lower", "Upper", "Face", "Hair", "Accessory", "Onemesh"]
+	partsNameList = ["Lower", "Upper", "Face", "Hair", "Accessory", "OneModel"]
 	assert index < len(partsNameList), u"getPartsNameDefault : index は {} 未満である必要があります : 引数 {}".format(len(partsNameList), index)
 	return partsNameList[index]
 
@@ -91,7 +91,7 @@ def makeRelativeContentPath(plyPath, resType, ext):
 	"""
 	charId, charVer, partsName = makeContentsInfo(plyPath)
 	fileName        = makeContentsFileName(charId, charVer, partsName, ext)
-	if partsName.lower() == "onemesh":
+	if partsName.lower() == "onemodel":
 		return os.path.join(partsName, resType, fileName)
 	else:
 		return os.path.join("Parts/", partsName, resType, fileName)
