@@ -17,6 +17,7 @@ import glob
 import subprocess
 import threading
 import time
+import shutil
 from optparse import OptionParser
 from concurrent.futures import ThreadPoolExecutor
 import proj_def
@@ -52,7 +53,16 @@ def convert(plyFile, destDir, workDir, texSize, threadPool, dummy=False):
 		makeDummyFile(destFbxPath, "Dummy fbx")
 		makeDummyFile(destTexPath, "Dummy texture")
 	else:
-		command     = ["blender.exe", baseBlenderFile, "-b", "-P", ply2fbxPath, "--", "", plyFile.replace("\\", "/"), partsType, destFbxPath, destTexPath, destBlendPath, str(texSize)]
+		print("copy .blend file : {} -> {}".format(baseBlenderFile, destBlendPath))
+		shutil.copy(baseBlenderFile, destBlendPath)
+		print("start ply convertion :")
+		print(" - src ply      : {}".format(plyFile.replace("\\", "/")))
+		print(" - dest blend   : {}".format(destBlendPath))
+		print(" - dest fbx     : {}".format(destFbxPath))
+		print(" - dest texture : {}".format(destTexPath))
+		print(" - parts        : {}".format(partsType))
+		print(" - tex size     : {}".format(texSize))
+		command     = ["blender.exe", destBlendPath, "-b", "-P", ply2fbxPath, "--", "", plyFile.replace("\\", "/"), partsType, destFbxPath, destTexPath, destBlendPath, str(texSize)]
 		threadPool.submit(execCommand, command)
 		#worker = threading.Thread(target=execCommand, args=(command,))
 		#worker.start()

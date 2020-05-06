@@ -3,6 +3,9 @@ rem =======================================================
 rem ƒ‚ƒfƒ‹ƒrƒ‹ƒh
 rem =======================================================
 
+for /f "usebackq" %%A in (`time /t`) do set CURRENT_TIME=%%A
+echo start time : %CURRENT_TIME%
+
 call %~dp0..\project_def.bat
 
 set NINJA_FILE_DIR=%~dp0ninja
