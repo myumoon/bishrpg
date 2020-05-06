@@ -41,7 +41,13 @@ def main():
 		
 		writer.comment("plyをfbxにビルド")
 		fbxList = []
-		for path in glob.glob(os.path.join(proj_def.ResRoot, "models", "characters") + "/**/**.ply", recursive=True):
+
+		if True:
+			fileItereter = lambda : glob.glob(os.path.join(proj_def.ResRoot, "models", "characters") + "/**/**.ply", recursive=True)
+		else:
+			fileItereter = lambda : ["D:/prog/0_myprogram/bishrpg_resources/models/characters/e001_unko/01_normal/e001_01.ply"]
+
+		for path in fileItereter():
 			fbxPath    = ply_path.makeRelativeFbxContentsPath(path)
 			#texPath = ply_path.makeRelativeTexContentsPath(path)
 			#destFbxPath = os.path.join("$res_root", "Content", "Characters", fbxPath)

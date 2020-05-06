@@ -27,6 +27,10 @@ def convertFbxPathToTexPath(fbxPath, texExt="png"):
 	texPath = texPath.replace(".fbx", "." + texExt)
 	return texPath
 
+def makeMaterialContentPath(fbxPath, resDestRoot):
+	assetPath, contentPath = mappingDirectory(fbxPath, resDestRoot)
+	return contentPath.replace("/Meshes/", "/Materials/")
+
 def extractPartsName(assetPath):
 	u"""
 	アセットのファイルパスからパーツ情報を抽出
@@ -68,7 +72,8 @@ def main():
 			if not os.path.exists(checkContentPath):
 				inTexPath               = convertFbxPathToTexPath(inFbxPath)
 				texPath, contentTexPath = mappingDirectory(inTexPath, options.destrootdir)
-				csvWriter.writerow([fbxPath, contentFbxPath, texPath, contentTexPath, extractPartsName(fbxPath), makeDestFileName(fbxPath)])
+				contentMatPath          = makeMaterialContentPath(inFbxPath, options.destrootdir)
+				csvWriter.writerow([fbxPath, contentFbxPath, texPath, contentTexPath, contentMatPath, extractPartsName(fbxPath), makeDestFileName(fbxPath)])
 	return 0
 
 if __name__ == "__main__":

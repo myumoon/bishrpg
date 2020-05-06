@@ -17,6 +17,8 @@ def isOneMesh(plyPath):
 def getCharacterId(plyPath):
 	u"""
 	plyのキャラID部を取得
+
+	ex : p000
 	"""
 	filename = os.path.basename(plyPath)
 	return filename[0:4]
@@ -48,6 +50,30 @@ def getPartsIndexInt(plyPath):
 	p005_03-0.plyの0の部分
 	"""
 	return int(getPartsIndexStr(plyPath))
+
+def getCategoryShort(plyPath):
+	u"""
+	plyのファイル名からカテゴリ部を取得
+
+	Returns :
+		p  : player
+		e  : enemy
+		n  : npc
+	"""
+	id       = getCharacterId(plyPath)
+	category = id[0]
+	print("getCategoryShort : {}, {}, {}".format(plyPath, id, category))
+	return category
+
+def getCategoryLong(plyPath):
+	longCategoryMap = { 
+		"p" : "Player",
+		"e" : "Enemy",
+		"n" : "Npc",
+	}
+	shortCategory   = getCategoryShort(plyPath)
+	longCategory    = longCategoryMap[shortCategory] if shortCategory in longCategoryMap else "Others"
+	return longCategory
 
 def getPartsName(plyPath):
 	u""" plyのパスからパーツ名を取得
@@ -88,11 +114,13 @@ def makeContentsInfo(plyPath):
 def makeRelativeContentPath(plyPath, resType, ext):
 	u"""
 	Parts/Lower/[resType]/Lower_pl000_01.[ext]
+	OneModel/[resType]/[name].[ext]
 	"""
 	charId, charVer, partsName = makeContentsInfo(plyPath)
 	fileName        = makeContentsFileName(charId, charVer, partsName, ext)
 	if partsName.lower() == "onemodel":
-		return os.path.join(partsName, resType, fileName)
+		category    = getCategoryLong(plyPath)
+		return os.path.join(partsName, category, resType, fileName)
 	else:
 		return os.path.join("Parts/", partsName, resType, fileName)
 

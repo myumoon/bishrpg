@@ -73,6 +73,7 @@ struct UCharacterModelImporterCommandlet::ParsedParams {
 	TOptional<FString>         csvFile;
 	TOptional<FString>         fbxPath;
 	TOptional<FString>         texPath;
+	TOptional<FString>         matPath;
 	TOptional<FString>         partsName;
 	TOptional<FString>         fileName;
 
@@ -82,7 +83,7 @@ struct UCharacterModelImporterCommandlet::ParsedParams {
 	}
 	bool IsFileImport() const 
 	{
-		return partsName.IsSet() && fileName.IsSet() && (fbxPath.IsSet() || texPath.IsSet());
+		return partsName.IsSet() && fileName.IsSet() && (fbxPath.IsSet() || (texPath.IsSet() && matPath.IsSet()));
 	}
 
 	bool HasValidOption() const
@@ -126,7 +127,7 @@ int32 UCharacterModelImporterCommandlet::Main(const FString& commandlineParams)
 		ImportFromCsv(params.csvFile.GetValue());
 	}
 	if(params.IsFileImport()) {
-		Import(params.fbxPath.GetValue(), params.fbxPath.GetValue(), params.texPath.GetValue(), params.texPath.GetValue(), params.partsName.GetValue(), params.fileName.GetValue());
+		Import(params.fbxPath.GetValue(), params.fbxPath.GetValue(), params.texPath.GetValue(), params.texPath.GetValue(), params.matPath.GetValue(), params.partsName.GetValue(), params.fileName.GetValue());
 	}
 
 	return 0;
@@ -166,6 +167,11 @@ bool UCharacterModelImporterCommandlet::ParseArgs(ParsedParams* out, const FStri
 	FString texPath;
 	if(FParse::Value(*params, TEXT("tex_path="), texPath)) {
 		out->texPath = texPath;
+	}
+
+	FString matPath;
+	if(FParse::Value(*params, TEXT("mat_path="), matPath)) {
+		out->matPath = matPath;
 	}
 
 	FString partsName;
@@ -212,16 +218,17 @@ bool UCharacterModelImporterCommandlet::ImportFromCsv(const FString& csvPath)
 		const FString& fbxContentPath = splittedLine[1];
 		const FString& texSrcPath     = splittedLine[2];
 		const FString& texContentPath = splittedLine[3];
-		const FString& partsName      = splittedLine[4];
-		const FString& outName        = splittedLine[5];
-		result &= Import(fbxSrcPath, fbxContentPath, texSrcPath, texContentPath, partsName, outName);
+		const FString& matContentPath = splittedLine[4];
+		const FString& partsName      = splittedLine[5];
+		const FString& outName        = splittedLine[6];
+		result &= Import(fbxSrcPath, fbxContentPath, texSrcPath, texContentPath, matContentPath, partsName, outName);
 	}
 
 	return result;
 }
 
 
-bool UCharacterModelImporterCommandlet::Import(const FString& fbxPath, const FString& fbxContentPath, const FString& texPath, const FString& texContentPath, const FString& partsName, const FString& filename)
+bool UCharacterModelImporterCommandlet::Import(const FString& fbxPath, const FString& fbxContentPath, const FString& texPath, const FString& texContentPath, const FString& matContentPath, const FString& partsName, const FString& filename)
 {
 	USkeletalMesh* mesh = ImportFbx(fbxPath, fbxContentPath, partsName, filename);
 	if(!mesh) {
@@ -231,7 +238,7 @@ bool UCharacterModelImporterCommandlet::Import(const FString& fbxPath, const FSt
 	if(!tex) {
 		return false;
 	}
-	UMaterialInterface* mat = MakeMaterialInstance(tex, partsName, filename);
+	UMaterialInterface* mat = MakeMaterialInstance(tex, matContentPath);
 	if(!mat) {
 		return false;
 	}
@@ -356,13 +363,11 @@ UTexture* UCharacterModelImporterCommandlet::ImportTexture(const FString& texPat
 	return Cast<UTexture>(FSoftObjectPath(texContentPath).TryLoad());
 }
 
-UMaterialInterface* UCharacterModelImporterCommandlet::MakeMaterialInstance(UTexture* tex, const FString& partsName, const FString& destFileName)
+UMaterialInterface* UCharacterModelImporterCommandlet::MakeMaterialInstance(UTexture* tex, const FString& destPath)
 {
 	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Making material instance with {0}"), {tex->GetFName().ToString()}));
 	
 	const FString srcMaterialPath  = TEXT("/Game/Characters/Materials/CharacterMatInstBase");
-	const FString destFormat       = (partsName == TEXT("OneModel")) ? TEXT("/Game/Characters/{0}/Materials/{1}") : TEXT("/Game/Characters/Parts/{0}/Materials/{1}");
-	const FString destMaterialPath = FString::Format(*destFormat, {*partsName, *destFileName});
 
 	// 複製元が存在しなかったらエラー
 	if(!UEditorAssetLibrary::DoesAssetExist(srcMaterialPath)) {
@@ -372,18 +377,18 @@ UMaterialInterface* UCharacterModelImporterCommandlet::MakeMaterialInstance(UTex
 
 	// Materialフォルダの作成
 	FString asserDir, _dummyName, _dummyExt;
-	FPaths::Split(destMaterialPath, asserDir, _dummyName, _dummyExt);
+	FPaths::Split(destPath, asserDir, _dummyName, _dummyExt);
 	if(!FPaths::DirectoryExists(asserDir)) {
 		IFileManager::Get().MakeDirectory(*asserDir, true);
 	}
 
-	if(!UEditorAssetLibrary::DoesAssetExist(destMaterialPath)) {
-		UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Duplicate material {0} -> {1}"), {srcMaterialPath, destMaterialPath}));
-		UEditorAssetLibrary::DuplicateAsset(srcMaterialPath, destMaterialPath);
-		//UEditorAssetLibrary::SaveAsset(destMaterialPath);
+	if(!UEditorAssetLibrary::DoesAssetExist(destPath)) {
+		UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Duplicate material {0} -> {1}"), {srcMaterialPath, destPath}));
+		UEditorAssetLibrary::DuplicateAsset(srcMaterialPath, destPath);
+		//UEditorAssetLibrary::SaveAsset(destPath);
 	}
 
-	FSoftObjectPath       editMatPath(destMaterialPath);
+	FSoftObjectPath       editMatPath(destPath);
 	UObject*              loadedObj = editMatPath.TryLoad();
 	if(auto *mat = Cast<UMaterialInstanceConstant>(loadedObj)) {
 		UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("UMaterialInstanceConstant cast success"));
