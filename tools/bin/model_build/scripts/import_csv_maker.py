@@ -68,8 +68,8 @@ def main():
 			fbxPath, contentFbxPath = mappingDirectory(inFbxPath, options.destrootdir)
 			checkContentPath        = os.path.join(options.projroot, convertGamePathToContentPath(contentFbxPath))
 
-			# インポートされていないものだけインポート対象にする
-			if not os.path.exists(checkContentPath):
+			# インポートされていないか更新があったものだけインポート対象にする
+			if not os.path.exists(checkContentPath) or getLastModifiedTime(checkContentPath) < getLastModifiedTime(inFbxPath):
 				inTexPath               = convertFbxPathToTexPath(inFbxPath)
 				texPath, contentTexPath = mappingDirectory(inTexPath, options.destrootdir)
 				contentMatPath          = makeMaterialContentPath(inFbxPath, options.destrootdir)
