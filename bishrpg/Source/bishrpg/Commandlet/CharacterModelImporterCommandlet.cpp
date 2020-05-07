@@ -109,14 +109,6 @@ int32 UCharacterModelImporterCommandlet::Main(const FString& commandlineParams)
 {
 	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("Start UTestCmdFunctionCommandlet"));
 
-	//auto dir = FPaths::GameDir();
-	//auto destPath = FPaths::Combine(dir, TEXT("test.txt"));
-	//UE_LOG(LogTestCmdFunctionCommandlet, Display, TEXT("file : %s"), *destPath);
-	//FFileHelper::SaveStringToFile(TEXT("aaaaa"), *destPath);
-
-	//UFbxSkeletalMeshImportData importData;
-	//importData.bPreserveSmoothingGroups = true;
-	
 	ParsedParams params;
 	if(!ParseArgs(&params, commandlineParams)) {
 		ShowHelp();
@@ -129,6 +121,8 @@ int32 UCharacterModelImporterCommandlet::Main(const FString& commandlineParams)
 	if(params.IsFileImport()) {
 		Import(params.fbxPath.GetValue(), params.fbxPath.GetValue(), params.texPath.GetValue(), params.texPath.GetValue(), params.matPath.GetValue(), params.partsName.GetValue(), params.fileName.GetValue());
 	}
+
+	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("Done UTestCmdFunctionCommandlet"));
 
 	return 0;
 }
@@ -230,6 +224,8 @@ bool UCharacterModelImporterCommandlet::ImportFromCsv(const FString& csvPath)
 
 bool UCharacterModelImporterCommandlet::Import(const FString& fbxPath, const FString& fbxContentPath, const FString& texPath, const FString& texContentPath, const FString& matContentPath, const FString& partsName, const FString& filename)
 {
+	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("--- Import Start %s"), *fbxPath);
+
 	USkeletalMesh* mesh = ImportFbx(fbxPath, fbxContentPath, partsName, filename);
 	if(!mesh) {
 		return false;
@@ -243,6 +239,8 @@ bool UCharacterModelImporterCommandlet::Import(const FString& fbxPath, const FSt
 		return false;
 	}
 	SetMaterialToMesh(mesh, mat);
+
+	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("--- Finish Start %s"), *fbxPath);
 
 	return true;
 }

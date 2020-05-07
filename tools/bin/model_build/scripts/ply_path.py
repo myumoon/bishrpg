@@ -62,7 +62,6 @@ def getCategoryShort(plyPath):
 	"""
 	id       = getCharacterId(plyPath)
 	category = id[0]
-	print("getCategoryShort : {}, {}, {}".format(plyPath, id, category))
 	return category
 
 def getCategoryLong(plyPath):
