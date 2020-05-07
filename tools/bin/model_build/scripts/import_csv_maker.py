@@ -62,6 +62,8 @@ def main():
 	#options, args = parser.parse_args(["root/Content/Characters/Lower/Meshes/Lower_pl000_01.fbx", "root/Content/Characters/Lower/Textures/Lower_pl000_01.png", "root/Content/Characters/Accessory/Meshes/Accessory_pl000_01.fbx", "root/Content/Characters/Accessory/Textures/Accessory_pl000_01.png", "--out", "out.csv"])
 	options, args = parser.parse_args()
 
+	print("{} : out({}) destrootdir({}) projroot({})".format(__file__, options.out, options.projroot, options.destrootdir))
+
 	with codecs.open(options.out, 'w', 'utf-8') as f:
 		csvWriter = csv.writer(f)
 		for inFbxPath in args:
@@ -69,6 +71,7 @@ def main():
 			checkContentPath        = os.path.join(options.projroot, convertGamePathToContentPath(contentFbxPath))
 
 			# インポートされていないか更新があったものだけインポート対象にする
+			print("add csv : {}".format(checkContentPath))
 			if not os.path.exists(checkContentPath) or getLastModifiedTime(checkContentPath) < getLastModifiedTime(inFbxPath):
 				inTexPath               = convertFbxPathToTexPath(inFbxPath)
 				texPath, contentTexPath = mappingDirectory(inTexPath, options.destrootdir)
