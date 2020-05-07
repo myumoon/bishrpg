@@ -284,6 +284,7 @@ USkeletalMesh* UCharacterModelImporterCommandlet::ImportFbx(const FString& fbxPa
 	importUIOption->bImportMesh = true;
 	importUIOption->Skeleton = Cast<USkeleton>(AssetRegistry->GetAssetByObjectPath(TEXT("/Game/Characters/Common/CharacterCommon_Skeleton.CharacterCommon_Skeleton")).GetAsset());
 	importUIOption->bCreatePhysicsAsset = false;
+	importUIOption->PhysicsAsset = nullptr;
 	importUIOption->bImportMaterials = false;
 	importUIOption->bImportAnimations = false;
 	importUIOption->bImportRigidMesh = false;
@@ -317,7 +318,16 @@ UTexture* UCharacterModelImporterCommandlet::ImportTexture(const FString& texPat
 {
 	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Importing texture from {0}"), {texPath}));
 
-	
+	auto setTextureSettings = [texContentPath](UTexture* loadedTexture) {
+		if(!loadedTexture) {
+			return;
+		}
+		loadedTexture->PowerOfTwoMode = ETexturePowerOfTwoSetting::Type::PadToPowerOfTwo;
+		loadedTexture->SRGB           = true;
+		loadedTexture->Filter         = TextureFilter::TF_Nearest;
+		UEditorAssetLibrary::SaveAsset(texContentPath);
+	};
+
 	if(IsReimport(texContentPath)) {
 		UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Reimport"), {TEXT("")}));
 
@@ -328,7 +338,9 @@ UTexture* UCharacterModelImporterCommandlet::ImportTexture(const FString& texPat
 
 		auto* reimportTarget = FSoftObjectPath(texContentPath).TryLoad();
 		const bool success = FReimportManager::Instance()->Reimport(reimportTarget, false, false, texPath, nullptr, INDEX_NONE, false);
-		return Cast<UTexture>(reimportTarget);
+		auto* tex = Cast<UTexture>(reimportTarget);
+		setTextureSettings(tex);
+		return tex;
 	}
 
 
@@ -337,9 +349,11 @@ UTexture* UCharacterModelImporterCommandlet::ImportTexture(const FString& texPat
 	texFactory->bDeferCompression = true;
 	texFactory->CompressionSettings = TextureCompressionSettings::TC_Default;
 	texFactory->NoAlpha = true;
-	texFactory->bTwoSided = true;
+	texFactory->bTwoSided = false;
 	texFactory->NoCompression = false;
 	texFactory->MipGenSettings = TextureMipGenSettings::TMGS_FromTextureGroup;
+	texFactory->Blending = EBlendMode::BLEND_Opaque;
+	texFactory->bUsingExistingSettings = false;
 
 	FString asserDir, assetName, extension;
 	FPaths::Split(texContentPath, asserDir, assetName, extension);
@@ -357,8 +371,11 @@ UTexture* UCharacterModelImporterCommandlet::ImportTexture(const FString& texPat
 	TArray<UAssetImportTask*> tasks = {importTask};
 	AssetTools->ImportAssetTasks(tasks);
 
+	auto* loadedTexture = Cast<UTexture>(FSoftObjectPath(texContentPath).TryLoad());
+	setTextureSettings(loadedTexture);
+
 	UE_LOG(CharacterModelImporterCommandlet, Display, TEXT("%s"), *FString::Format(TEXT("Imported texture {0}"), {texContentPath}));
-	return Cast<UTexture>(FSoftObjectPath(texContentPath).TryLoad());
+	return loadedTexture;
 }
 
 UMaterialInterface* UCharacterModelImporterCommandlet::MakeMaterialInstance(UTexture* tex, const FString& destPath)

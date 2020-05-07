@@ -19,6 +19,9 @@ python %~dp0scripts/ninja_model_build_writer.py --out %NINJA_BUID_DEST%
 
 %~dp0../../thirdparty/bin/ninja.exe -C %~dp0ninja -v %*
 
+for /f "usebackq" %%A in (`time /t`) do set CURRENT_TIME=%%A
+echo done. %CURRENT_TIME%
+
 rem UE4Editor-Cmd.exe "%UE4_PROJECT_DIR%\bishrpg.uproject" -run=CharacterModelImporter -csv=%IMPORT_FILE_LIST% -stdout -UTF8Output
 
 rem pause

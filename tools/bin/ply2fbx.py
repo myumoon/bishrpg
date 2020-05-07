@@ -124,7 +124,8 @@ def reduction():
 	# ----------------------------------------------------------
 	# reduction
 	# ----------------------------------------------------------
-	bpy.ops.object.editmode_toggle()
+	#bpy.ops.object.editmode_toggle()
+	bpy.ops.object.mode_set(mode="EDIT")
 	bpy.ops.mesh.remove_doubles()
 	#bpy.ops.object.editmode_toggle()
 
@@ -138,13 +139,15 @@ def makeTexture():
 	#bpy.context.object.active_material_index = 0
 	#bpy.data.materials["Material"].node_tree.nodes["Vertex Color"].layer_name = "Col"
 
+	#bpy.ops.object.editmode_toggle()
+	bpy.ops.object.mode_set(mode="EDIT")
 
 	# ----------------------------------------------------------
 	# make texture
 	# ----------------------------------------------------------
 	#bpy.ops.object.editmode_toggle()
 	# https://blender.stackexchange.com/questions/19310/vertex-color-bake-to-texture-causes-wrong-color-margin
-	bpy.ops.uv.smart_project(island_margin=0.1)
+	bpy.ops.uv.smart_project(island_margin=1.0)
 
 	"""
 	imagePath = destTexPath
@@ -170,6 +173,8 @@ def makeTexture():
 	image.save()
 
 def removeVertexColor():
+
+	bpy.ops.object.mode_set(mode="EDIT")
 
 	# remove vertex color
 	bpy.ops.mesh.vertex_color_remove()
@@ -199,40 +204,51 @@ def addDecimate():
 	bpy.context.object.modifiers["Decimate"].angle_limit = 0.0872665
 
 	# 適用しないと変換が重くなるので適用しておく
-	bpy.ops.object.editmode_toggle()
+	#bpy.ops.object.editmode_toggle()
+	bpy.ops.object.mode_set(mode="OBJECT")
 	bpy.ops.object.modifier_apply(apply_as='DATA', modifier="Decimate")
-	bpy.ops.object.editmode_toggle()
+	#bpy.ops.object.editmode_toggle()
 
 def addSubSurface():
 	bpy.ops.object.modifier_add(type='SUBSURF')
 	bpy.context.object.modifiers["Subsurf"].subdivision_type = 'SIMPLE'
 	bpy.context.object.modifiers["Subsurf"].show_only_control_edges = False
-	bpy.context.object.modifiers["Subsurf"].render_levels = 2
-	bpy.context.object.modifiers["Subsurf"].levels = 2
+	bpy.context.object.modifiers["Subsurf"].render_levels = 1
+	bpy.context.object.modifiers["Subsurf"].levels = 1
 
 	# 適用しないと変換が重くなるので適用しておく
-	bpy.ops.object.editmode_toggle()
+	#bpy.ops.object.editmode_toggle()
+	bpy.ops.object.mode_set(mode="OBJECT")
 	bpy.ops.object.modifier_apply(apply_as='DATA', modifier="Subsurf")
-	bpy.ops.object.editmode_toggle()
+	#bpy.ops.object.editmode_toggle()
 
 def addBebel():
 	# bebel
 	bpy.ops.object.modifier_add(type='BEVEL')
 	bpy.context.object.modifiers["Bevel"].limit_method = 'ANGLE'
 	bpy.context.object.modifiers["Bevel"].angle_limit = 1.0472
-	bpy.context.object.modifiers["Bevel"].width = 1
-	bpy.context.object.modifiers["Bevel"].segments = 3
+	#bpy.context.object.modifiers["Bevel"].width = 1
+	bpy.context.object.modifiers["Bevel"].width = 0.5
+	#bpy.context.object.modifiers["Bevel"].segments = 3
+	bpy.context.object.modifiers["Bevel"].segments = 1
 	bpy.context.object.modifiers["Bevel"].profile = 0.35
 
 	# 適用しないと変換が重くなるので適用しておく
-	bpy.ops.object.editmode_toggle()
+	#bpy.ops.object.editmode_toggle()
+	bpy.ops.object.mode_set(mode="OBJECT")
 	bpy.ops.object.modifier_apply(apply_as='DATA', modifier="Bevel")
-	bpy.ops.object.editmode_toggle()
+	#bpy.ops.object.editmode_toggle()
+
+def triangulate():
+	bpy.ops.object.mode_set(mode="EDIT")
+	bpy.ops.mesh.select_all(action="SELECT")
+	bpy.ops.mesh.quads_convert_to_tris(quad_method='BEAUTY', ngon_method='BEAUTY')
 
 def addAmature():
 	startAddAmature = time.time()
 
-	bpy.ops.object.editmode_toggle()
+	#bpy.ops.object.editmode_toggle()
+	bpy.ops.object.mode_set(mode="OBJECT")
 
 	if not meshType.startswith("static"):
 		#bpy.ops.object.parent_drop(child=filebasename, parent="metarig", type='ARMATURE_AUTO')
@@ -310,12 +326,17 @@ def saveBlendFile():
 def main():
 	importPly()
 	convertSize()
+	
 	reduction()
+
 	makeTexture()
 	removeVertexColor()
+	
 	addDecimate()
-	addSubSurface()
+	#addSubSurface()
 	addBebel()
+	triangulate()
+
 	addAmature()
 	export()
 	saveBlendFile()
