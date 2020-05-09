@@ -19,7 +19,24 @@ import cProfile
 import time
 from optparse import OptionParser
 
-startTime = time.time()
+class Stopwatch(object):
+	def __init__(self, label="NoneLabel", autoStart=True):
+		self.label = label
+		if autoStart:
+			self.start()
+
+	def start(self):
+		self.startTime = time.time()
+
+	def stop(self, showLog=True, showStartAndEnd=False):
+		endTime = time.time()
+		elapsed = endTime - self.startTime
+		if showLog:
+			detailText = "(start={}, end={})".format(self.startTime, endTime) if showStartAndEnd else ""
+			print("Stopwatch [{}] elapsed={}s {}".format(self.label, elapsed, detailText))
+		return elapsed
+
+allStopwatch = Stopwatch("AllTime")
 
 # ----------------------------------------------------------
 # parse arguments 
@@ -51,7 +68,8 @@ texDestPath   = sys.argv[argStart + 3].replace("\\", "/")
 workBlendPath = sys.argv[argStart + 4].replace("\\", "/")
 texSize       = int(sys.argv[argStart + 5])
 
-print("src -> " + inFilePath)
+print("src : " + inFilePath)
+print("meshType : " + meshType)
 #print("dest -> " + outFileDir)
 
 
@@ -102,8 +120,9 @@ def convertSize():
 		#bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
 		pass
 	elif meshType == "accessory":
-		bpy.data.objects[filebasename].location[2] = 98
-		bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
+		#bpy.data.objects[filebasename].location[2] = 98
+		#bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
+		pass
 
 	# scaling
 	if meshType == "static_x10":
@@ -210,11 +229,20 @@ def addDecimate():
 	#bpy.ops.object.editmode_toggle()
 
 def addSubSurface():
+	#bpy.ops.object.mode_set(mode="EDIT")
+	#bpy.ops.mesh.subdivide()
+	#bpy.ops.mesh.subdivide(number_cuts=3)
+
+	bpy.ops.object.mode_set(mode="OBJECT")
 	bpy.ops.object.modifier_add(type='SUBSURF')
 	bpy.context.object.modifiers["Subsurf"].subdivision_type = 'SIMPLE'
 	bpy.context.object.modifiers["Subsurf"].show_only_control_edges = False
-	bpy.context.object.modifiers["Subsurf"].render_levels = 1
-	bpy.context.object.modifiers["Subsurf"].levels = 1
+	if meshType == "upper" or meshType == "lower":
+		subdivisionLevel = 2
+	else:
+		subdivisionLevel = 1
+	bpy.context.object.modifiers["Subsurf"].render_levels = subdivisionLevel
+	bpy.context.object.modifiers["Subsurf"].levels = subdivisionLevel
 
 	# 適用しないと変換が重くなるので適用しておく
 	#bpy.ops.object.editmode_toggle()
@@ -245,27 +273,41 @@ def triangulate():
 	bpy.ops.mesh.quads_convert_to_tris(quad_method='BEAUTY', ngon_method='BEAUTY')
 
 def addAmature():
-	startAddAmature = time.time()
+	ensureAddArmature = Stopwatch("addAmature")
 
 	#bpy.ops.object.editmode_toggle()
 	bpy.ops.object.mode_set(mode="OBJECT")
 
 	if not meshType.startswith("static"):
-		#bpy.ops.object.parent_drop(child=filebasename, parent="metarig", type='ARMATURE_AUTO')
-		#bpy.ops.outliner.parent_drop(child=filebasename, parent="metarig", type='ARMATURE_AUTO')
-		#bpy.data.objects[filebasename].parent = bpy.data.objects["metarig"]
-		bpy.ops.object.select_all(action='DESELECT')
-		bpy.data.objects[filebasename].select = True
-		bpy.data.objects["metarig"].select = True
-		bpy.context.scene.objects.active = bpy.data.objects["metarig"]
-		bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+		if meshType == "upper" or meshType == "lower":
+			#bpy.ops.object.parent_drop(child=filebasename, parent="metarig", type='ARMATURE_AUTO')
+			#bpy.ops.outliner.parent_drop(child=filebasename, parent="metarig", type='ARMATURE_AUTO')
+			#bpy.data.objects[filebasename].parent = bpy.data.objects["metarig"]
+			bpy.ops.object.select_all(action='DESELECT')
+			bpy.data.objects[filebasename].select = True
+			bpy.data.objects["metarig"].select = True
+			bpy.context.scene.objects.active = bpy.data.objects["metarig"]
 
-		obj = bpy.data.objects[filebasename]
-		bm  = bmesh.new()
-		bm.from_mesh(obj.data)
+			addArmatureStopwatch = Stopwatch("parent_set auto")
+			bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+			addArmatureStopwatch.stop()
 
-		if meshType == "face" or meshType == "hair":
-			startFaceOrHair = time.time()
+		# 固い部分のウェイトを1固定にする
+		# https://peta.okechan.net/blog/archives/3265
+		else:
+			bpy.ops.object.select_all(action='DESELECT')
+			bpy.data.objects[filebasename].select = True
+			bpy.data.objects["metarig"].select = True
+			bpy.context.scene.objects.active = bpy.data.objects["metarig"]
+
+			addArmatureStopwatch = Stopwatch("parent_set auto")
+			bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+			addArmatureStopwatch.stop()
+
+			bmeshStopwatch = Stopwatch("bmesh")
+			obj = bpy.data.objects[filebasename]
+			bm  = bmesh.new()
+			bm.from_mesh(obj.data)
 
 			#obj = bpy.data.objects[filebasename]
 
@@ -274,7 +316,9 @@ def addAmature():
 			
 			if not obj:
 				exit(0)
-			bpy.ops.object.mode_set(mode='OBJECT')
+			bmeshStopwatch.stop()
+			
+			delWeightStopwatch = Stopwatch("delete weight")
 			# get bone names in obj
 			bnames = [b.name for b in obj.parent.pose.bones]
 
@@ -283,16 +327,28 @@ def addAmature():
 			if not dflay:
 				exit(0)
 
-			startDelVerts = time.time()
+			meshTypeToEnabledVertexGroupMap = {
+				"accessory" : "head",
+				"hair" : "head",
+				"face" : "head",
+			}
+			
+			# meshTypeに対応したボーン以外の頂点ウェイトを削除
+			for vertexGroup in obj.vertex_groups:
+				if vertexGroup.name != meshTypeToEnabledVertexGroupMap[meshType]:
+					print("remove vertex group : " + vertexGroup.name)
+					obj.vertex_groups.remove(vertexGroup)
+			"""
 			# delete vertex weights
 			for v in bm.verts:
 				if v.select:
 					for dvk, dvv in v[dflay].items():
 						if obj.vertex_groups[dvk].name in bnames:
 							del v[dflay][dvk]
-			elapsedDelVerts = time.time() - startDelVerts
-			print("Elapsed to delete {} vertixes : {}s".format(meshType, elapsedDelVerts))
+			"""
+			delWeightStopwatch.stop()
 
+			weightApplyStopwatch = Stopwatch("apply weight")
 			# apply
 			bm.to_mesh(obj.data)
 			bpy.ops.object.mode_set(mode='EDIT')
@@ -305,12 +361,9 @@ def addAmature():
 			bpy.context.scene.objects.active = obj
 			bpy.ops.object.mode_set(mode='WEIGHT_PAINT')
 			bpy.ops.object.vertex_group_invert()
-
-			elapsedFaceOrHair = time.time() - startFaceOrHair
-			print("Elapsed to {} weight modification : {}s".format(meshType, elapsedFaceOrHair))
+			weightApplyStopwatch.stop()
 	
-	elapsedAddAmature = time.time() - startAddAmature
-	print("Elapsed addAmature : {}s verts({})".format(elapsedAddAmature, len(bm.verts)))
+	ensureAddArmature.stop()
 
 def export():
 	# export
@@ -333,10 +386,15 @@ def main():
 	removeVertexColor()
 	
 	addDecimate()
+	triangulate()
+	addBebel()
+	addSubSurface()
+	"""
+	addDecimate()
 	#addSubSurface()
 	addBebel()
 	triangulate()
-
+	"""
 	addAmature()
 	export()
 	saveBlendFile()
@@ -344,5 +402,5 @@ def main():
 #main()
 cProfile.run("main()", filename=workBlendPath + ".prof")
 
-elapsedTime = time.time() - startTime
+elapsedTime = allStopwatch.stop(showLog=False)
 print("Finished ply2fbx time={}s file({})".format(elapsedTime, workBlendPath))
