@@ -28,13 +28,7 @@ set OUT_NAME="Lower_p999_02"
 
 set IMPORT_FILE_LIST=%~dp0import_files.txt
 
-:: Commandlet
-rem UE4Editor-Cmd.exe "%UE4_PROJECT_DIR%\bishrpg.uproject" -run=CharacterModelImporter -fbx_path=%FBX_PATH% -tex_path=%TEX_PATH% -parts=%PARTS_NAME% -filename=%OUT_NAME% -stdout -UTF8Output
-UE4Editor-Cmd.exe "%UE4_PROJECT_DIR%\bishrpg.uproject" -run=CharacterModelImporter -csv=%IMPORT_FILE_LIST% -stdout -UTF8Output
 
-:: Python
-rem UE4Editor-Cmd.exe "%UE4_PROJECT_DIR%\bishrpg.uproject" -run=pythonscript -script="%~dp0character_importer.py" -fbx="hogehoge" -tex="textest" -stdout -UTF8Output
-rem UE4Editor-Cmd.exe "%UE4_PROJECT_DIR%\bishrpg.uproject" -run=pythonscript -script="%~dp0import_character_models.py"
-rem UE4Editor-Cmd.exe "%UE4_PROJECT_DIR%\bishrpg.uproject" -ExecutePythonScript="%~dp0character_importer.py" -stdout -UTF8Output
+python %~dp0model_build\ninja_model_build_config_writer.py
 
 pause
