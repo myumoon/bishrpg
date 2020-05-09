@@ -102,7 +102,11 @@ def makeContentsFileName(characterId, version, partsName, ext):
 	u"""
 	fbxのファイル名を生成
 	"""
-	return "{}_{}_{}.{}".format(partsName, characterId, version, ext)
+	if partsName.lower() == "onemodel":
+		formatStr = "{}_{}_{}.{}"
+	else:
+		formatStr = "Parts{}_{}_{}.{}"
+	return formatStr.format(partsName, characterId, version, ext)
 
 def makeContentsInfo(plyPath):
 	charId    = getCharacterId(plyPath)
@@ -112,7 +116,7 @@ def makeContentsInfo(plyPath):
 
 def makeRelativeContentPath(plyPath, resType, ext):
 	u"""
-	Parts/Lower/[resType]/Lower_pl000_01.[ext]
+	Parts/Lower/[resType]/PartsLower_pl000_01.[ext]
 	OneModel/[resType]/[name].[ext]
 	"""
 	charId, charVer, partsName = makeContentsInfo(plyPath)

@@ -54,6 +54,8 @@ def convert(plyFile, destDir, workDir, texSize, threadPool, dummy=False):
 		makeDummyFile(destTexPath, "Dummy texture")
 	else:
 		print("copy .blend file : {} -> {}".format(baseBlenderFile, destBlendPath))
+		if not os.path.exists(os.path.dirname(destBlendPath)):
+			os.makedirs(os.path.dirname(destBlendPath))
 		shutil.copy(baseBlenderFile, destBlendPath)
 		print("start ply convertion :")
 		print(" - src ply      : {}".format(plyFile.replace("\\", "/")))
