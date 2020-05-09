@@ -15,11 +15,11 @@ import sys
 import re
 import glob
 import subprocess
-import threading
+#import threading
 import time
 import shutil
 from optparse import OptionParser
-from concurrent.futures import ThreadPoolExecutor
+#from concurrent.futures import ThreadPoolExecutor
 import proj_def
 from model_build.scripts import ply_path
 
@@ -65,7 +65,13 @@ def convert(plyFile, destDir, workDir, texSize, threadPool, dummy=False):
 		print(" - parts        : {}".format(partsType))
 		print(" - tex size     : {}".format(texSize))
 		command     = ["blender.exe", destBlendPath, "-b", "-P", ply2fbxPath, "--", "", plyFile.replace("\\", "/"), partsType, destFbxPath, destTexPath, destBlendPath, str(texSize)]
-		threadPool.submit(execCommand, command)
+
+		subprocess.run(command)
+		#subprocess.run(command, stdout=subprocess.PIPE, subprocess.PIPE)
+		#print(proc.stdout.decode("utf8"))
+		#print(proc.stderr.decode("utf8"))
+		#threadPool.submit(execCommand, command)
+
 		#worker = threading.Thread(target=execCommand, args=(command,))
 		#worker.start()
 
@@ -94,19 +100,19 @@ def main():
 	options, args = parser.parse_args()
 	print(args)
 
-	threadPool = ThreadPoolExecutor(max_workers=options.threads)
+	#threadPool = ThreadPoolExecutor(max_workers=options.threads)
 
 	for f in args:
 		# ディレクトリ指定の場合は階層以下をすべて変換
 		if os.path.isdir(f):
 			print(u"recursive")
-			convertRecursive(f, options.destDir, options.workDir, options.texSize, threadPool, options.dummy)
+			convertRecursive(f, options.destDir, options.workDir, options.texSize, None, options.dummy)
 		# ファイル指定は単体で変換
 		elif os.path.isfile(f):
 			print(u"file")
-			convert(f, options.destDir, options.workDir, options.texSize, threadPool, options.dummy)
+			convert(f, options.destDir, options.workDir, options.texSize, None, options.dummy)
     
-	threadPool.shutdown()
+	#threadPool.shutdown()
 
 	elapsedTime = time.time() - startTime
 	print("Done convert. (time={}s)".format(elapsedTime))

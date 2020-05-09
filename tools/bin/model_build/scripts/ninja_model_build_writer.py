@@ -61,9 +61,17 @@ def main():
 		if True:
 			fileItereter = lambda : glob.glob(os.path.join(proj_def.ResRoot, "models", "characters") + "/**/**.ply", recursive=True)
 		else:
-			fileItereter = lambda : ["D:/prog/0_myprogram/bishrpg_resources/models/characters/e001_unko/01_normal/e001_01.ply"]
+			fileItereter = lambda : ["D:/prog/0_myprogram/bishrpg_resources/models/characters/p006_hashiyasume/01_otnk/p006_01-3.ply"]
+			#fileItereter = lambda : ["D:/prog/0_myprogram/bishrpg_resources/models/characters/p003_chitti/09_hidetheblue/p003_09-0.ply"]
 
+		maxCount = -1   # デバッグ用 書き込み数の上限
 		for path in fileItereter():
+			# デバッグ処理
+			if 0 <= maxCount:
+				maxCount = maxCount - 1
+				if maxCount < 0:
+					break
+
 			fbxPath    = ply_path.makeRelativeFbxContentsPath(path)
 			#texPath = ply_path.makeRelativeTexContentsPath(path)
 			#destFbxPath = os.path.join("$res_root", "Content", "Characters", fbxPath)
@@ -71,6 +79,7 @@ def main():
 			inputPath   = os.path.join("$res_root", os.path.relpath(path, proj_def.ResRoot))
 			writer.build(outputs=[destFbxPath], rule="convert_ply", inputs=[inputPath], implicit=None)
 			fbxList.append(destFbxPath)
+			
 
 		writer.comment("インポート用csvを作成")
 		writer.build(outputs=["$convert_csv"], rule="make_import_csv", inputs=fbxList, implicit=None)

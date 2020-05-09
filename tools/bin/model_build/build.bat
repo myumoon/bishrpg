@@ -3,6 +3,8 @@ rem =======================================================
 rem モデルビルド
 rem =======================================================
 
+call %~dp0..\worktime.bat START
+
 for /f "usebackq" %%A in (`time /t`) do set CURRENT_TIME=%%A
 echo start time : %CURRENT_TIME%
 
@@ -17,11 +19,15 @@ python %~dp0scripts/ninja_model_config_writer.py --out %NINJA_CONFIG_DEST%
 python %~dp0scripts/ninja_model_rule_writer.py --out %NINJA_RULE_DEST%
 python %~dp0scripts/ninja_model_build_writer.py --out %NINJA_BUID_DEST%
 
-%~dp0../../thirdparty/bin/ninja.exe -C %~dp0ninja -v %*
+rem ninja buildを実行
+rem   -jはスレッド数、スレッド数を増やすと　bpy.ops.object.parent_set(type='ARMATURE_AUTO') の
+rem   処理時間が1モデル当たり5分くらいかかるようになったのでスレッド数を1に設定している。
+%~dp0../../thirdparty/bin/ninja.exe -C %~dp0ninja -j 1 -v %*
+
+call %~dp0..\worktime.bat STOP
 
 for /f "usebackq" %%A in (`time /t`) do set CURRENT_TIME=%%A
-echo done. %CURRENT_TIME%
+echo All done. current=%CURRENT_TIME% elapsed=%DPS_STAMP%
 
-rem UE4Editor-Cmd.exe "%UE4_PROJECT_DIR%\bishrpg.uproject" -run=CharacterModelImporter -csv=%IMPORT_FILE_LIST% -stdout -UTF8Output
 
 rem pause

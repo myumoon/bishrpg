@@ -279,7 +279,7 @@ def addAmature():
 	bpy.ops.object.mode_set(mode="OBJECT")
 
 	if not meshType.startswith("static"):
-		if meshType == "upper" or meshType == "lower":
+		if meshType == "upper" or meshType == "lower" or meshType == "onemodel":
 			#bpy.ops.object.parent_drop(child=filebasename, parent="metarig", type='ARMATURE_AUTO')
 			#bpy.ops.outliner.parent_drop(child=filebasename, parent="metarig", type='ARMATURE_AUTO')
 			#bpy.data.objects[filebasename].parent = bpy.data.objects["metarig"]
