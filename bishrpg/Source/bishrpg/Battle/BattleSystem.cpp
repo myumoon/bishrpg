@@ -1,4 +1,4 @@
-﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #include "BattleSystem.h"
 
