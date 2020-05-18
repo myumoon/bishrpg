@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -12,6 +12,7 @@ DECLARE_LOG_CATEGORY_EXTERN(BishRPG, Log, All);
 #define GAME_ERROR(format, ...) UE_LOG(BishRPG, Error, TEXT(format), ##__VA_ARGS__)
 #define GAME_FATAL(format, ...) UE_LOG(BishRPG, Fatal, TEXT(format), ##__VA_ARGS__)
 #define GAME_ASSERT(exp) ensure(exp)
+#define GAME_ASSERT_FMT(exp, format, ...) do { if(!(exp)) { GAME_LOG_FMT(format, ##__VA_ARGS__); } ensure(exp); } while(0)
 
 // FString name = GETENUMSTRING("EEnumType", Value);
 // GAME_LOG("%s", *name);
