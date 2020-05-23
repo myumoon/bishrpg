@@ -6,7 +6,25 @@
 #include "AutomationTest.h"
 #include "bishrpg.h"
 
+namespace {
+	class TimeSpan {
+	public:
+		TimeSpan(const FString& label)
+		{
+			Label       = label;
+			StartTime   = FDateTime::Now();
+		}
+		~TimeSpan()
+		{
+			FTimespan RemainingTimespan = FDateTime::Now() - StartTime;
+			double RemainingSeconds     = RemainingTimespan.GetTotalMilliseconds();
+			GAME_LOG("Timespan(%s) %fms", *Label, RemainingSeconds);
+		}
 
+		FString   Label;
+		FDateTime StartTime;
+	};
+}
 
 
 QuadTree::DepthTraverser::DepthTraverser(QuadTree* tree, int32 spaceMortonIndex) :
@@ -17,6 +35,7 @@ QuadTree::DepthTraverser::DepthTraverser(QuadTree* tree, int32 spaceMortonIndex)
 		//GAME_ASSERT(insertIndex < Parents.GetAllocatedSize());
 		Parents.Insert(parentIndex, 0);
 	}
+	
 }
 
 void QuadTree::DepthTraverser::Traverse(QuadTree::IVisitor* visitor)
@@ -71,6 +90,7 @@ QuadTree::QuadTree(const FVector& begin, const FVector& end, int32 separateLevel
 
 void QuadTree::Initialize(const FVector& begin, const FVector& end, int32 separateLevel)
 {
+	TimeSpan initialize_span("initialize");
 	SeparateLevel = separateLevel;
 	BeginXY       = begin;
 	EndXY         = end;
@@ -79,7 +99,17 @@ void QuadTree::Initialize(const FVector& begin, const FVector& end, int32 separa
 	for(int32 i = 0; i <= MaxSeparationLevel; ++i) {
 		LevelOffsets.Add(static_cast<int32>((FMath::Pow(4, i) - 1) / 3));
 	}
-	SeparationNum = static_cast<int32>(FMath::Pow(2, SeparateLevel));
+	SeparationNum = CalcSideSeparationCount();
+}
+
+uint32 QuadTree::CalcSideSeparationCount() const
+{
+	return CalcSideSeparationCount(SeparateLevel);
+}
+
+uint32 QuadTree::CalcSideSeparationCount(int32 separationLevel)
+{
+	return static_cast<int32>(FMath::Pow(2, separationLevel));
 }
 
 bool QuadTree::IsValid() const
@@ -94,6 +124,7 @@ bool QuadTree::IsValid() const
 
 int32 QuadTree::CalcMortonIndex(const FVector& pos) const
 {
+	TimeSpan span("CalcMortonIndex 1");
 	if(!IsInRange(pos)) {
 		return -1;
 	}
@@ -107,6 +138,8 @@ int32 QuadTree::CalcMortonIndex(const FVector& pos) const
 
 int32 QuadTree::CalcLinearSpaceMortonIndex(const FVector& pos) const
 {
+	TimeSpan span("CalcLinearSpaceMortonIndex 1");
+
 	const int32 mortonIndex = CalcMortonIndex(pos);
 	if(mortonIndex < 0) {
 		return -1;
@@ -118,6 +151,8 @@ int32 QuadTree::CalcLinearSpaceMortonIndex(const FVector& pos) const
 
 int32 QuadTree::CalcLinearSpaceIndex(const FVector& begin, const FVector& end) const
 {
+	TimeSpan span("CalcLinearSpaceIndex 2");
+
 	//GAME_LOG("CalcLinearSpaceIndex begin(%f, %f), end(%f, %f)", begin.X, begin.Y, end.X, end.Y);
 	FVector clampedBegin, clampedEnd;
 	if(!Clamp(clampedBegin, clampedEnd, begin, end)) {
@@ -260,5 +295,11 @@ uint32 QuadTree::ConvertToLinearSpaceMortonIndex(uint32 level, uint32 mortonInde
 {
 	GAME_ASSERT_FMT(level < static_cast<uint32>(LevelOffsets.Num()), "level:{0} Num:{1}", level, LevelOffsets.Num());
 	return LevelOffsets[level] + mortonIndex;
+}
+
+uint32 QuadTree::GetLinearSpaceSize() const
+{
+	GAME_LOG("SeparationNum:%d, SeparateLevel:%d", SeparationNum, SeparateLevel)
+	return GetLinearSpaceSize(SeparateLevel);
 }
 

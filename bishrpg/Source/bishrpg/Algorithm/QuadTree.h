@@ -102,6 +102,10 @@ public:
 	/*!	空間レベルを取得
 	*/
 	uint32 GetSpaceLevel(uint32 mortonIndex) const;
+
+	/*!	線形空間サイズを取得
+	*/
+	uint32 GetLinearSpaceSize() const;
 		
 	/*!	空間配列サイズを取得
 	*/
@@ -127,6 +131,14 @@ public:
 	{
 		return (currentIndex * 4) + 1;
 	}
+
+	/*!	横方向の分割数を取得
+	*/
+	uint32 CalcSideSeparationCount() const;
+
+	/*!	横方向の分割数を取得
+	*/
+	static uint32 CalcSideSeparationCount(int32 separationLevel);
 
 private:
 
