@@ -6,25 +6,6 @@
 #include "AutomationTest.h"
 #include "bishrpg.h"
 
-namespace {
-	class TimeSpan {
-	public:
-		TimeSpan(const FString& label)
-		{
-			Label       = label;
-			StartTime   = FDateTime::Now();
-		}
-		~TimeSpan()
-		{
-			FTimespan RemainingTimespan = FDateTime::Now() - StartTime;
-			double RemainingSeconds     = RemainingTimespan.GetTotalMilliseconds();
-			GAME_LOG("Timespan(%s) %fms", *Label, RemainingSeconds);
-		}
-
-		FString   Label;
-		FDateTime StartTime;
-	};
-}
 
 
 QuadTree::DepthTraverser::DepthTraverser(QuadTree* tree, int32 spaceMortonIndex) :
@@ -90,7 +71,6 @@ QuadTree::QuadTree(const FVector& begin, const FVector& end, int32 separateLevel
 
 void QuadTree::Initialize(const FVector& begin, const FVector& end, int32 separateLevel)
 {
-	TimeSpan initialize_span("initialize");
 	SeparateLevel = separateLevel;
 	BeginXY       = begin;
 	EndXY         = end;
@@ -124,7 +104,6 @@ bool QuadTree::IsValid() const
 
 int32 QuadTree::CalcMortonIndex(const FVector& pos) const
 {
-	TimeSpan span("CalcMortonIndex 1");
 	if(!IsInRange(pos)) {
 		return -1;
 	}
@@ -138,8 +117,6 @@ int32 QuadTree::CalcMortonIndex(const FVector& pos) const
 
 int32 QuadTree::CalcLinearSpaceMortonIndex(const FVector& pos) const
 {
-	TimeSpan span("CalcLinearSpaceMortonIndex 1");
-
 	const int32 mortonIndex = CalcMortonIndex(pos);
 	if(mortonIndex < 0) {
 		return -1;
@@ -151,8 +128,6 @@ int32 QuadTree::CalcLinearSpaceMortonIndex(const FVector& pos) const
 
 int32 QuadTree::CalcLinearSpaceIndex(const FVector& begin, const FVector& end) const
 {
-	TimeSpan span("CalcLinearSpaceIndex 2");
-
 	//GAME_LOG("CalcLinearSpaceIndex begin(%f, %f), end(%f, %f)", begin.X, begin.Y, end.X, end.Y);
 	FVector clampedBegin, clampedEnd;
 	if(!Clamp(clampedBegin, clampedEnd, begin, end)) {
