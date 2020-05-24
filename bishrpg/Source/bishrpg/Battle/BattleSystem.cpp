@@ -1,4 +1,4 @@
-// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #include "BattleSystem.h"
 
@@ -469,7 +469,7 @@ bool UBattleSystem::ConsumeMoveCommands(TArray<FBattleActionResult>& result)
 		const TArray<int32>* currentFormationList[] = { &playerParty->Formation, &opponentParty->Formation };
 		const FBattleParty* partyList[] = { playerParty, opponentParty };
 
-		for(int partyIndex = 0; partyIndex < ARRAY_COUNT(oldFormationList); ++partyIndex) {
+		for(int partyIndex = 0; partyIndex < UE_ARRAY_COUNT(oldFormationList); ++partyIndex) {
 			for(int i = 0; i < UBattleBoardUtil::GetCellNum(); ++i) {
 				const int32* oldFormation = oldFormationList[partyIndex];
 				const auto&  currentFormation = *currentFormationList[partyIndex];
@@ -549,7 +549,7 @@ float UBattleSystem::GetTypeDamageRate(EBattleStyle attackerStyle, EBattleStyle 
 	};
 	
 	const int32 index = static_cast<int32>(attackerStyle) * 3 + static_cast<int32>(targetStyle);
-	GAME_ASSERT(0 <= index && index < ARRAY_COUNT(damageRateTbl));
+	GAME_ASSERT(0 <= index && index < UE_ARRAY_COUNT(damageRateTbl));
 	return damageRateTbl[index];
 }
 

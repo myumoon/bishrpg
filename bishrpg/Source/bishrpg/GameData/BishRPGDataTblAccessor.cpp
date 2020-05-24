@@ -13,7 +13,7 @@ namespace {
 		TEXT("DataTable'/Game/GameData/Character/CharacterAssetTbl.CharacterAssetTbl'"),
 		TEXT("DataTable'/Game/GameData/Skill/SkillAssetTbl.SkillAssetTbl'"),
 	};
-	static_assert(ARRAY_COUNT(s_dataPathList) == static_cast<int32>(ETblType::Num), "s_dataPathList != ETblType::Num");
+	static_assert(UE_ARRAY_COUNT(s_dataPathList) == static_cast<int32>(ETblType::Num), "s_dataPathList != ETblType::Num");
 }
 
 

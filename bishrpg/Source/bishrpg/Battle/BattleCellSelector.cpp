@@ -190,7 +190,7 @@ void BattleCellSelector::SelectTarget(BattleCell actorPos, EBattleSelectMethod s
 		&BattleCellSelector::SelectBack1_P,
 		&BattleCellSelector::SelectAll_P,
 	};
-	static_assert(ARRAY_COUNT(selectMethodFunc) == static_cast<int32>(EBattleSelectMethod::Max), "Invalid array size : selectMethodFunc");
+	static_assert(UE_ARRAY_COUNT(selectMethodFunc) == static_cast<int32>(EBattleSelectMethod::Max), "Invalid array size : selectMethodFunc");
 	const int32 selectMethodIndex = static_cast<int32>(selectMethod);
 	(this->*selectMethodFunc[selectMethodIndex])(actorPos.GetIndex());
 
@@ -529,7 +529,7 @@ void BattleCellSelector::ExpandCell(EBattleSelectRange range)
 		&BattleCellSelector::ExpandRangeBack3,
 		&BattleCellSelector::ExpandRangeBack4,
 	};
-	static_assert(ARRAY_COUNT(rangeFuncTbl) == static_cast<int32>(EBattleSelectRange::Max), "Invalid array size : rangeFuncTbl");
+	static_assert(UE_ARRAY_COUNT(rangeFuncTbl) == static_cast<int32>(EBattleSelectRange::Max), "Invalid array size : rangeFuncTbl");
 
 	const int32 rangeFuncIndex = (int)range;
 	ensure(0 <= rangeFuncIndex && range < EBattleSelectRange::Max);
