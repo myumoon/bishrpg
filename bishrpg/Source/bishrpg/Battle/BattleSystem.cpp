@@ -549,7 +549,7 @@ float UBattleSystem::GetTypeDamageRate(EBattleStyle attackerStyle, EBattleStyle 
 	};
 	
 	const int32 index = static_cast<int32>(attackerStyle) * 3 + static_cast<int32>(targetStyle);
-	GAME_ASSERT(0 <= index && index < UE_ARRAY_COUNT(damageRateTbl));
+	GAME_ASSERT(0 <= index && index < ARRAY_COUNT(damageRateTbl));
 	return damageRateTbl[index];
 }
 
