@@ -12,12 +12,22 @@ QuadTree::DepthTraverser::DepthTraverser(QuadTree* tree, int32 spaceMortonIndex)
 	Tree(tree),
 	SpaceMortonIndex(spaceMortonIndex)
 {
-	while(const int32 parentIndex = Tree->GetLinearSpaceParentIndex(SpaceMortonIndex)) {
-		//GAME_ASSERT(insertIndex < Parents.GetAllocatedSize());
+	int32 parentIndex = Tree->GetLinearSpaceParentIndex(SpaceMortonIndex);
+	while(0 <= parentIndex) {
+		GAME_ASSERT_FMT(Parents.Num() <= Parents.GetAllocatedSize(), "Size={0}, parentIndex={1}", Parents.GetAllocatedSize(), parentIndex);
 		Parents.Insert(parentIndex, 0);
+		parentIndex = Tree->GetLinearSpaceParentIndex(parentIndex);
 	}
 	
 }
+
+QuadTree::DepthTraverser::DepthTraverser(DepthTraverser&& traverser) :
+	Tree(traverser.Tree),
+	SpaceMortonIndex(traverser.SpaceMortonIndex),
+	Parents(MoveTemp(traverser.Parents))
+{
+}
+
 
 void QuadTree::DepthTraverser::Traverse(QuadTree::IVisitor* visitor)
 {
@@ -35,10 +45,36 @@ void QuadTree::DepthTraverser::Traverse(QuadTree::IVisitor* visitor)
 	TraverseChildren(visitor, SpaceMortonIndex);
 }
 
+void QuadTree::DepthTraverser::Traverse(TFunction<bool(int32)> visitor)
+{
+	// ルートからターゲットまで
+	if(!TraverseToTarget(visitor, 0)) {
+		return;
+	}
+
+	// 自身の空間
+	if(!visitor(SpaceMortonIndex)) {
+		return;
+	}
+
+	// 子空間
+	TraverseChildren(visitor, SpaceMortonIndex);
+}
+
 bool QuadTree::DepthTraverser::TraverseToTarget(IVisitor* visitor, uint32 linearSpaceMortonIndex)
 {
 	for(int32 mortonIndex : Parents) {
 		if(!visitor->Visit(mortonIndex)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool QuadTree::DepthTraverser::TraverseToTarget(TFunction<bool(int32)> visitor, uint32 linearSpaceMortonIndex)
+{
+	for(int32 mortonIndex : Parents) {
+		if(!visitor(mortonIndex)) {
 			return false;
 		}
 	}
@@ -60,6 +96,23 @@ void QuadTree::DepthTraverser::TraverseChildren(IVisitor* visitor, uint32 linear
 	}
 }
 
+void QuadTree::DepthTraverser::TraverseChildren(TFunction<bool(int32)> visitor, uint32 linearSpaceMortonIndex)
+{
+	// 子空間
+	const int32 childTopIndex = QuadTree::GetLinearSpaceChildIndex(linearSpaceMortonIndex);
+	if(!Tree->IsValidLinearSpaceMortonIndex(childTopIndex)) {
+		return;
+	}
+
+	// 子階層をトラバース
+	for(int32 i = 0; i < 4; ++i) {
+		const int32 childMortonIndex = childTopIndex + i;
+		if(!visitor(childMortonIndex)) {
+			continue;
+		}
+		TraverseChildren(visitor, childMortonIndex);
+	}
+}
 
 QuadTree::QuadTree(const FVector& begin, const FVector& end, int32 separateLevel)
 {
@@ -79,7 +132,7 @@ void QuadTree::Initialize(const FVector& begin, const FVector& end, int32 separa
 	for(int32 i = 0; i <= MaxSeparationLevel; ++i) {
 		LevelOffsets.Add(static_cast<int32>((FMath::Pow(4, i) - 1) / 3));
 	}
-	SeparationNum = CalcSideSeparationCount();
+	SeparationNum                  = CalcSideSeparationCount();
 }
 
 uint32 QuadTree::CalcSideSeparationCount() const
@@ -248,12 +301,21 @@ uint32 QuadTree::CalcCommonMortonIndex(uint32 beginMortonIndex, uint32 commonLev
 
 QuadTree::DepthTraverser QuadTree::GetDepthTraverser(const FVector& point)
 {
-	return DepthTraverser(this, CalcMortonIndex(point));
+	const int32 mortonIndex = CalcMortonIndex(point);
+	return DepthTraverser(this, mortonIndex);
 }
 
 QuadTree::DepthTraverser QuadTree::GetDepthTraverser(const FVector& begin, const FVector& end)
 {
-	return DepthTraverser(this, CalcLinearSpaceIndex(begin, end));
+	const int32 mortonIndex = CalcLinearSpaceIndex(begin, end);
+	
+	GAME_LOG("QuadTree::GetDepthTraverser morton(%d)", mortonIndex);
+	
+	auto traverser = DepthTraverser(this, mortonIndex);
+
+	GAME_LOG("QuadTree::GetDepthTraverser ret");
+
+	return traverser;
 }
 
 uint32 QuadTree::GetSpaceLevelByLinearSpaceIndex(uint32 linearSpaceMortonIndex) const
@@ -278,3 +340,9 @@ uint32 QuadTree::GetLinearSpaceSize() const
 	return GetLinearSpaceSize(SeparateLevel);
 }
 
+bool QuadTree::IsValidLinearSpaceMortonIndex(int32 linearSpaceMortonIndex) const
+{
+	const int32 maxMortonIndex = ConvertToLinearSpaceMortonIndex(SeparateLevel, SeparationNum);
+
+	return ((0 <= linearSpaceMortonIndex) && (linearSpaceMortonIndex < maxMortonIndex));
+}

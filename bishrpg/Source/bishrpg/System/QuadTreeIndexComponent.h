@@ -63,8 +63,8 @@ protected:
 
 	/*!	指定範囲内に登録されている情報を取得
 	*/
-	//UFUNCTION(BlueprintCallable, Category = "QuadTree")
-	//bool Find(TArray<FValueMortonPair>& registered, const FVector& begin, const FVector& end);
+	UFUNCTION(BlueprintCallable, Category = "QuadTree")
+	bool FindRange(TArray<FValueMortonPair>& registered, const FVector& begin, const FVector& end) const;
 
 	/*!	指定モートンインデックスの情報を取得
 	*/

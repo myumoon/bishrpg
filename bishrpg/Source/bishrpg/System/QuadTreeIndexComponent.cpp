@@ -23,6 +23,7 @@ namespace {
 		FString   Label;
 		FDateTime StartTime;
 	};
+
 }
 
 
@@ -68,7 +69,7 @@ bool UQuadTreeIndexComponent::Add(FMortonIndex& mortonindex, const FVector& pos,
 		return false;
 	}
 
-	//GAME_LOG("[Add] pos(%f, %f, %f) -> morton[%d].list[%d] = value(%d)", pos.X, pos.Y, pos.Z, mortonIndex, MortonAlignedDataList[mortonIndex].Num() - 1, value);
+	GAME_LOG("[Add] pos(%f, %f, %f) -> morton[%d].list[%d] = value(%d)", pos.X, pos.Y, pos.Z, mortonIndex, MortonAlignedDataList[mortonIndex].Num() - 1, value);
 	MortonAlignedDataList[mortonIndex].Add(value);
 	
 	return true;
@@ -83,7 +84,7 @@ bool UQuadTreeIndexComponent::Remove(int32 value, const FMortonIndex& targetMort
 	auto& list = MortonAlignedDataList[targetMortonIndex.Index];
 	const int32 removedCount = list.Remove(value);
 
-	//GAME_LOG("[Remove] morton[%d].Remove(%d) -> removedCount(%d), listCount(%d)", targetMortonIndex.Index, value, removedCount, list.Num());
+	GAME_LOG("[Remove] morton[%d].Remove(%d) -> removedCount(%d), listCount(%d)", targetMortonIndex.Index, value, removedCount, list.Num());
 
 	return (0 < removedCount);
 }
@@ -119,6 +120,25 @@ bool UQuadTreeIndexComponent::Find(TArray<int32>& registered, FMortonIndex& mort
 	}
 	
 	registered = MortonAlignedDataList[index];
+
+	return true;
+}
+
+bool UQuadTreeIndexComponent::FindRange(TArray<FValueMortonPair>& registered, const FVector& begin, const FVector& end) const
+{
+	auto traverser(QuadTreeCalculator->GetDepthTraverser(begin, end));
+
+	FValueMortonPair addMortonInfo;
+	auto visitor   = [this, &registered, &addMortonInfo](int32 linearSpaceMortonIndex) -> bool {
+		GAME_ASSERT(linearSpaceMortonIndex < MortonAlignedDataList.Num());
+		for(int32 value : MortonAlignedDataList[linearSpaceMortonIndex]) {
+			addMortonInfo.Value             = value;
+			addMortonInfo.MortonIndex.Index = linearSpaceMortonIndex;
+			registered.Add(addMortonInfo);
+		}
+		return true;
+	};
+	traverser.Traverse(visitor);
 
 	return true;
 }

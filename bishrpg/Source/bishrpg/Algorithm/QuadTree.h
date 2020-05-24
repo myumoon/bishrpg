@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
 
 /**	
  *  四分木
@@ -30,6 +31,7 @@ public:
 	class ITraverser {
 	public:
 		virtual void Traverse(IVisitor* visitor) = 0;
+		virtual void Traverse(TFunction<bool(int32)>) = 0;
 	};
 
 	// 深さ優先トラバーサー
@@ -38,12 +40,16 @@ public:
 	public:
 		DepthTraverser() = default;
 		DepthTraverser(QuadTree* tree, int32 targetSpaceMortonIndex);
+		DepthTraverser(DepthTraverser&& traverser) ;
 	
 		void Traverse(IVisitor* visitor) override;
+		void Traverse(TFunction<bool(int32)> visitor) override;
 
 	private:
 		bool TraverseToTarget(IVisitor* visitor, uint32 linearSpaceMortonIndex);
+		bool TraverseToTarget(TFunction<bool(int32)> visitor, uint32 linearSpaceMortonIndex);
 		void TraverseChildren(IVisitor* visitor, uint32 linearSpaceMortonIndex);
+		void TraverseChildren(TFunction<bool(int32)> visitor, uint32 linearSpaceMortonIndex);
 	private:
 		using ParentIndexArray = TArray<int32, TFixedAllocator<MaxSeparationLevel>>;
 
@@ -119,9 +125,13 @@ public:
 	}
 
 	/*!	線形空間での親インデックスを取得
+		親がいない場合は-1を返す
 	*/
-	static constexpr uint32 GetLinearSpaceParentIndex(uint32 currentIndex)
+	static constexpr int32 GetLinearSpaceParentIndex(int32 currentIndex)
 	{
+		if(currentIndex <= 0) {
+			return -1;
+		}
 		return (currentIndex - 1) / 4;
 	}
 
@@ -139,6 +149,10 @@ public:
 	/*!	横方向の分割数を取得
 	*/
 	static uint32 CalcSideSeparationCount(int32 separationLevel);
+
+	/* インデックスが有効かどうか
+	*/
+	bool IsValidLinearSpaceMortonIndex(int32 linearSpaceMortonIndex) const;
 
 private:
 
