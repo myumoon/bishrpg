@@ -1,4 +1,4 @@
-﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #pragma once
 
@@ -10,7 +10,7 @@
 #include "Battle/BattleDataType.h"
 #include "CharacterAsset.generated.h"
 
-constexpr TCHAR* EndTag = TEXT("[End]");
+constexpr const TCHAR* EndTag = TEXT("[End]");
 
 USTRUCT(BlueprintType)
 struct FAttackTimingDataAsset : public FTableRowBase {

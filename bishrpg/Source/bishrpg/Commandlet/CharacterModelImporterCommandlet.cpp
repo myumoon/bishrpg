@@ -66,7 +66,7 @@ namespace {
 
 
 namespace {
-	constexpr TCHAR* CharacterAssetDir = TEXT("/Game/Character/");
+	constexpr const TCHAR* CharacterAssetDir = TEXT("/Game/Character/");
 }
 
 struct UCharacterModelImporterCommandlet::ParsedParams {
