@@ -20,3 +20,33 @@ DECLARE_LOG_CATEGORY_EXTERN(BishRPG, Log, All);
 
 
 #define TO_TEXT(b) ((b) ? TEXT("true") : TEXT("false"))
+
+
+#if WITH_EDITOR
+class TimeSpan {
+public:
+	TimeSpan(const FString& label)
+	{
+		Label = label;
+		StartTime = FDateTime::Now();
+	}
+	~TimeSpan()
+	{
+		FTimespan RemainingTimespan = FDateTime::Now() - StartTime;
+		double RemainingSeconds = RemainingTimespan.GetTotalMilliseconds();
+		GAME_LOG("Timespan(%s) %fms", *Label, RemainingSeconds);
+	}
+
+	FString   Label;
+	FDateTime StartTime;
+};
+
+#define DEBUG_SCOPE_TIME_SPAN_IMPL2(label, line) TimeSpan __timespan##line(label);
+#define DEBUG_SCOPE_TIME_SPAN_IMPL1(label, line) DEBUG_SCOPE_TIME_SPAN_IMPL2(label, line)
+#define DEBUG_SCOPE_TIME_SPAN(label) DEBUG_SCOPE_TIME_SPAN_IMPL1(label, __LINE__)
+
+#else
+
+#define DEBUG_SCOPE_TIME_SPAN(...) (void)0
+
+#endif

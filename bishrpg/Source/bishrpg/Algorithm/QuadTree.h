@@ -41,6 +41,7 @@ public:
 		DepthTraverser() = default;
 		DepthTraverser(QuadTree* tree, int32 targetSpaceMortonIndex);
 		DepthTraverser(DepthTraverser&& traverser) ;
+		virtual ~DepthTraverser() = default;
 	
 		void Traverse(IVisitor* visitor) override;
 		void Traverse(TFunction<bool(int32)> visitor) override;

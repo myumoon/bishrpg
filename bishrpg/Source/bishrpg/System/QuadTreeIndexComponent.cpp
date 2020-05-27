@@ -5,27 +5,6 @@
 #include "DrawDebugHelpers.h"
 #include "bishrpg.h"
 
-namespace {
-	class TimeSpan {
-	public:
-		TimeSpan(const FString& label)
-		{
-			Label = label;
-			StartTime = FDateTime::Now();
-		}
-		~TimeSpan()
-		{
-			FTimespan RemainingTimespan = FDateTime::Now() - StartTime;
-			double RemainingSeconds = RemainingTimespan.GetTotalMilliseconds();
-			GAME_LOG("Timespan(%s) %fms", *Label, RemainingSeconds);
-		}
-
-		FString   Label;
-		FDateTime StartTime;
-	};
-
-}
-
 
 // Sets default values for this component's properties
 UQuadTreeIndexComponent::UQuadTreeIndexComponent()
@@ -34,7 +13,8 @@ UQuadTreeIndexComponent::UQuadTreeIndexComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 	
-	TimeSpan span("reset");
+	//TimeSpan span("reset");
+	DEBUG_SCOPE_TIME_SPAN("reset")
 	QuadTreeCalculator.Reset(new QuadTree());
 }
 
@@ -69,7 +49,7 @@ bool UQuadTreeIndexComponent::Add(FMortonIndex& mortonindex, const FVector& pos,
 		return false;
 	}
 
-	GAME_LOG("[Add] pos(%f, %f, %f) -> morton[%d].list[%d] = value(%d)", pos.X, pos.Y, pos.Z, mortonIndex, MortonAlignedDataList[mortonIndex].Num() - 1, value);
+	GAME_LOG("[Add] pos(%f, %f, %f) -> morton[%d].list[%d] = value(%d)", pos.X, pos.Y, pos.Z, mortonIndex, MortonAlignedDataList[mortonIndex].Num(), value);
 	MortonAlignedDataList[mortonIndex].Add(value);
 	
 	return true;
@@ -92,7 +72,8 @@ bool UQuadTreeIndexComponent::Remove(int32 value, const FMortonIndex& targetMort
 
 bool UQuadTreeIndexComponent::Replace(int32 from, int32 to, bool first)
 {
-	TimeSpan span("Replace");
+	//TimeSpan span("Replace");
+	//DEBUG_SCOPE_TIME_SPAN("Replace")
 	for(int32 mortonIdx = 0; mortonIdx < MortonAlignedDataList.Num(); ++mortonIdx) {
 		auto& list = MortonAlignedDataList[mortonIdx];
 		for(int32 i = 0; i < list.Num(); ++i) {
@@ -114,7 +95,7 @@ bool UQuadTreeIndexComponent::Find(TArray<int32>& registered, FMortonIndex& mort
 {
 	const int32 index = QuadTreeCalculator->CalcLinearSpaceMortonIndex(pos);
 	mortonIndex.Index = index;
-	GAME_LOG("[Find] pos(%f, %f, %f), morton(%d)", pos.X, pos.Y, pos.Z, index);
+	//GAME_LOG("[Find] pos(%f, %f, %f), morton(%d)", pos.X, pos.Y, pos.Z, index);
 	if(index < 0) {
 		return false;
 	}
@@ -126,18 +107,25 @@ bool UQuadTreeIndexComponent::Find(TArray<int32>& registered, FMortonIndex& mort
 
 bool UQuadTreeIndexComponent::FindRange(TArray<FValueMortonPair>& registered, const FVector& begin, const FVector& end) const
 {
+	//DEBUG_SCOPE_TIME_SPAN("FindRange")
 	auto traverser(QuadTreeCalculator->GetDepthTraverser(begin, end));
+	//GAME_LOG_FMT("FindRange : begin({0}, {1}, {2}) end({3}, {4}, {5})", begin.X, begin.Y, begin.Z, end.X, end.Y, end.Z);
 
 	FValueMortonPair addMortonInfo;
 	auto visitor   = [this, &registered, &addMortonInfo](int32 linearSpaceMortonIndex) -> bool {
 		GAME_ASSERT(linearSpaceMortonIndex < MortonAlignedDataList.Num());
+		//GAME_LOG_FMT("FindRange : MortonAlignedDataList[{0}]", linearSpaceMortonIndex);
 		for(int32 value : MortonAlignedDataList[linearSpaceMortonIndex]) {
+			//GAME_LOG_FMT("FindRange for : MortonAlignedDataList[{0}] = value({1})", linearSpaceMortonIndex, value);
 			addMortonInfo.Value             = value;
 			addMortonInfo.MortonIndex.Index = linearSpaceMortonIndex;
 			registered.Add(addMortonInfo);
 		}
 		return true;
 	};
+
+	//TimeSpan _span_traverse("FindRange traverse");
+	//DEBUG_SCOPE_TIME_SPAN("FindRange traverse")
 	traverser.Traverse(visitor);
 
 	return true;

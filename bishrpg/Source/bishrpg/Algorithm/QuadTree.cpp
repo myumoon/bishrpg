@@ -14,7 +14,7 @@ QuadTree::DepthTraverser::DepthTraverser(QuadTree* tree, int32 spaceMortonIndex)
 {
 	int32 parentIndex = Tree->GetLinearSpaceParentIndex(SpaceMortonIndex);
 	while(0 <= parentIndex) {
-		GAME_ASSERT_FMT(Parents.Num() <= Parents.GetAllocatedSize(), "Size={0}, parentIndex={1}", Parents.GetAllocatedSize(), parentIndex);
+		//GAME_ASSERT_FMT(Parents.Num() <= Parents.GetAllocatedSize(), "Size={0}, parentIndex={1}", Parents.GetAllocatedSize(), parentIndex);
 		Parents.Insert(parentIndex, 0);
 		parentIndex = Tree->GetLinearSpaceParentIndex(parentIndex);
 	}
@@ -47,18 +47,29 @@ void QuadTree::DepthTraverser::Traverse(QuadTree::IVisitor* visitor)
 
 void QuadTree::DepthTraverser::Traverse(TFunction<bool(int32)> visitor)
 {
+	GAME_LOG("Traverse");
+
+	{
+	DEBUG_SCOPE_TIME_SPAN("ToTarget")
 	// ルートからターゲットまで
 	if(!TraverseToTarget(visitor, 0)) {
 		return;
 	}
+	}
 
+	{
+	DEBUG_SCOPE_TIME_SPAN("visit")
 	// 自身の空間
 	if(!visitor(SpaceMortonIndex)) {
 		return;
 	}
+	}
 
+	{
+	DEBUG_SCOPE_TIME_SPAN("TraverseChildren")
 	// 子空間
 	TraverseChildren(visitor, SpaceMortonIndex);
+	}
 }
 
 bool QuadTree::DepthTraverser::TraverseToTarget(IVisitor* visitor, uint32 linearSpaceMortonIndex)
@@ -74,6 +85,7 @@ bool QuadTree::DepthTraverser::TraverseToTarget(IVisitor* visitor, uint32 linear
 bool QuadTree::DepthTraverser::TraverseToTarget(TFunction<bool(int32)> visitor, uint32 linearSpaceMortonIndex)
 {
 	for(int32 mortonIndex : Parents) {
+		//GAME_LOG_FMT("TraverseToTarget morton({0})", mortonIndex);
 		if(!visitor(mortonIndex)) {
 			return false;
 		}
@@ -98,9 +110,12 @@ void QuadTree::DepthTraverser::TraverseChildren(IVisitor* visitor, uint32 linear
 
 void QuadTree::DepthTraverser::TraverseChildren(TFunction<bool(int32)> visitor, uint32 linearSpaceMortonIndex)
 {
+	//GAME_LOG_FMT("TraverseChildren linearSpaceMortonIndex({0})", linearSpaceMortonIndex);
+
 	// 子空間
 	const int32 childTopIndex = QuadTree::GetLinearSpaceChildIndex(linearSpaceMortonIndex);
 	if(!Tree->IsValidLinearSpaceMortonIndex(childTopIndex)) {
+		//GAME_LOG_FMT("TraverseChildren end linearSpaceMortonIndex({0}), childTopIndex({1})", linearSpaceMortonIndex, childTopIndex);
 		return;
 	}
 
@@ -342,7 +357,8 @@ uint32 QuadTree::GetLinearSpaceSize() const
 
 bool QuadTree::IsValidLinearSpaceMortonIndex(int32 linearSpaceMortonIndex) const
 {
-	const int32 maxMortonIndex = ConvertToLinearSpaceMortonIndex(SeparateLevel, SeparationNum);
+	const int32 cellNum        = SeparationNum * SeparationNum;
+	const int32 maxMortonIndex = ConvertToLinearSpaceMortonIndex(SeparateLevel, cellNum);
 
 	return ((0 <= linearSpaceMortonIndex) && (linearSpaceMortonIndex < maxMortonIndex));
 }
