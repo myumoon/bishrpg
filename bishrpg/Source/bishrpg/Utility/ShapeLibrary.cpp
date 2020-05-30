@@ -7,7 +7,11 @@
 #include "Math/UnrealMathUtility.h"
 #include "bishrpg.h"
 
-
+// 統計情報
+DECLARE_STATS_GROUP(TEXT("ShapeLibraryGroup"), STATGROUP_ShapeLibrary, STATCAT_Advanced);
+DECLARE_CYCLE_STAT(TEXT("UShapeLibrary::IntersectsSphereAndAABB"), STAT_IntersectsSphereAndAABB, STATGROUP_ShapeLibrary);
+DECLARE_CYCLE_STAT(TEXT("UShapeLibrary::IntersectsAABBAndAABB"), IntersectsAABBAndAABB, STATGROUP_ShapeLibrary);
+DECLARE_CYCLE_STAT(TEXT("UShapeLibrary::IntersectsSphereAndSphere"), IntersectsSphereAndSphere, STATGROUP_ShapeLibrary);
 
 void UShapeLibrary::MakeAABBWithBeginEnd(FShapeAABB& aabb, const FVector& begin, const FVector& end)
 {
@@ -58,26 +62,21 @@ void UShapeLibrary::GetAABBCenterPosAndRange(FVector& center, FVector& size, con
 
 bool UShapeLibrary::IntersectsSphereAndAABB(const FShapeSphere& sphere, const FShapeAABB& aabb)
 {
-	// 球の中心に近いところを探す
-	//const float x = FMath::Max(aabb.Box.Min.X, FMath::Min(sphere.Sphere.Center.X, aabb.Box.Max.X));
-	//const float y = FMath::Max(aabb.Box.Min.Y, FMath::Min(sphere.Sphere.Center.Y, aabb.Box.Max.Y));
-	//const float z = FMath::Max(aabb.Box.Min.Z, FMath::Min(sphere.Sphere.Center.Z, aabb.Box.Max.Z));
+	SCOPE_CYCLE_COUNTER(STAT_IntersectsSphereAndAABB);
 
-	//const float dist2 = FMath::Pow(x - sphere.Sphere.Center.X, 2) + FMath::Pow(y - sphere.Sphere.Center.Y, 2) + FMath::Pow(z - sphere.Sphere.Center.Z, 2);
-	//return (dist2 < sphere.Sphere.W * sphere.Sphere.W);
 	return FMath::SphereAABBIntersection(sphere.Sphere, aabb.Box);
 }
 
 bool UShapeLibrary::IntersectsAABBAndAABB(const FShapeAABB& aabb1, const FShapeAABB& aabb2)
 {
-	//return (aabb1.Begin.X <= aabb2.End.X && aabb1.End.X >= aabb2.Begin.X) &&
-	//	(aabb1.Begin.Y <= aabb2.End.Y && aabb1.End.Y >= aabb2.Begin.Y) &&
-	//	(aabb1.Begin.Z <= aabb2.End.Z && aabb1.End.Z >= aabb2.Begin.Z);
+	SCOPE_CYCLE_COUNTER(IntersectsAABBAndAABB);
+
 	return aabb1.Box.Intersect(aabb2.Box);
 }
 
 bool UShapeLibrary::IntersectsSphereAndSphere(const FShapeSphere& sphere1, const FShapeSphere& sphere2)
 {
-	//return FMath::Pow(sphere2.Center.X - sphere1.Center.X, 2) + FMath::Pow(sphere2.Center.Y - sphere1.Center.Y, 2) + FMath::Pow(sphere2.Center.Z - sphere1.Center.Z, 2) <= FMath::Pow(sphere1.R + sphere2.R, 2);
+	SCOPE_CYCLE_COUNTER(IntersectsSphereAndSphere);
+
 	return sphere1.Sphere.Intersects(sphere2.Sphere);
 }

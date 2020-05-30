@@ -6,6 +6,20 @@
 #include "bishrpg.h"
 
 
+// 統計情報
+DECLARE_STATS_GROUP(TEXT("UQuadTreeIndexComponentStat"), STATGROUP_QuadTreeComponent, STATCAT_Advanced);
+DECLARE_CYCLE_STAT(TEXT("UQuadTreeIndexComponent::Find"), STAT_Find, STATGROUP_QuadTreeComponent);
+DECLARE_CYCLE_STAT(TEXT("UQuadTreeIndexComponent::FindRange"), STAT_FindRange, STATGROUP_QuadTreeComponent);
+DECLARE_CYCLE_STAT(TEXT("UQuadTreeIndexComponent::FindRangeSphere"), STAT_FindRangeSphere, STATGROUP_QuadTreeComponent);
+DECLARE_CYCLE_STAT(TEXT("UQuadTreeIndexComponent::Replace"), STAT_Replace, STATGROUP_QuadTreeComponent);
+DECLARE_CYCLE_STAT(TEXT("UQuadTreeIndexComponent::Remove"), STAT_Remove, STATGROUP_QuadTreeComponent);
+DECLARE_CYCLE_STAT(TEXT("UQuadTreeIndexComponent::Clear"), STAT_Clear, STATGROUP_QuadTreeComponent);
+DECLARE_CYCLE_STAT(TEXT("UQuadTreeIndexComponent::Add"), STAT_Add, STATGROUP_QuadTreeComponent);
+DECLARE_CYCLE_STAT(TEXT("UQuadTreeIndexComponent::DebugDraw"), STAT_DebugDraw, STATGROUP_QuadTreeComponent);
+DECLARE_CYCLE_STAT(TEXT("UQuadTreeIndexComponent::DebugDrawAtConstructionScript"), STAT_DebugDrawAtConstructionScript, STATGROUP_QuadTreeComponent);
+
+
+
 // Sets default values for this component's properties
 UQuadTreeIndexComponent::UQuadTreeIndexComponent()
 {
@@ -44,6 +58,7 @@ void UQuadTreeIndexComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 bool UQuadTreeIndexComponent::Add(FMortonIndex& mortonindex, const FVector& pos, int32 value)
 {
+	SCOPE_CYCLE_COUNTER(STAT_Add);
 	const int32 mortonIndex = QuadTreeCalculator->CalcLinearSpaceMortonIndex(pos);
 	if(mortonIndex < 0) {
 		return false;
@@ -57,6 +72,7 @@ bool UQuadTreeIndexComponent::Add(FMortonIndex& mortonindex, const FVector& pos,
 
 bool UQuadTreeIndexComponent::Remove(int32 value, const FMortonIndex& targetMortonIndex)
 {
+	SCOPE_CYCLE_COUNTER(STAT_Remove);
 	if(!UMortonIndexFunctionLibrary::IsValid(targetMortonIndex)) {
 		return false;
 	}
@@ -72,6 +88,7 @@ bool UQuadTreeIndexComponent::Remove(int32 value, const FMortonIndex& targetMort
 
 bool UQuadTreeIndexComponent::Replace(int32 from, int32 to, bool first)
 {
+	SCOPE_CYCLE_COUNTER(STAT_Replace);
 	//TimeSpan span("Replace");
 	//DEBUG_SCOPE_TIME_SPAN("Replace")
 	for(int32 mortonIdx = 0; mortonIdx < MortonAlignedDataList.Num(); ++mortonIdx) {
@@ -93,6 +110,7 @@ bool UQuadTreeIndexComponent::Replace(int32 from, int32 to, bool first)
 
 bool UQuadTreeIndexComponent::Find(TArray<int32>& registered, FMortonIndex& mortonIndex, const FVector& pos) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_Find);
 	const int32 index = QuadTreeCalculator->CalcLinearSpaceMortonIndex(pos);
 	mortonIndex.Index = index;
 	//GAME_LOG("[Find] pos(%f, %f, %f), morton(%d)", pos.X, pos.Y, pos.Z, index);
@@ -107,6 +125,7 @@ bool UQuadTreeIndexComponent::Find(TArray<int32>& registered, FMortonIndex& mort
 
 bool UQuadTreeIndexComponent::FindRange(TArray<FValueMortonPair>& registered, const FVector& begin, const FVector& end) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_FindRange);
 	//DEBUG_SCOPE_TIME_SPAN("FindRange")
 	auto traverser(QuadTreeCalculator->GetDepthTraverser(begin, end));
 	//GAME_LOG_FMT("FindRange : begin({0}, {1}, {2}) end({3}, {4}, {5})", begin.X, begin.Y, begin.Z, end.X, end.Y, end.Z);
@@ -133,6 +152,7 @@ bool UQuadTreeIndexComponent::FindRange(TArray<FValueMortonPair>& registered, co
 
 bool UQuadTreeIndexComponent::FindRangeSphere(TArray<FValueMortonPair>& registered, const FVector& center, float r) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_FindRangeSphere);
 /*
 	FVector begin = center - FVector(-r, -r, -r);
 	FVector end   = center - FVector(r, r, r);
@@ -180,6 +200,7 @@ bool UQuadTreeIndexComponent::Get(TArray<int32>& registered, const FMortonIndex&
 
 bool UQuadTreeIndexComponent::Clear(const FVector& pos)
 {
+	SCOPE_CYCLE_COUNTER(STAT_Clear);
 	const int32 index = QuadTreeCalculator->CalcLinearSpaceMortonIndex(pos);
 	if(index < 0) {
 		return false;
@@ -210,11 +231,13 @@ int32 UQuadTreeIndexComponent::GetCount() const
 
 void UQuadTreeIndexComponent::DebugDraw(FLinearColor color, float thickness, float time)
 {
+	SCOPE_CYCLE_COUNTER(STAT_DebugDraw);
 	DebugDraw(color, thickness, time, false);
 }
 
 void UQuadTreeIndexComponent::DebugDrawAtConstructionScript(FLinearColor color, float thickness)
 {
+	SCOPE_CYCLE_COUNTER(STAT_DebugDrawAtConstructionScript);
 	// 線が残るので消す
 	FlushPersistentDebugLines(GetWorld());
 

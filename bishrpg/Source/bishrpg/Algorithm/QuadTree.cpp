@@ -6,12 +6,39 @@
 #include "AutomationTest.h"
 #include "bishrpg.h"
 
+// 統計情報
+DECLARE_STATS_GROUP(TEXT("QuadTreeStat"), STATGROUP_QuadTree, STATCAT_Advanced);
+
+DECLARE_CYCLE_STAT(TEXT("QuadTree::DepthTraverser::DepthTraverser"), STAT_DepthTraverser, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::DepthTraverser::Traverse"), STAT_Traverse, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::DepthTraverser::TraverseToTarget"), STAT_TraverseToTarget, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::DepthTraverser::TraverseChildren"), STAT_TraverseChildren, STATGROUP_QuadTree);
+
+DECLARE_CYCLE_STAT(TEXT("QuadTree::QuadTree"), STAT_QuadTree, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::CalcMortonIndex"), STAT_CalcMortonIndex, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::CalcLinearSpaceMortonIndex"), STAT_CalcLinearSpaceMortonIndex, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::CalcLinearSpaceIndex"), STAT_CalcLinearSpaceIndex, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::IsInRange"), STAT_IsInRange, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::IsInRangePartially"), STAT_IsInRangePartially, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::GetDepthTraverser"), STAT_GetDepthTraverser, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::GetSpaceLevel"), STAT_GetSpaceLevel, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::CalcSideSeparationCount"), STAT_CalcSideSeparationCount, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::IsValidLinearSpaceMortonIndex"), STAT_IsValidLinearSpaceMortonIndex, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::Clamp"), STAT_Clamp, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::WidenBit"), STAT_WidenBit, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::GetMortonIndex"), STAT_GetMortonIndex, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::GetCommonLevel"), STAT_GetCommonLevel, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::GetAxisIndex"), STAT_GetAxisIndex, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::CalcCommonMortonIndex"), STAT_CalcCommonMortonIndex, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::GetSpaceLevelByLinearSpaceIndex"), STAT_GetSpaceLevelByLinearSpaceIndex, STATGROUP_QuadTree);
+DECLARE_CYCLE_STAT(TEXT("QuadTree::ConvertToLinearSpaceMortonIndex"), STAT_ConvertToLinearSpaceMortonIndex, STATGROUP_QuadTree);
 
 
 QuadTree::DepthTraverser::DepthTraverser(QuadTree* tree, int32 spaceMortonIndex) :
 	Tree(tree),
 	SpaceMortonIndex(spaceMortonIndex)
 {
+	SCOPE_CYCLE_COUNTER(STAT_DepthTraverser);
 	int32 parentIndex = Tree->GetLinearSpaceParentIndex(SpaceMortonIndex);
 	while(0 <= parentIndex) {
 		//GAME_ASSERT_FMT(Parents.Num() <= Parents.GetAllocatedSize(), "Size={0}, parentIndex={1}", Parents.GetAllocatedSize(), parentIndex);
@@ -31,6 +58,7 @@ QuadTree::DepthTraverser::DepthTraverser(DepthTraverser&& traverser) :
 
 void QuadTree::DepthTraverser::Traverse(QuadTree::IVisitor* visitor)
 {
+	SCOPE_CYCLE_COUNTER(STAT_Traverse);
 	// ルートからターゲットまで
 	if(!TraverseToTarget(visitor, 0)) {
 		return;
@@ -48,6 +76,8 @@ void QuadTree::DepthTraverser::Traverse(QuadTree::IVisitor* visitor)
 void QuadTree::DepthTraverser::Traverse(TFunction<bool(int32)> visitor)
 {
 	GAME_LOG("Traverse");
+
+	SCOPE_CYCLE_COUNTER(STAT_Traverse);
 
 	{
 	DEBUG_SCOPE_TIME_SPAN("ToTarget")
@@ -74,6 +104,8 @@ void QuadTree::DepthTraverser::Traverse(TFunction<bool(int32)> visitor)
 
 bool QuadTree::DepthTraverser::TraverseToTarget(IVisitor* visitor, uint32 linearSpaceMortonIndex)
 {
+	SCOPE_CYCLE_COUNTER(STAT_TraverseToTarget);
+
 	for(int32 mortonIndex : Parents) {
 		if(!visitor->Visit(mortonIndex)) {
 			return false;
@@ -84,6 +116,8 @@ bool QuadTree::DepthTraverser::TraverseToTarget(IVisitor* visitor, uint32 linear
 
 bool QuadTree::DepthTraverser::TraverseToTarget(TFunction<bool(int32)> visitor, uint32 linearSpaceMortonIndex)
 {
+	SCOPE_CYCLE_COUNTER(STAT_TraverseToTarget);
+
 	for(int32 mortonIndex : Parents) {
 		//GAME_LOG_FMT("TraverseToTarget morton({0})", mortonIndex);
 		if(!visitor(mortonIndex)) {
@@ -95,6 +129,8 @@ bool QuadTree::DepthTraverser::TraverseToTarget(TFunction<bool(int32)> visitor, 
 
 void QuadTree::DepthTraverser::TraverseChildren(IVisitor* visitor, uint32 linearSpaceMortonIndex)
 {
+	SCOPE_CYCLE_COUNTER(STAT_TraverseChildren);
+
 	// 子空間
 	const int32 childTopIndex = QuadTree::GetLinearSpaceChildIndex(linearSpaceMortonIndex);
 
@@ -110,6 +146,8 @@ void QuadTree::DepthTraverser::TraverseChildren(IVisitor* visitor, uint32 linear
 
 void QuadTree::DepthTraverser::TraverseChildren(TFunction<bool(int32)> visitor, uint32 linearSpaceMortonIndex)
 {
+	SCOPE_CYCLE_COUNTER(STAT_TraverseChildren);
+
 	//GAME_LOG_FMT("TraverseChildren linearSpaceMortonIndex({0})", linearSpaceMortonIndex);
 
 	// 子空間
@@ -131,6 +169,8 @@ void QuadTree::DepthTraverser::TraverseChildren(TFunction<bool(int32)> visitor, 
 
 QuadTree::QuadTree(const FVector& begin, const FVector& end, int32 separateLevel)
 {
+	SCOPE_CYCLE_COUNTER(STAT_QuadTree);
+
 	Initialize(begin, end, separateLevel);
 
 	TArray<uint32, TFixedAllocator<GetLinearSpaceSize(4)>> a;
@@ -157,6 +197,8 @@ uint32 QuadTree::CalcSideSeparationCount() const
 
 uint32 QuadTree::CalcSideSeparationCount(int32 separationLevel)
 {
+	SCOPE_CYCLE_COUNTER(STAT_CalcSideSeparationCount);
+
 	return static_cast<int32>(FMath::Pow(2, separationLevel));
 }
 
@@ -172,6 +214,8 @@ bool QuadTree::IsValid() const
 
 int32 QuadTree::CalcMortonIndex(const FVector& pos) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_GetMortonIndex);
+
 	if(!IsInRange(pos)) {
 		return -1;
 	}
@@ -185,6 +229,8 @@ int32 QuadTree::CalcMortonIndex(const FVector& pos) const
 
 int32 QuadTree::CalcLinearSpaceMortonIndex(const FVector& pos) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_CalcLinearSpaceMortonIndex);
+
 	const int32 mortonIndex = CalcMortonIndex(pos);
 	if(mortonIndex < 0) {
 		return -1;
@@ -196,6 +242,8 @@ int32 QuadTree::CalcLinearSpaceMortonIndex(const FVector& pos) const
 
 int32 QuadTree::CalcLinearSpaceIndex(const FVector& begin, const FVector& end) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_CalcLinearSpaceIndex);
+
 	//GAME_LOG("CalcLinearSpaceIndex begin(%f, %f), end(%f, %f)", begin.X, begin.Y, end.X, end.Y);
 	FVector clampedBegin, clampedEnd;
 	if(!Clamp(clampedBegin, clampedEnd, begin, end)) {
@@ -220,11 +268,15 @@ int32 QuadTree::CalcLinearSpaceIndex(const FVector& begin, const FVector& end) c
 
 bool QuadTree::IsInRange(const FVector& pos) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_IsInRange);
+
 	return IsInRange(pos.X, BeginXY.X, EndXY.X) && IsInRange(pos.Y, BeginXY.Y, EndXY.Y);
 }
 
 bool QuadTree::IsInRangePartially(const FVector& begin, const FVector& end) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_IsInRangePartially);
+
 	const float X1 = begin.X;
 	const float Y1 = begin.Y;
 	const float X2 = BeginXY.X;
@@ -253,11 +305,13 @@ bool QuadTree::IsInRangePartially(const FVector& begin, const FVector& end) cons
 
 bool QuadTree::IsInRange(float point, float begin, float end) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_IsInRange);
 	return (begin <= point) && (point <= end);
 }
 
 bool QuadTree::Clamp(FVector& clampedBegin, FVector& clampedEnd, const FVector& begin, const FVector& end) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_Clamp);
 	if(!IsInRangePartially(begin, end)) {
 		return false;
 	}
@@ -273,6 +327,7 @@ bool QuadTree::Clamp(FVector& clampedBegin, FVector& clampedEnd, const FVector& 
 
 uint64 QuadTree::WidenBit(uint32 num) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_WidenBit);
 	uint32 result = 0;
 	for(int32 i = 0; i < SeparateLevel; ++i) {
 		result |= (num & (1 << i)) << i;
@@ -282,17 +337,20 @@ uint64 QuadTree::WidenBit(uint32 num) const
 
 uint64 QuadTree::GetMortonIndex(uint32 xIndex, uint32 yIndex) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_GetMortonIndex);
 	return WidenBit(xIndex) | WidenBit(yIndex) << 1;
 }
 
 uint32 QuadTree::GetCommonLevel(uint64 mortonIndex1, uint64 mortonIndex2) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_GetCommonLevel);
 	uint64 xorIndex    = mortonIndex1 ^ mortonIndex2;
 	return GetSpaceLevel(xorIndex);
 }
 
 uint32 QuadTree::GetSpaceLevel(uint32 mortonIndex) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_GetSpaceLevel);
 	int32  commonLevel = SeparateLevel;
 	while(0 < mortonIndex) {
 		mortonIndex = mortonIndex >> 2;
@@ -303,6 +361,7 @@ uint32 QuadTree::GetSpaceLevel(uint32 mortonIndex) const
 
 uint32 QuadTree::GetAxisIndex(float point, float begin, float end) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_GetAxisIndex);
 	const float  width = end - begin;
 	const uint32 index = static_cast<uint32>((point - begin) / (width / SeparationNum));
 
@@ -311,17 +370,20 @@ uint32 QuadTree::GetAxisIndex(float point, float begin, float end) const
 
 uint32 QuadTree::CalcCommonMortonIndex(uint32 beginMortonIndex, uint32 commonLevel) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_CalcCommonMortonIndex);
 	return beginMortonIndex >> ((SeparateLevel - commonLevel) * 2);
 }
 
 QuadTree::DepthTraverser QuadTree::GetDepthTraverser(const FVector& point)
 {
+	SCOPE_CYCLE_COUNTER(STAT_GetDepthTraverser);
 	const int32 mortonIndex = CalcMortonIndex(point);
 	return DepthTraverser(this, mortonIndex);
 }
 
 QuadTree::DepthTraverser QuadTree::GetDepthTraverser(const FVector& begin, const FVector& end)
 {
+	SCOPE_CYCLE_COUNTER(STAT_GetDepthTraverser);
 	const int32 mortonIndex = CalcLinearSpaceIndex(begin, end);
 	
 	GAME_LOG("QuadTree::GetDepthTraverser morton(%d)", mortonIndex);
@@ -335,6 +397,7 @@ QuadTree::DepthTraverser QuadTree::GetDepthTraverser(const FVector& begin, const
 
 uint32 QuadTree::GetSpaceLevelByLinearSpaceIndex(uint32 linearSpaceMortonIndex) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_GetSpaceLevelByLinearSpaceIndex);
 	for(int32 i = 0; i < LevelOffsets.Num() - 1; ++i) {
 		if((LevelOffsets[0] <= linearSpaceMortonIndex) && (linearSpaceMortonIndex < LevelOffsets[i + 1])) {
 			return i;
@@ -345,6 +408,7 @@ uint32 QuadTree::GetSpaceLevelByLinearSpaceIndex(uint32 linearSpaceMortonIndex) 
 
 uint32 QuadTree::ConvertToLinearSpaceMortonIndex(uint32 level, uint32 mortonIndex) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_ConvertToLinearSpaceMortonIndex);
 	GAME_ASSERT_FMT(level < static_cast<uint32>(LevelOffsets.Num()), "level:{0} Num:{1}", level, LevelOffsets.Num());
 	return LevelOffsets[level] + mortonIndex;
 }
