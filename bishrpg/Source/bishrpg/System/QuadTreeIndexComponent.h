@@ -29,10 +29,6 @@ public:
 	// Sets default values for this component's properties
 	UQuadTreeIndexComponent();
 
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
 	/*!	指定座標に特定座標を設定
 	*/
 	UFUNCTION(BlueprintCallable, Category = "QuadTree")
@@ -65,6 +61,11 @@ protected:
 	*/
 	UFUNCTION(BlueprintCallable, Category = "QuadTree")
 	bool FindRange(TArray<FValueMortonPair>& registered, const FVector& begin, const FVector& end) const;
+
+	/*!	指定範囲内に登録されている情報を取得(球)
+	*/
+	UFUNCTION(BlueprintCallable, Category = "QuadTree")
+	bool FindRangeSphere(TArray<FValueMortonPair>& registered, const FVector& center, float r) const;
 
 	/*!	指定モートンインデックスの情報を取得
 	*/
@@ -99,12 +100,15 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "QuadTree")
 	void DebugDrawAtConstructionScript(FLinearColor color, float thickness = 5.0f);
 
-private:
-	void DebugDraw(const FLinearColor& color, float thickness, float time, bool persistant);
-
-public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
+
+private:
+	void DebugDraw(const FLinearColor& color, float thickness, float time, bool persistant);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QuadTree")

@@ -131,6 +131,42 @@ bool UQuadTreeIndexComponent::FindRange(TArray<FValueMortonPair>& registered, co
 	return true;
 }
 
+bool UQuadTreeIndexComponent::FindRangeSphere(TArray<FValueMortonPair>& registered, const FVector& center, float r) const
+{
+/*
+	FVector begin = center - FVector(-r, -r, -r);
+	FVector end   = center - FVector(r, r, r);
+	auto traverser(QuadTreeCalculator->GetDepthTraverser(begin, end));
+	//GAME_LOG_FMT("FindRange : begin({0}, {1}, {2}) end({3}, {4}, {5})", begin.X, begin.Y, begin.Z, end.X, end.Y, end.Z);
+
+	TArray<FValueMortonPair> foundRange;
+	const FVector minSpaceSize = QuadTreeCalculator->GetMinSpaceSize();
+	const int32   approxXNum   = static_cast<int32>(2 * r / minSpaceSize.X);
+	const int32   approxYNum   = static_cast<int32>(2 * r / minSpaceSize.Y);
+	foundRange.Reserve(approxXNum * approxYNum);
+
+	FValueMortonPair addMortonInfo;
+	auto visitor = [this, &foundRange, &addMortonInfo](int32 linearSpaceMortonIndex) -> bool {
+		GAME_ASSERT(linearSpaceMortonIndex < MortonAlignedDataList.Num());
+		for(int32 value : MortonAlignedDataList[linearSpaceMortonIndex]) {
+			addMortonInfo.Value             = value;
+			addMortonInfo.MortonIndex.Index = linearSpaceMortonIndex;
+			foundRange.Add(addMortonInfo);
+		}
+		return true;
+	};
+	//DEBUG_SCOPE_TIME_SPAN("FindRange traverse")
+	traverser.Traverse(visitor);
+
+	// 球の範囲のみ取得
+	for(const auto& morton : foundRange) {
+		const auto& pos = MortonAlignedDataList[morton.MortonIndex.Index];
+	}
+*/
+
+	return true;
+}
+
 bool UQuadTreeIndexComponent::Get(TArray<int32>& registered, const FMortonIndex& mortonIndex) const
 {
 	if(!UMortonIndexFunctionLibrary::IsValid(mortonIndex)) {

@@ -151,9 +151,13 @@ public:
 	*/
 	static uint32 CalcSideSeparationCount(int32 separationLevel);
 
-	/* インデックスが有効かどうか
+	/*! インデックスが有効かどうか
 	*/
 	bool IsValidLinearSpaceMortonIndex(int32 linearSpaceMortonIndex) const;
+
+	/*!	最小分割後の1マスのサイズを取得
+	*/
+	FVector GetMinSpaceSize() const;
 
 private:
 

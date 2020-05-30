@@ -362,3 +362,10 @@ bool QuadTree::IsValidLinearSpaceMortonIndex(int32 linearSpaceMortonIndex) const
 
 	return ((0 <= linearSpaceMortonIndex) && (linearSpaceMortonIndex < maxMortonIndex));
 }
+
+FVector QuadTree::GetMinSpaceSize() const
+{
+	const FVector range = EndXY - BeginXY;
+	return (range / SeparationNum);
+}
+
