@@ -13,7 +13,7 @@ USTRUCT(BlueprintType)
 struct BISHRPG_API FMortonIndex {
 	GENERATED_BODY()
 
-	int32 Index = 0;
+	int32 Index = -1;
 };
 
 /**	モートン番号をBPで取り扱うためのライブラリ
