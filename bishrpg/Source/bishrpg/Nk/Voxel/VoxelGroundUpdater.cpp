@@ -5,15 +5,15 @@
 
 // 統計情報
 DECLARE_STATS_GROUP(TEXT("UVoxelGroundUpdaterStat"), STATGROUP_VoxelGroundUpdater, STATCAT_Advanced);
-DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::Find"), STAT_Find, STATGROUP_VoxelGroundUpdater);
-DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::FindRange"), STAT_FindRange, STATGROUP_VoxelGroundUpdater);
-DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::FindRangeCopy"), STAT_FindRangeCopy, STATGROUP_VoxelGroundUpdater);
-DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::FindRangeSphere"), STAT_FindRangeSphere, STATGROUP_VoxelGroundUpdater);
-DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::FindRangeSphereCopy"), STAT_FindRangeSphereCopy, STATGROUP_VoxelGroundUpdater);
-DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::Replace"), STAT_Replace, STATGROUP_VoxelGroundUpdater);
-DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::Remove"), STAT_Remove, STATGROUP_VoxelGroundUpdater);
-DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::Clear"), STAT_Clear, STATGROUP_VoxelGroundUpdater);
-DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::Add"), STAT_Add, STATGROUP_VoxelGroundUpdater);
+DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::Find"), STAT_VoxelGroundUpdater_Find, STATGROUP_VoxelGroundUpdater);
+DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::FindRange"), STAT_VoxelGroundUpdater_FindRange, STATGROUP_VoxelGroundUpdater);
+DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::FindRangeCopy"), STAT_VoxelGroundUpdater_FindRangeCopy, STATGROUP_VoxelGroundUpdater);
+DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::FindRangeSphere"), STAT_VoxelGroundUpdater_FindRangeSphere, STATGROUP_VoxelGroundUpdater);
+DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::FindRangeSphereCopy"), STAT_VoxelGroundUpdater_FindRangeSphereCopy, STATGROUP_VoxelGroundUpdater);
+DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::Replace"), STAT_VoxelGroundUpdater_Replace, STATGROUP_VoxelGroundUpdater);
+DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::Remove"), STAT_VoxelGroundUpdater_Remove, STATGROUP_VoxelGroundUpdater);
+DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::Clear"), STAT_VoxelGroundUpdater_Clear, STATGROUP_VoxelGroundUpdater);
+DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::Add"), STAT_VoxelGroundUpdater_Add, STATGROUP_VoxelGroundUpdater);
 
 
 // Sets default values for this component's properties
@@ -52,36 +52,36 @@ void UVoxelGroundUpdater::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 bool UVoxelGroundUpdater::Add(FMortonIndex& mortonindex, const FVector& pos, const FBlockData& value)
 {
-	SCOPE_CYCLE_COUNTER(STAT_Add);
+	SCOPE_CYCLE_COUNTER(STAT_VoxelGroundUpdater_Add);
 	mortonindex = VoxelDataTree->Add(pos, value);
 	return UMortonIndexFunctionLibrary::IsValid(mortonindex);
 }
 
 bool UVoxelGroundUpdater::Remove(const FMortonIndex& targetMortonIndex, const FBlockData& value)
 {
-	SCOPE_CYCLE_COUNTER(STAT_Remove);
+	SCOPE_CYCLE_COUNTER(STAT_VoxelGroundUpdater_Remove);
 	return VoxelDataTree->Remove(targetMortonIndex, value);
 }
 
 bool UVoxelGroundUpdater::Replace(const FBlockData& from, const FBlockData& to, bool first)
 {
-	SCOPE_CYCLE_COUNTER(STAT_Replace);
+	SCOPE_CYCLE_COUNTER(STAT_VoxelGroundUpdater_Replace);
 	return VoxelDataTree->Replace(from, to, first);
 }
 
 bool UVoxelGroundUpdater::Find(TArray<FBlockData>& registered, FMortonIndex& mortonIndex, const FVector& pos) const
 {
-	SCOPE_CYCLE_COUNTER(STAT_Find);
+	SCOPE_CYCLE_COUNTER(STAT_VoxelGroundUpdater_Find);
 	return VoxelDataTree->Find(registered, mortonIndex, pos);
 }
 
 bool UVoxelGroundUpdater::FindRange(TArray<FBlockData>& registered, const FVector& begin, const FVector& end) const
 {
-	SCOPE_CYCLE_COUNTER(STAT_FindRange);
+	SCOPE_CYCLE_COUNTER(STAT_VoxelGroundUpdater_FindRange);
 	TArray<FMortonIndex> mortonIndexList;
 	const bool success = VoxelDataTree->FindRange(registered, mortonIndexList, begin, end);
 	if(success) {
-		SCOPE_CYCLE_COUNTER(STAT_FindRangeCopy);
+		SCOPE_CYCLE_COUNTER(STAT_VoxelGroundUpdater_FindRangeCopy);
 		for(int32 i = 0; i < mortonIndexList.Num(); ++i) {
 			registered[i].MortonIndex = mortonIndexList[i];
 		}
@@ -91,11 +91,11 @@ bool UVoxelGroundUpdater::FindRange(TArray<FBlockData>& registered, const FVecto
 
 bool UVoxelGroundUpdater::FindRangeSphere(TArray<FBlockData>& registered, const FVector& center, float r) const
 {
-	SCOPE_CYCLE_COUNTER(STAT_FindRangeSphere);
+	SCOPE_CYCLE_COUNTER(STAT_VoxelGroundUpdater_FindRangeSphere);
 	TArray<FMortonIndex> mortonIndexList;
 	const bool success = VoxelDataTree->FindRange(registered, mortonIndexList, center, r);
 	if(success) {
-		SCOPE_CYCLE_COUNTER(STAT_FindRangeSphereCopy);
+		SCOPE_CYCLE_COUNTER(STAT_VoxelGroundUpdater_FindRangeSphereCopy);
 		for(int32 i = 0; i < mortonIndexList.Num(); ++i) {
 			registered[i].MortonIndex = mortonIndexList[i];
 		}
@@ -105,7 +105,7 @@ bool UVoxelGroundUpdater::FindRangeSphere(TArray<FBlockData>& registered, const 
 
 bool UVoxelGroundUpdater::Clear(const FVector& pos)
 {
-	SCOPE_CYCLE_COUNTER(STAT_Clear);
+	SCOPE_CYCLE_COUNTER(STAT_VoxelGroundUpdater_Clear);
 	return VoxelDataTree->Clear(pos);
 }
 
