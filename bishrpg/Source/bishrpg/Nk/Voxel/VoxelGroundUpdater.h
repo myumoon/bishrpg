@@ -12,15 +12,18 @@ USTRUCT(BlueprintType)
 struct BISHRPG_API FBlockData {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QuadTree")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VoxelGround")
 	int32 InstanceIndex = -1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "QuadTree")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VoxelGround")
 	FMortonIndex MortonIndex;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VoxelGround")
+	FString MeshName;
 
 	bool operator==(const FBlockData& rhs) const
 	{
-		return (InstanceIndex == rhs.InstanceIndex);
+		return (InstanceIndex == rhs.InstanceIndex) && (MeshName == rhs.MeshName);
 	}
 };
 
