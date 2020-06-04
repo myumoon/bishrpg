@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "Algorithm/LinearTreeDadaHolder.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "VoxelGroundUpdater.generated.h"
 
 
@@ -25,7 +26,33 @@ struct BISHRPG_API FBlockData {
 	{
 		return (InstanceIndex == rhs.InstanceIndex) && (MeshName == rhs.MeshName);
 	}
+
+	bool operator<(const FBlockData& rhs) const
+	{
+		return (InstanceIndex < rhs.InstanceIndex);
+	}
 };
+
+
+/**	BlockData関数ライブラリ
+ *
+ */
+UCLASS()
+class BISHRPG_API UBlockDataFunctionLibrary : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+	/**	低い順ソート
+	*/
+	UFUNCTION(BlueprintCallable, Category = "VoxelGround")
+	static void Sort(UPARAM(ref) TArray<FBlockData>& blockDataArray);
+
+	/**	高い順ソート
+	*/
+	UFUNCTION(BlueprintCallable, Category = "VoxelGround")
+	static void ReverseSort(UPARAM(ref) TArray<FBlockData>& blockDataArray);
+};
+
 
 
 

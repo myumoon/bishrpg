@@ -16,6 +16,16 @@ DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::Clear"), STAT_VoxelGroundUpdater_C
 DECLARE_CYCLE_STAT(TEXT("UVoxelGroundUpdater::Add"), STAT_VoxelGroundUpdater_Add, STATGROUP_VoxelGroundUpdater);
 
 
+void UBlockDataFunctionLibrary::Sort(TArray<FBlockData>& blockDataArray)
+{
+	blockDataArray.Sort();
+}
+
+void UBlockDataFunctionLibrary::ReverseSort(TArray<FBlockData>& blockDataArray)
+{
+	blockDataArray.Sort([](const FBlockData& lhs, const FBlockData& rhs) { return rhs.InstanceIndex < lhs.InstanceIndex; });
+}
+
 // Sets default values for this component's properties
 UVoxelGroundUpdater::UVoxelGroundUpdater()
 {
