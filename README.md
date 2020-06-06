@@ -80,6 +80,9 @@ The project depend on the following assets:
 - STYLIZED-Fantasy_Town
   https://www.unrealengine.com/marketplace/ja/product/stylized-fantasy-town
 
+- NaturePackage
+  https://www.unrealengine.com/marketplace/ja/product/nature-package
+
 ## Lisence
 
 (TBE)
