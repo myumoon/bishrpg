@@ -74,6 +74,9 @@ The project depend on the following assets:
 - Stylized Desert Camp Props v.01  
   https://www.unrealengine.com/marketplace/ja/product/stylized-desert-camp-props-v
 
+- PolyWeapon Fantasy Axes  
+  https://www.unrealengine.com/marketplace/ja/product/polyweapon-fantasy-axes
+
 ## Lisence
 
 (TBE)
