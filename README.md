@@ -61,6 +61,13 @@ BiSHを題材にしたRPGゲー
   1. Drag and drop a model folder including *.ply to ```bishrpg/tools/bin/ply2fbx_static_x1.bat```.  
      You can make x10 model if you use ~x10.bat.
 
+## Required assets
+
+The project depend on the following assets:
+
+- POLYGON MINI - Fantasy Pack  
+  https://www.unrealengine.com/marketplace/ja/product/polygon-mini-fantasy-pack
+
 ## Lisence
 
 (TBE)

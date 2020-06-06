@@ -84,3 +84,6 @@ ninja/
 
 # temp file
 *.pyc
+
+# External resources
+/bishrpg/Content/PolygonMini_Fantasy
