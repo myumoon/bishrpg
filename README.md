@@ -68,6 +68,9 @@ The project depend on the following assets:
 - POLYGON MINI - Fantasy Pack  
   https://www.unrealengine.com/marketplace/ja/product/polygon-mini-fantasy-pack
 
+- Fog Gradients  
+  https://www.unrealengine.com/marketplace/ja/product/fog-gradients
+
 ## Lisence
 
 (TBE)
