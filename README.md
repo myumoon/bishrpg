@@ -71,6 +71,9 @@ The project depend on the following assets:
 - Fog Gradients  
   https://www.unrealengine.com/marketplace/ja/product/fog-gradients
 
+- Stylized Desert Camp Props v.01  
+  https://www.unrealengine.com/marketplace/ja/product/stylized-desert-camp-props-v
+
 ## Lisence
 
 (TBE)
