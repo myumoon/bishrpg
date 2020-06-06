@@ -77,6 +77,9 @@ The project depend on the following assets:
 - PolyWeapon Fantasy Axes  
   https://www.unrealengine.com/marketplace/ja/product/polyweapon-fantasy-axes
 
+- STYLIZED-Fantasy_Town
+  https://www.unrealengine.com/marketplace/ja/product/stylized-fantasy-town
+
 ## Lisence
 
 (TBE)
