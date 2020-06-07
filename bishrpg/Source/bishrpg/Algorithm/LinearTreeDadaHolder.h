@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "MortonIndex.h"
 #include "QuadTree.h"
+#include "bishrpg.h"
 
 /**
  *	線形ツリーのデータホールダー
@@ -48,9 +49,12 @@ public:
 	*/
 	FMortonIndex Add(const FVector& pos, const TElement& value)
 	{
-		const int32 mortonIndex = TreeAlgorithm->CalcLinearSpaceMortonIndex(pos);
-		if(mortonIndex < 0) {
-			return FMortonIndex();
+		int32 mortonIndex = TreeAlgorithm->CalcLinearSpaceMortonIndex(pos);
+
+		// 範囲外のときはルート空間に所属させる
+		if(!IsValidLinearTreeIndex(mortonIndex)) {
+			GAME_WARNING_FMT("pos({0}, {1}, {2}) is outside of Morton space so added it to the root space.", pos.X, pos.Y, pos.Z);
+			mortonIndex = 0;
 		}
 		TreeElements[mortonIndex].Add(value);
 
@@ -96,10 +100,10 @@ public:
 	bool Find(TElementContainer& emelents, FMortonIndex& mortonIndex, const FVector& pos) const
 	{
 		const int32 index = TreeAlgorithm->CalcLinearSpaceMortonIndex(pos);
-		mortonIndex.Index = index;
-		if(index < 0) {
+		if(!IsValidLinearTreeIndex(index)) {
 			return false;
 		}
+		mortonIndex.Index = index;
 		emelents = TreeElements[index];
 		return true;
 	}
@@ -111,7 +115,10 @@ public:
 		auto traverser = TreeAlgorithm->GetDepthTraverser(begin, end);
 
 		auto visitor = [this, &foundElements, &mortonIndexList](int32 linearSpaceMortonIndex) -> bool {
-			ensure(linearSpaceMortonIndex < TreeElements.Num());
+			// 範囲外ならスルー
+			if(!IsValidLinearTreeIndex(linearSpaceMortonIndex)) {
+				return false;
+			}
 			for(const T& element : TreeElements[linearSpaceMortonIndex]) {
 				foundElements.Add(element);
 				mortonIndexList.Add(FMortonIndex{linearSpaceMortonIndex});
@@ -162,6 +169,9 @@ public:
 	bool Clear(const FVector& pos)
 	{
 		const int32 index = TreeAlgorithm->CalcLinearSpaceMortonIndex(pos);
+		if(!IsValidLinearTreeIndex(index)) {
+			return false;
+		}
 		return Clear(FMortonIndex { index });
 	}
 
@@ -193,6 +203,13 @@ public:
 			return false;
 		}
 		return TreeElements[mortonIndex.Index].Num();
+	}
+
+	/*!	有効なインデックスか
+	*/
+	bool IsValidLinearTreeIndex(int32 index) const
+	{
+		return (0 <= index) && (index < TreeElements.Num());
 	}
 
 private:
