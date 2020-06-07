@@ -22,6 +22,12 @@ struct BISHRPG_API FBlockData {
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VoxelGround")
 	FString MeshName;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VoxelGround")
+	FVector BasePos;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VoxelGround")
+	FVector CurrentPos;
+
 	bool operator==(const FBlockData& rhs) const
 	{
 		return (InstanceIndex == rhs.InstanceIndex) && (MeshName == rhs.MeshName);

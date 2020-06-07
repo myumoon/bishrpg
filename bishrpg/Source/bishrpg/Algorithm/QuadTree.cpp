@@ -75,12 +75,12 @@ void QuadTree::DepthTraverser::Traverse(QuadTree::IVisitor* visitor)
 
 void QuadTree::DepthTraverser::Traverse(TFunction<bool(int32)> visitor)
 {
-	GAME_LOG("Traverse");
+	//GAME_LOG("Traverse");
 
 	SCOPE_CYCLE_COUNTER(STAT_Traverse);
 
 	{
-	DEBUG_SCOPE_TIME_SPAN("ToTarget")
+	//DEBUG_SCOPE_TIME_SPAN("ToTarget")
 	// ルートからターゲットまで
 	if(!TraverseToTarget(visitor, 0)) {
 		return;
@@ -88,7 +88,7 @@ void QuadTree::DepthTraverser::Traverse(TFunction<bool(int32)> visitor)
 	}
 
 	{
-	DEBUG_SCOPE_TIME_SPAN("visit")
+	//DEBUG_SCOPE_TIME_SPAN("visit")
 	// 自身の空間
 	if(!visitor(SpaceMortonIndex)) {
 		return;
@@ -96,7 +96,7 @@ void QuadTree::DepthTraverser::Traverse(TFunction<bool(int32)> visitor)
 	}
 
 	{
-	DEBUG_SCOPE_TIME_SPAN("TraverseChildren")
+	//DEBUG_SCOPE_TIME_SPAN("TraverseChildren")
 	// 子空間
 	TraverseChildren(visitor, SpaceMortonIndex);
 	}
@@ -386,11 +386,11 @@ QuadTree::DepthTraverser QuadTree::GetDepthTraverser(const FVector& begin, const
 	SCOPE_CYCLE_COUNTER(STAT_GetDepthTraverser);
 	const int32 mortonIndex = CalcLinearSpaceIndex(begin, end);
 	
-	GAME_LOG("QuadTree::GetDepthTraverser morton(%d)", mortonIndex);
+	//GAME_LOG("QuadTree::GetDepthTraverser morton(%d)", mortonIndex);
 	
 	auto traverser = DepthTraverser(this, mortonIndex);
 
-	GAME_LOG("QuadTree::GetDepthTraverser ret");
+	//GAME_LOG("QuadTree::GetDepthTraverser ret");
 
 	return traverser;
 }
@@ -415,7 +415,7 @@ uint32 QuadTree::ConvertToLinearSpaceMortonIndex(uint32 level, uint32 mortonInde
 
 uint32 QuadTree::GetLinearSpaceSize() const
 {
-	GAME_LOG("SeparationNum:%d, SeparateLevel:%d", SeparationNum, SeparateLevel)
+	//GAME_LOG("SeparationNum:%d, SeparateLevel:%d", SeparationNum, SeparateLevel)
 	return GetLinearSpaceSize(SeparateLevel);
 }
 
