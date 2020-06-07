@@ -12,10 +12,18 @@ int32 UEditorExtensionFunctionLibrary::SaveSimulationChanges(AActor* sourceActor
 #if WITH_EDITOR
 	AActor* editorWorldActor = EditorUtilities::GetEditorWorldCounterpartActor(sourceActor);
 	if(editorWorldActor != NULL) {
+	#if 0
 		const auto copyOptions = (EditorUtilities::ECopyOptions::Type)(
 			EditorUtilities::ECopyOptions::CallPostEditChangeProperty |
 			EditorUtilities::ECopyOptions::CallPostEditMove |
 			EditorUtilities::ECopyOptions::PropagateChangesToArchetypeInstances);
+	#else
+		const auto copyOptions = (EditorUtilities::ECopyOptions::Type)(
+			EditorUtilities::ECopyOptions::CallPostEditChangeProperty |
+			EditorUtilities::ECopyOptions::CallPostEditMove |
+			EditorUtilities::ECopyOptions::OnlyCopyEditOrInterpProperties |
+			EditorUtilities::ECopyOptions::FilterBlueprintReadOnly);
+	#endif
 		const int32 CopiedPropertyCount = EditorUtilities::CopyActorProperties(sourceActor, editorWorldActor, copyOptions);
 		return CopiedPropertyCount;
 	}
