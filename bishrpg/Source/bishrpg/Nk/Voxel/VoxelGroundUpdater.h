@@ -127,6 +127,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "VoxelGround")
 	int32 GetCount() const;
 
+	/*!	範囲を描画
+	*/
+	UFUNCTION(BlueprintCallable, Category = "VoxelGround")
+	void DrawDebugArea(FLinearColor color, float heightOffset = 1.0f, float thickness = 1.0f);
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VoxelGround")
 	FVector CenterPos; //!< 中心位置

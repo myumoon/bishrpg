@@ -2,6 +2,7 @@
 
 
 #include "VoxelGroundUpdater.h"
+#include "DrawDebugHelpers.h"
 
 // 統計情報
 DECLARE_STATS_GROUP(TEXT("UVoxelGroundUpdaterStat"), STATGROUP_VoxelGroundUpdater, STATCAT_Advanced);
@@ -127,4 +128,38 @@ void UVoxelGroundUpdater::ClearAll()
 int32 UVoxelGroundUpdater::GetCount() const
 {
 	return VoxelDataTree->GetCount();
+}
+
+void UVoxelGroundUpdater::DrawDebugArea(FLinearColor color, float heightOffset, float thickness)
+{
+#if WITH_EDITOR
+	// 線が残るので消す
+	FlushPersistentDebugLines(GetWorld());
+
+	const int32 sepCount = QuadTree::CalcSideSeparationCount(SeparationLevel);
+	const float cellWidth = Width / sepCount;
+	const float cellDepth = Depth / sepCount;
+	const bool  persistant = true;
+	const float time = 0.1f;
+
+	{
+		const FVector begin = {CenterPos.X - Width / 2, CenterPos.Y - Depth / 2, CenterPos.Z + heightOffset};
+		const FVector end = {CenterPos.X - Width / 2, CenterPos.Y + Depth / 2, CenterPos.Z + heightOffset};
+
+		for(int32 w = 0; w < sepCount + 1; ++w) {
+			const FVector offset = {cellWidth * w, 0.0f, 0.0f};
+			//GAME_LOG("(%f, %f, %f) (%f, %f, %f)", begin.X, begin.Y, begin.Z, end.X, end.Y, end.Z);
+			DrawDebugLine(GetWorld(), begin + offset, end + offset, color.ToFColor(true), persistant, time, (uint8)'\000', thickness);
+		}
+	}
+
+	{
+		const FVector begin = {CenterPos.X - Width / 2, CenterPos.Y - Depth / 2, CenterPos.Z + heightOffset};
+		const FVector end = {CenterPos.X + Width / 2, CenterPos.Y - Depth / 2, CenterPos.Z + heightOffset};
+		for(int32 d = 0; d < sepCount + 1; ++d) {
+			const FVector offset = {0.0f, cellDepth * d, 0.0f};
+			DrawDebugLine(GetWorld(), begin + offset, end + offset, color.ToFColor(true), persistant, time, (uint8)'\000', thickness);
+		}
+	}
+#endif
 }
