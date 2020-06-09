@@ -70,6 +70,13 @@ texFileName = fixedBaseName + "_tex_atlas.png"
 # ----------------------------------------------------------
 # import
 # ----------------------------------------------------------
+# scaling
+matchObj = re.match(r'^static_x([0-9]+)$', meshType)
+if matchObj:
+	scale = int(matchObj.group(1))
+else:
+	scale = 1.0
+
 for srcPath in fileList:
 	filebasename, fileext = os.path.splitext(os.path.basename(srcPath))
 	importedObjectNames.append(filebasename)
@@ -83,15 +90,11 @@ for srcPath in fileList:
 	importedObjects.append(bpy.data.objects[filebasename])
 	bpy.context.scene.objects.active = bpy.data.objects[filebasename]
 
-	# scaling
-	matchObj = re.match(r'^static_x([0-9]+)$', meshType)
-	if matchObj:
-		scale = int(matchObj.group(1))
-		print("resize: " + str(scale))
-		bpy.context.object.scale[0] = scale
-		bpy.context.object.scale[1] = scale
-		bpy.context.object.scale[2] = scale
-		bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+	print("resize: " + str(scale))
+	bpy.context.object.scale[0] = scale
+	bpy.context.object.scale[1] = scale
+	bpy.context.object.scale[2] = scale
+	bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 
 # ----------------------------------------------------------
 # make material
