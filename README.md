@@ -83,6 +83,10 @@ The project depend on the following assets:
 - NaturePackage
   https://www.unrealengine.com/marketplace/ja/product/nature-package
 
+- Noted Pro
+  https://www.unrealengine.com/marketplace/ja/product/noted-pro
+  
+
 ## Lisence
 
 (TBE)
