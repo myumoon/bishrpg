@@ -1,4 +1,4 @@
-﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #pragma once
 
@@ -97,7 +97,16 @@ private:
 		}
 		~FBattleCommandContext() = default;
 
+		void Reset()
+		{
+			CurrentGroupIndex = 0;
+			for(auto& context : GroupContext) {
+				context.Reset();
+			}
+		}
+
 		TArray<FGroupContext> GroupContext;
+		int32                 CurrentGroupIndex = 0;
 	};
 
 public:	

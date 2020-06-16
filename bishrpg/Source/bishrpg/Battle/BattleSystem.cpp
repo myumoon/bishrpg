@@ -1,4 +1,4 @@
-﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #include "BattleSystem.h"
 
@@ -311,9 +311,7 @@ void UBattleSystem::PredictTargetCells(int32& mainCellPos, TArray<int32>& result
 // バトル準備
 void UBattleSystem::Prepare()
 {
-	for(auto& context : CommandContext.GroupContext) {
-		context.Reset();
-	}
+	CommandContext.Reset();
 }
 
 void UBattleSystem::ConsumeCommand(bool& isConsumed, int32& consumedCommandCount, const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands)
@@ -321,7 +319,7 @@ void UBattleSystem::ConsumeCommand(bool& isConsumed, int32& consumedCommandCount
 	GAME_LOG("Start ConsumeCommand");
 	consumedCommandCount = 0;
 
-	for(int32 groupIndex = 0; groupIndex < MaxGroupNum; ++groupIndex) {
+	for(int32 groupIndex = CommandContext.CurrentGroupIndex; groupIndex < MaxGroupNum; ++groupIndex) {
 		const EPlayerGroup group = static_cast<EPlayerGroup>(groupIndex);
 		auto& groupContext = CommandContext.GroupContext[groupIndex];
 		auto* commandQueue = SelectWithGroup(groupOneCommands, groupTwoCommands, group);
@@ -351,6 +349,11 @@ void UBattleSystem::ConsumeCommand(bool& isConsumed, int32& consumedCommandCount
 			++groupContext.ConsumedIndex;
 			break;
 		}
+
+		++CommandContext.CurrentGroupIndex;
+
+		// 1回の呼び出しで1個のコマンドのみ処理する
+		break;
 	}
 
 	const bool isAllCommandDone = IsDoneTurnCommand(groupOneCommands, groupTwoCommands);
