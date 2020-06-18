@@ -91,6 +91,11 @@ private:
 	// 戦闘進行管理
 	struct FBattleCommandContext {
 
+		struct FBattleCommandInfo {
+			FBattleCommand command;
+			EPlayerGroup   group;
+		};
+
 		FBattleCommandContext()
 		{
 			GroupContext.SetNum(MaxGroupNum);
@@ -99,14 +104,16 @@ private:
 
 		void Reset()
 		{
-			CurrentGroupIndex = 0;
+			ExecCommandIndex = 0;
+			CommandQueue.Reset();
 			for(auto& context : GroupContext) {
 				context.Reset();
 			}
 		}
 
-		TArray<FGroupContext> GroupContext;
-		int32                 CurrentGroupIndex = 0;
+		TArray<FGroupContext>      GroupContext;
+		TArray<FBattleCommandInfo> CommandQueue;
+		int32                      ExecCommandIndex = 0;
 	};
 
 public:	
