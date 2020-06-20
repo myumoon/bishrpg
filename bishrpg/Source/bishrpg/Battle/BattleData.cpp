@@ -1,4 +1,4 @@
-﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #include "BattleData.h"
 
@@ -77,10 +77,40 @@ void UBattleResultUtil::DebugPrintSkillResult(const FBattleSkillResult& result, 
 	DebugPrintAttackResult(result.AttackResult, system);
 }
 
+int32 FBattleParty::CharacterIterator::operator*() const
+{
+	GAME_ASSERT_FMT(0 <= PosIndex && PosIndex < Party->Formation.Num(), "PosIndex:{0}, Num:{1}", PosIndex, Party->Formation.Num());
+	GAME_ASSERT_FMT(0 <= Party->Formation[PosIndex], "Party->Formation[{0}]:{1}", PosIndex, Party->Formation[PosIndex]);
+	return Party->Formation[PosIndex];
+}
+
+FBattleParty::CharacterIterator FBattleParty::CharacterIterator::operator++()
+{
+	do {
+		++PosIndex;
+	} while((PosIndex < Party->Formation.Num()) && (Party->Formation[PosIndex] < 0));
+
+	return *this;
+}
+
+bool FBattleParty::CharacterIterator::operator==(const CharacterIterator& rhs) const
+{
+	if(Party != rhs.Party) {
+		return false;
+	}
+	return (PosIndex == rhs.PosIndex);
+}
+
+bool FBattleParty::CharacterIterator::operator!=(const CharacterIterator& rhs) const
+{
+	return !operator==(rhs);
+}
+
+
 
 const FBattleCharacterStatus* FBattleParty::GetCharacterByPos(int32 posIndex) const
 {
-	check(posIndex < Formation.Num());
+	GAME_ASSERT_FMT(0 <= posIndex && posIndex < Formation.Num(), "posIndex:{0}, Formation.Num:{1}", posIndex, Formation.Num());
 	const int32 charIndex = Formation[posIndex];
 	if(charIndex < 0) {
 		return nullptr;
@@ -95,7 +125,7 @@ const FBattleCharacterStatus* FBattleParty::GetCharacterByCell(const BattleCell&
 
 const FBattleCharacterStatus* FBattleParty::GetCharacterByIndex(int32 index) const
 {
-	check(0 <= index && index < Characters.Num());
+	GAME_ASSERT_FMT(0 <= index && index < Characters.Num(), "index:{0}, Num:{1}", index, Characters.Num());
 	if(index < 0 || Characters.Num() <= index) {
 		return nullptr;
 	}
@@ -152,6 +182,27 @@ void FBattleParty::Move(int32 from, int32 to)
 	Formation[from] = oldTo;
 }
 
+int32 FBattleParty::GetAliveCharacterCount() const
+{
+	int32 aliveCharacterCount = 0;
+	for(auto itr = Begin(); itr != End(); ++itr) {
+		if(GetCharacterByIndex(*itr)->IsAlive()) {
+			++aliveCharacterCount;
+		}
+	}
+
+	return aliveCharacterCount;
+}
+
+FBattleParty::CharacterIterator FBattleParty::Begin() const
+{
+	return FBattleParty::CharacterIterator(this, 0);
+}
+
+FBattleParty::CharacterIterator FBattleParty::End() const
+{
+	return FBattleParty::CharacterIterator(this, Formation.Num());
+}
 
 
 bool UBattleResultLibrary::HasStatus(int32 checkStatus, EStatusFlag status)

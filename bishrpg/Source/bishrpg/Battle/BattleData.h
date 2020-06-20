@@ -1,4 +1,4 @@
-﻿// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
+// Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 #pragma once
 
@@ -254,6 +254,21 @@ struct FBattleParty {
 	using SelectFunc = void (FBattleParty::*)(TArray<int32>&, int32) const;
 	using RangeFunc  = void (FBattleParty::*)(TArray<int32>&, const TArray<int32>&) const;
 
+	class CharacterIterator {
+	public:
+		CharacterIterator(const FBattleParty* party, int32 posIndex) : Party(party), PosIndex(posIndex) {}
+		CharacterIterator(const CharacterIterator& rhs) : Party(rhs.Party), PosIndex(rhs.PosIndex) {}
+
+		int32 operator*() const;
+		CharacterIterator operator++();
+		bool operator==(const CharacterIterator& rhs) const;
+		bool operator!=(const CharacterIterator& rhs) const;
+		
+	private:
+		const FBattleParty* Party    = nullptr;
+		int32               PosIndex = -1;
+	};
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Battle")
 	TArray<FBattleCharacterStatus> Characters;
 
@@ -263,7 +278,13 @@ struct FBattleParty {
 	// 乱数
 	FRandomStream RandStream;
 
-	//キャラを取得
+	// キャライテレーター取得
+	CharacterIterator Begin() const;
+
+	// キャライテレーターの終端を取得
+	CharacterIterator End() const;
+
+	// キャラを取得
 	const FBattleCharacterStatus* GetCharacterByPos(int32 posIndex) const;
 
 	// キャラを取得 非const
@@ -305,6 +326,9 @@ struct FBattleParty {
 	{
 		return Formation[posIndex] != Battle::Def::INVALID_CELL_NO;
 	}
+
+	// 生存キャラ数
+	int32 GetAliveCharacterCount() const;
 
 #if 0
 	/*!	指定の方法でキャラを取得

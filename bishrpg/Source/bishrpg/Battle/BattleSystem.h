@@ -322,6 +322,10 @@ public:
 	*/
 	void ExecSkill(const FBattleCommand& command);
 
+	/*	最大コマンド数を取得
+	*/
+	int32 GetMaxCommandCount(EPlayerGroup group) const;
+
 protected:
 
 	static EBattleActionType ConvertAction(ECommandType type)
@@ -396,7 +400,7 @@ protected:
 	/*! ターン処理のコマンドがなくなったらtrueを返す
 	*/
 	bool IsDoneTurnCommand(const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands) const;
-
+	
 	/*! グループで選択
 	*/
 	template<typename T>

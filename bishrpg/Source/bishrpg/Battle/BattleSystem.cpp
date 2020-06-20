@@ -371,6 +371,7 @@ void UBattleSystem::ConsumeCommand(bool& isConsumed, int32& consumedCommandCount
 				break;
 		}
 		++CommandContext.ExecCommandIndex;
+		++CommandContext.GroupContext[ToIndex01(execCommand.group)].ConsumedIndex;
 		isConsumed = true;
 		consumedCommandCount = 1;
 	}
@@ -434,6 +435,11 @@ bool UBattleSystem::IsDoneTurnCommand(const UBattleCommandQueue* groupOneCommand
 	}
 
 	return true;
+}
+
+int32 UBattleSystem::GetMaxCommandCount(EPlayerGroup group) const
+{
+	return FMath::Min(GetSettings().MaxTurnCommandNum, GetParty(group)->GetAliveCharacterCount());
 }
 
 

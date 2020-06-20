@@ -170,7 +170,7 @@ bool UBattleCommandQueue::CanStartCommand() const
 		return false;
 	}
 
-	return (BattleSystem->GetSettings().MaxTurnCommandNum <= GetCount(true));
+	return (BattleSystem->GetMaxCommandCount(PlayerSide) <= GetCount(true));
 }
 
 // コマンド送信

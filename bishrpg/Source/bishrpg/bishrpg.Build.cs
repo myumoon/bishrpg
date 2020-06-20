@@ -6,9 +6,10 @@ public class bishrpg : ModuleRules
 {
 	public bishrpg(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UnrealEd", "AssetTools", "EditorScriptingUtilities", "ContentBrowser" });
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+        //PCHUsage = PCHUsageMode.UseSharedPCHs;
+
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UnrealEd", "AssetTools", "EditorScriptingUtilities", "ContentBrowser" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
