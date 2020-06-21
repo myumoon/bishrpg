@@ -14,7 +14,7 @@
 		},
 		{
 			"Name": "bishrpgEd",
-			"Type": "Editor",
+			"Type": "Developer",
 			"LoadingPhase": "Default"
 		}
 	],

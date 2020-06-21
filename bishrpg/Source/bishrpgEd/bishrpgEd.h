@@ -3,51 +3,46 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Modules/ModuleInterface.h" 
+#include "Modules/ModuleManager.h" 
 
 DECLARE_LOG_CATEGORY_EXTERN(BishRPGEd, Log, All);
 
-#define GAME_LOG(format, ...) UE_LOG(BishRPGEd, Log, TEXT(format), ##__VA_ARGS__)
-#define GAME_LOG_FMT(format, ...) UE_LOG(BishRPGEd, Log, TEXT("%s"), *FString::Format(TEXT(format), { __VA_ARGS__ }))
-#define GAME_WARNING(format, ...) UE_LOG(BishRPGEd, Warning, TEXT(format), ##__VA_ARGS__)
-#define GAME_WARNING_FMT(format, ...) UE_LOG(BishRPGEd, Warning, TEXT("%s"), *FString::Format(TEXT(format), { __VA_ARGS__ }))
-#define GAME_ERROR(format, ...) UE_LOG(BishRPGEd, Error, TEXT(format), ##__VA_ARGS__)
-#define GAME_FATAL(format, ...) UE_LOG(BishRPGEd, Fatal, TEXT(format), ##__VA_ARGS__)
-#define GAME_ASSERT(exp) ensure(exp)
-#define GAME_ASSERT_FMT(exp, format, ...) do { if(!(exp)) { GAME_LOG_FMT(format, ##__VA_ARGS__); } ensure(exp); } while(0)
+#define EDITOR_LOG(format, ...) UE_LOG(BishRPGEd, Log, TEXT(format), ##__VA_ARGS__)
+#define EDITOR_LOG_FMT(format, ...) UE_LOG(BishRPGEd, Log, TEXT("%s"), *FString::Format(TEXT(format), { __VA_ARGS__ }))
+#define EDITOR_WARNING(format, ...) UE_LOG(BishRPGEd, Warning, TEXT(format), ##__VA_ARGS__)
+#define EDITOR_WARNING_FMT(format, ...) UE_LOG(BishRPGEd, Warning, TEXT("%s"), *FString::Format(TEXT(format), { __VA_ARGS__ }))
+#define EDITOR_ERROR(format, ...) UE_LOG(BishRPGEd, Error, TEXT(format), ##__VA_ARGS__)
+#define EDITOR_FATAL(format, ...) UE_LOG(BishRPGEd, Fatal, TEXT(format), ##__VA_ARGS__)
+#define EDITOR_ASSERT(exp) ensure(exp)
+#define EDITOR_ASSERT_FMT(exp, format, ...) do { if(!(exp)) { GAME_LOG_FMT(format, ##__VA_ARGS__); } ensure(exp); } while(0)
 
 // FString name = GETENUMSTRING("EEnumType", Value);
 // GAME_LOG("%s", *name);
-#define GETENUMSTRING(etype, evalue) ( (FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true) != nullptr) ? FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true)->GetNameStringByIndex((int32)evalue) : FString("Invalid - are you sure enum uses UENUM() macro?") )
+#define EDITOR_GETENUMSTRING(etype, evalue) ( (FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true) != nullptr) ? FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true)->GetNameStringByIndex((int32)evalue) : FString("Invalid - are you sure enum uses UENUM() macro?") )
 
+#define EDITOR_TO_TEXT(b) ((b) ? TEXT("true") : TEXT("false"))
 
-#define TO_TEXT(b) ((b) ? TEXT("true") : TEXT("false"))
-
-
-#if WITH_EDITOR
-class TimeSpan {
+class IBishrpgEd : public IModuleInterface
+{
 public:
-	TimeSpan(const FString& label)
+	/**
+	 * Singleton-like access to this module's interface.  This is just for convenience
+	 * Beware of calling this during the shutdown phase, though.  Your module might have been unloaded already.
+	 *
+	 * @return Returns singleton instance, loading the module on demand if needed
+	 */
+	static inline IBishrpgEd& Get()
 	{
-		Label = label;
-		StartTime = FDateTime::Now();
+		return FModuleManager::LoadModuleChecked< IBishrpgEd >("bishrpgEd");
 	}
-	~TimeSpan()
+	/**
+	 * Checks to see if this module is loaded and ready.  It is only valid to call Get() if IsAvailable() returns true.
+	 *
+	 * @return True if the module is loaded and ready to use
+	 */
+	static inline bool IsAvailable()
 	{
-		FTimespan RemainingTimespan = FDateTime::Now() - StartTime;
-		double RemainingSeconds = RemainingTimespan.GetTotalMilliseconds();
-		GAME_LOG("Timespan(%s) %fms", *Label, RemainingSeconds);
+		return FModuleManager::Get().IsModuleLoaded("bishrpgEd");
 	}
-
-	FString   Label;
-	FDateTime StartTime;
 };
-
-#define DEBUG_SCOPE_TIME_SPAN_IMPL2(label, line) TimeSpan __timespan##line(label);
-#define DEBUG_SCOPE_TIME_SPAN_IMPL1(label, line) DEBUG_SCOPE_TIME_SPAN_IMPL2(label, line)
-#define DEBUG_SCOPE_TIME_SPAN(label) DEBUG_SCOPE_TIME_SPAN_IMPL1(label, __LINE__)
-
-#else
-
-#define DEBUG_SCOPE_TIME_SPAN(...) (void)0
-
-#endif
