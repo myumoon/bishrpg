@@ -7,7 +7,7 @@
 /**	ゲームのファイルアクセス
  * 
  */
-class BISHRPG_API FileUtil
+class BISHRPGED_API FileUtil
 {
 public:
 	//! 指定ディレクトリ以下のファイルを全て取得

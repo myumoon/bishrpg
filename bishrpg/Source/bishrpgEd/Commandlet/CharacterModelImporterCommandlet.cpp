@@ -38,7 +38,7 @@
 
 #include "Commandlet/Utility/FileUtil.h"
 
-#include "bishrpg.h"
+#include "bishrpgEd.h"
 
 DEFINE_LOG_CATEGORY_STATIC(CharacterModelImporterCommandlet, Log, All);
 

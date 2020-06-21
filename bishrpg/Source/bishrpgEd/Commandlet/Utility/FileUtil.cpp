@@ -9,7 +9,7 @@
 #include "Misc/Paths.h"
 #include "HAL/FileManager.h"
 
-#include "bishrpg.h"
+#include "bishrpgEd.h"
 
 DEFINE_LOG_CATEGORY_STATIC(FileUtilLog, Log, All);
 

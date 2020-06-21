@@ -5,7 +5,7 @@
 import os
 
 # UE4バージョン
-UE4Version = "4.24"
+UE4Version = "4.25"
 
 # UE4エンジンディレクトリ
 UE4EngineDir = "D:/Program Files/Epic Games/UE_{}/Engine/Binaries/Win64".format(UE4Version)
