@@ -309,15 +309,9 @@ void UBattleSystem::PredictTargetCells(int32& mainCellPos, TArray<int32>& result
 
 
 // バトル準備
-void UBattleSystem::Prepare()
+void UBattleSystem::Prepare(const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands)
 {
 	CommandContext.Reset();
-}
-
-void UBattleSystem::ConsumeCommand(bool& isConsumed, int32& consumedCommandCount, const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands)
-{
-	GAME_LOG("Start ConsumeCommand");
-	consumedCommandCount = 0;
 
 	const FBattleCommand* groupOneCommand = nullptr;
 	const FBattleCommand* groupTwoCommand = nullptr;
@@ -348,7 +342,23 @@ void UBattleSystem::ConsumeCommand(bool& isConsumed, int32& consumedCommandCount
 			}
 		}
 	}
-	
+}
+
+void UBattleSystem::GetCommandOrder(TArray<FBattleCommand>& commandOrder) const
+{
+	commandOrder.Reset();
+	commandOrder.Reserve(CommandContext.CommandQueue.Num());
+
+	for(const auto& command : CommandContext.CommandQueue) {
+		commandOrder.Add(command.command);
+	}
+}
+
+void UBattleSystem::ConsumeCommand(bool& isConsumed, int32& consumedCommandCount, const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands)
+{
+	GAME_LOG("Start ConsumeCommand");
+	consumedCommandCount = 0;
+
 	// 順番に処理
 	if(CommandContext.ExecCommandIndex < CommandContext.CommandQueue.Num()) {
 		const auto& execCommand = CommandContext.CommandQueue[CommandContext.ExecCommandIndex];

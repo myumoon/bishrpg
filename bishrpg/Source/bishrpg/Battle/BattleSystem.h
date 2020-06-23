@@ -136,7 +136,7 @@ public:
 	/*!	バトル開始準備
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Battle")
-	void Prepare();
+	void Prepare(const UBattleCommandQueue* groupOneCommands, const UBattleCommandQueue* groupTwoCommands);
 
 	/*!	バトルコマンド処理
 		
@@ -191,6 +191,12 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Battle")
 	float GetHpRate(const FBattleObjectHandle& handle) const;
+
+	/*!	バトル開始準備
+		@note Prepare以降に有効
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Battle")
+	void GetCommandOrder(TArray<FBattleCommand>& commandOrder) const;
 
 	/*!	バトル用のキャラステータス生成
 	*/
