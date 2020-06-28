@@ -10,6 +10,7 @@ public class bishrpg : ModuleRules
         //PCHUsage = PCHUsageMode.UseSharedPCHs;
 
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+        PublicDependencyModuleNames.AddRange(new string[] { "LevelSequence" });
         PublicDependencyModuleNames.AddRange(new string[] { "bishrpgEd" });
 
         PrivateDependencyModuleNames.AddRange(new string[] {  });
