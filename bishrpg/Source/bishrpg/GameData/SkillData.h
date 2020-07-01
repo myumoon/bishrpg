@@ -60,11 +60,11 @@ struct BISHRPG_API FSkillData : public FTableRowBase {
 	UCurveFloat* ValueAtLevel = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System", meta = (MustImplement = "IBattleAction"))
-	TSubclassOf<AActor> BattleAction;
+	TSoftClassPtr<class AActor> BattleAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
 	EBattleAnimType BattleAnim = EBattleAnimType::Anim000;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
-	ULevelSequence* ActionSequence = nullptr;
+	TSoftObjectPtr<class ULevelSequence> ActionSequence;
 };
