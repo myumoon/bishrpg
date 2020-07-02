@@ -1,13 +1,14 @@
 // Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 
-#include "EditorExtensionFunctionLibrary.h"
+#include "EditorExtensionFunctionLibraryEd.h"
 
+#include "Editor.h"
 #include "ImageUtils.h"
 #include "ObjectTools.h"
-#include "bishrpg.h"
+#include "bishrpgEd.h"
 
-int32 UEditorExtensionFunctionLibrary::SaveSimulationChanges(AActor* sourceActor)
+int32 UEditorExtensionFunctionLibraryEd::SaveSimulationChangesEd(AActor* sourceActor)
 {
 #if WITH_EDITOR
 	AActor* editorWorldActor = EditorUtilities::GetEditorWorldCounterpartActor(sourceActor);
@@ -31,34 +32,34 @@ int32 UEditorExtensionFunctionLibrary::SaveSimulationChanges(AActor* sourceActor
 	return 0;
 }
 
-UTexture2D* UEditorExtensionFunctionLibrary::FindCachedThumbnailByObject(UObject* object)
+UTexture2D* UEditorExtensionFunctionLibraryEd::FindCachedThumbnailByObjectEd(UObject* object)
 {
 #if WITH_EDITOR
-	GAME_LOG("FindCachedThumbnailByObject")
+	EDITOR_LOG("FindCachedThumbnailByObject")
 	const FObjectThumbnail* thumbnailObj = ThumbnailTools::GetThumbnailForObject(object);
 	if(!thumbnailObj) {
-		GAME_ASSERT(thumbnailObj);
+		EDITOR_ASSERT(thumbnailObj);
 		return nullptr;
 	}
 	auto* texture = FImageUtils::ImportBufferAsTexture2D(thumbnailObj->GetUncompressedImageData());
-	GAME_ASSERT(texture);
+	EDITOR_ASSERT(texture);
 	return texture;
 #else
 	return nullptr;
 #endif
 }
 
-UTexture2D* UEditorExtensionFunctionLibrary::FindCachedThumbnailByName(const FString& name)
+UTexture2D* UEditorExtensionFunctionLibraryEd::FindCachedThumbnailByNameEd(const FString& name)
 {
 #if WITH_EDITOR
-	GAME_LOG_FMT("FindCachedThumbnailByObject({0})", *name);
+	EDITOR_LOG_FMT("FindCachedThumbnailByObject({0})", *name);
 	const FObjectThumbnail* thumbnailObj = ThumbnailTools::FindCachedThumbnail(name);
 	if(!thumbnailObj) {
-		GAME_ASSERT(thumbnailObj);
+		EDITOR_ASSERT(thumbnailObj);
 		return nullptr;
 	}
 	auto* texture = FImageUtils::ImportBufferAsTexture2D(thumbnailObj->GetUncompressedImageData());
-	GAME_ASSERT(texture);
+	EDITOR_ASSERT(texture);
 	return texture;
 #else
 	return nullptr;

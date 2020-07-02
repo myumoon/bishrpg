@@ -1,11 +1,12 @@
 // Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 
-#include "AnimationFunctionLibrary.h"
+#include "AnimationFunctionLibraryEd.h"
+#include "Animation/AnimSequence.h"
 #include "AssetData.h"
 #include "EditorAnimUtils.h"
 
-void UAnimationFunctionLibrary::RetargetAnimations(USkeleton* newSkeleton, const TArray<UAnimSequence*> assetsToRetarget, bool remapReferencedAssets, bool convertSpaces, bool duplicate, const FRenameRule& duplicationRenameRule)
+void UAnimationFunctionLibraryEd::RetargetAnimationsEd(USkeleton* newSkeleton, const TArray<UAnimSequence*> assetsToRetarget, bool remapReferencedAssets, bool convertSpaces, bool duplicate, const FRenameRuleEd& duplicationRenameRule)
 {
 	if(!newSkeleton || assetsToRetarget.Num() == 0) {
 		return;
@@ -32,9 +33,9 @@ void UAnimationFunctionLibrary::RetargetAnimations(USkeleton* newSkeleton, const
 	}
 }
 
-void UAnimationFunctionLibrary::RetargetAnimation(USkeleton* newSkeleton, UAnimSequence* assetToRetarget, bool remapReferencedAssets, bool convertSpaces, bool duplicate, const FRenameRule& duplicateRenameRule)
+void UAnimationFunctionLibraryEd::RetargetAnimationEd(USkeleton* newSkeleton, UAnimSequence* assetToRetarget, bool remapReferencedAssets, bool convertSpaces, bool duplicate, const FRenameRuleEd& duplicateRenameRule)
 {
 	TArray<UAnimSequence*> assetsToRetarget;
 	assetsToRetarget.Add(assetToRetarget);
-	RetargetAnimations(newSkeleton, assetsToRetarget, remapReferencedAssets, convertSpaces, duplicate, duplicateRenameRule);
+	RetargetAnimationsEd(newSkeleton, assetsToRetarget, remapReferencedAssets, convertSpaces, duplicate, duplicateRenameRule);
 }

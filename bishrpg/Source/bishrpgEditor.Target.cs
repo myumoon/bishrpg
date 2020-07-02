@@ -9,6 +9,7 @@ public class bishrpgEditorTarget : TargetRules
 	{
 		Type = TargetType.Editor;
 
-		ExtraModuleNames.AddRange( new string[] { "bishrpg" } );
-	}
+		ExtraModuleNames.AddRange(new string[] { "bishrpg" });
+        ExtraModuleNames.AddRange(new string[] { "bishrpgEd" });
+    }
 }

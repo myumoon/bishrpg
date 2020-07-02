@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "EditorExtensionFunctionLibrary.generated.h"
+#include "EditorExtensionFunctionLibraryEd.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class BISHRPG_API UEditorExtensionFunctionLibrary : public UBlueprintFunctionLibrary
+class BISHRPGED_API UEditorExtensionFunctionLibraryEd : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 	
@@ -18,15 +18,15 @@ class BISHRPG_API UEditorExtensionFunctionLibrary : public UBlueprintFunctionLib
 		@returns	コピー済みのオプション数を取得
 	*/
 	UFUNCTION(BlueprintCallable, Category = "EditorOnly")
-	static int32 SaveSimulationChanges(AActor* sourceActor);
+	static int32 SaveSimulationChangesEd(AActor* sourceActor);
 
 	/**	サムネイルを取得
 	*/
 	UFUNCTION(BlueprintCallable, Category = "EditorOnly")
-	static UTexture2D* FindCachedThumbnailByObject(UObject* object);
+	static UTexture2D* FindCachedThumbnailByObjectEd(UObject* object);
 
 	/**	サムネイルを取得
 	*/
 	UFUNCTION(BlueprintCallable, Category = "EditorOnly")
-	static UTexture2D* FindCachedThumbnailByName(const FString& name);
+	static UTexture2D* FindCachedThumbnailByNameEd(const FString& name);
 };

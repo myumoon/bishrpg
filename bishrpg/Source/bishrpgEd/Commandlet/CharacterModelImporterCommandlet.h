@@ -31,7 +31,7 @@ class IAssetTools;
  *     :
  */
 UCLASS()
-class BISHRPG_API UCharacterModelImporterCommandlet : public UCommandlet
+class BISHRPGED_API UCharacterModelImporterCommandlet : public UCommandlet
 {
 	//GENERATED_BODY()
 	GENERATED_UCLASS_BODY()

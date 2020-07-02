@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "AnimationFunctionLibrary.generated.h"
+#include "AnimationFunctionLibraryEd.generated.h"
 
 
 /**	アセットリネームルール
@@ -12,7 +12,7 @@
 	EditorAnimUtils::FNameDuplicationRuleをエディタから扱えるようにしたもの。
 */
 USTRUCT(BlueprintType)
-struct FRenameRule {
+struct FRenameRuleEd {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
@@ -35,7 +35,7 @@ struct FRenameRule {
  * 
  */
 UCLASS()
-class BISHRPG_API UAnimationFunctionLibrary : public UBlueprintFunctionLibrary {
+class BISHRPGED_API UAnimationFunctionLibraryEd : public UBlueprintFunctionLibrary {
 	GENERATED_BODY()
 
 	/**	アニメーションをリターゲット
@@ -48,7 +48,7 @@ class BISHRPG_API UAnimationFunctionLibrary : public UBlueprintFunctionLibrary {
 		@param	duplicationRenameRule	複製時のリネームルール
 	*/	
 	UFUNCTION(BlueprintCallable)
-	static void RetargetAnimations(USkeleton* newSkeleton, const TArray<UAnimSequence*> assetsToRetarget, bool remapReferencedAssets, bool convertSpaces, bool duplicate, const FRenameRule& duplicationRenameRule);
+	static void RetargetAnimationsEd(USkeleton* newSkeleton, const TArray<UAnimSequence*> assetsToRetarget, bool remapReferencedAssets, bool convertSpaces, bool duplicate, const FRenameRuleEd& duplicationRenameRule);
 
 	/**	アニメーションをリターゲット
 
@@ -60,5 +60,5 @@ class BISHRPG_API UAnimationFunctionLibrary : public UBlueprintFunctionLibrary {
 		@param	duplicationRenameRule	複製時のリネームルール
 	*/
 	UFUNCTION(BlueprintCallable)
-	static void RetargetAnimation(USkeleton* newSkeleton, UAnimSequence* assetsToRetarget, bool remapReferencedAssets, bool convertSpaces, bool duplicate, const FRenameRule& duplicationRenameRule);
+	static void RetargetAnimationEd(USkeleton* newSkeleton, UAnimSequence* assetsToRetarget, bool remapReferencedAssets, bool convertSpaces, bool duplicate, const FRenameRuleEd& duplicationRenameRule);
 };

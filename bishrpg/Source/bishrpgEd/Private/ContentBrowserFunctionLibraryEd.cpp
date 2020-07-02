@@ -1,11 +1,12 @@
 // Copyright © 2018 nekoatsume_atsuko. All rights reserved.
 
 
-#include "ContentBrowserFunctionLibrary.h"
+#include "ContentBrowserFunctionLibraryEd.h"
 
 #include "Modules/ModuleManager.h"
 #include "ContentBrowserModule.h"
 #include "IContentBrowserSingleton.h"
+#include "bishrpgEd.h"
 
 namespace {
 	IContentBrowserSingleton& GetContentBrowser()
@@ -15,7 +16,7 @@ namespace {
 	}
 }
 
-void UContentBrowserFunctionLibrary::GetSelectedAssets(TArray<FString>& assetsData)
+void UContentBrowserFunctionLibraryEd::GetSelectedAssetsEd(TArray<FString>& assetsData)
 {
 	assetsData.Reset();
 
@@ -26,14 +27,19 @@ void UContentBrowserFunctionLibrary::GetSelectedAssets(TArray<FString>& assetsDa
 	}
 }
 
-void UContentBrowserFunctionLibrary::GetSelectedDirs(TArray<FString>& dirPaths)
+void UContentBrowserFunctionLibraryEd::GetSelectedDirsEd(TArray<FString>& dirPaths)
 {
 	GetContentBrowser().GetSelectedFolders(dirPaths);
 }
 
-void UContentBrowserFunctionLibrary::SetSelectedPath(const FString& folderPath, bool needsRefresh)
+void UContentBrowserFunctionLibraryEd::SetSelectedPathEd(const FString& folderPath, bool needsRefresh)
 {
 	TArray<FString> paths;
 	paths.Add(folderPath);
 	GetContentBrowser().SetSelectedPaths(paths, needsRefresh);
+}
+
+void UContentBrowserFunctionLibraryEd::BishrpgEdTest()
+{
+	EDITOR_LOG("BishrpgEdTest");
 }
