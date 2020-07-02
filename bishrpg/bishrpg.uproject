@@ -12,11 +12,11 @@
 				"Engine"
 			]
 		},
-		{
-			"Name": "bishrpgEd",
-			"Type": "Developer",
-			"LoadingPhase": "Default"
-		}
+    {
+      "Name": "bishrpgEd",
+      "Type": "DeveloperTool",
+      "LoadingPhase": "Default"
+    }
 	],
 	"Plugins": [
 		{
