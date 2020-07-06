@@ -35,36 +35,44 @@ struct BISHRPG_API FSkillData : public FTableRowBase {
 	//FName NameTextLabel;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
-	UTexture* Image =  nullptr;
+	UTexture* Image;
 
+	//! 攻撃種
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
 	ESkillType Type = ESkillType::Attack;
 
+	//! マス選択の種類
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
 	EBattleSelectMethod SelectType = EBattleSelectMethod::None;
     
+	//! マス選択時に広げる範囲
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
     EBattleSelectRange SelectRange = EBattleSelectRange::Single;
 
-	// Top1    : 未使用
-	// Col     : 未使用   
-	// Row     : 何列前か？  
-	// Ahead1  : 未使用
-	// Ahead4  : 未使用
-	// All     : 未使用
-	// Random  : 何マス選択するか
+	//! 攻撃マス選択時のパラメーター
+	//! Top1    : 未使用
+	//! Col     : 未使用   
+	//! Row     : 何列前か？  
+	//! Ahead1  : 未使用
+	//! Ahead4  : 未使用
+	//! All     : 未使用
+	//! Random  : 何マス選択するか
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
 	int32 SelectParam = 0;
 
+	//! スキルレベルごとの威力カーブ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
 	UCurveFloat* ValueAtLevel = nullptr;
 
+	//! アクション実行クラス
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System", meta = (MustImplement = "IBattleAction"))
 	TSoftClassPtr<class AActor> BattleAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
-	EBattleAnimType BattleAnim = EBattleAnimType::Anim000;
-
+	//! アクションシーケンサ
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
 	TSoftObjectPtr<class ULevelSequence> ActionSequence;
+
+	//! アクション実行時に渡されるパラメーター文字列
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
+	FName ActionParam;
 };
