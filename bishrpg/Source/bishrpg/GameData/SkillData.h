@@ -35,7 +35,7 @@ struct BISHRPG_API FSkillData : public FTableRowBase {
 	//FName NameTextLabel;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
-	UTexture* Image;
+	TSoftObjectPtr<class UTexture> Image;
 
 	//! 攻撃種
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
