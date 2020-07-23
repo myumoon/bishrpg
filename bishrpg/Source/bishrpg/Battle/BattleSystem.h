@@ -324,6 +324,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Debug")
 	void DebugCallBattleEvent();
 
+	/*!	デバッグ用戦闘コマンド
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	bool DebugMakeBattleResult(FBattleSkillResult& result, EPlayerGroup attackerGroup, int32 attackerPos, FString skillName);
+
 	/*!	スキルコマンド実行
 	*/
 	void ExecSkill(const FBattleCommand& command);

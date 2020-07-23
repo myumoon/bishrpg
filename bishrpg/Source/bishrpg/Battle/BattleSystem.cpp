@@ -1069,3 +1069,69 @@ void UBattleSystem::DebugCallBattleEvent()
 
 }
 
+// デバッグ用
+// ハンドルリスト取得
+bool UBattleSystem::DebugMakeBattleResult(FBattleSkillResult& result, EPlayerGroup attackerGroup, int32 attackerPos, FString skillName)
+{
+	if(attackerPos < 0) {
+		attackerPos = GetParty(attackerGroup)->GetCharacterPosByIndex(0);
+	}
+	const auto attackerHandle = MakeObjectHandle(BattleCell(attackerPos), attackerGroup);
+	auto*      attackChar     = GetCharacterByHandle2(attackerHandle);
+	if(attackChar == nullptr) {
+		return false;
+	}
+	const auto* skillTbl    = ABishRPGDataTblAccessor::GetTbl(ETblType::SkillTbl);
+	const auto* skillData   = skillTbl->FindRow<FSkillData>(*skillName, FString(""));
+	if(skillData == nullptr) {
+		GAME_ERROR("DebugMakeBattleResult : Not found '%s' in the SkillTbl", *skillName);
+		return false;
+	}
+
+	FBattleTargetValue targetResult;
+	result.SkillName          = FName(skillName);
+	result.AttackResult.Actor = attackerHandle;
+
+	if(skillData->Type == ESkillType::Attack || skillData->Type == ESkillType::Heal) {
+		TArray<FBattleTarget> targets;
+		TArray<BattleCell> positions;
+		BattleCell mainCell;
+		positions.Reserve(UBattleBoardUtil::MAX_BOARD_CELLS);
+		GetSkillTargetPositions(mainCell, positions, attackerHandle, skillData->Type, skillData->SelectType, skillData->SelectParam, skillData->SelectRange);
+		for(const auto& cell : positions) {
+			result.AttackResult.AffectedPositions.Add(cell.GetIndex());
+		}
+		const EPlayerGroup targetGroup = InvertGroup(attackerHandle.GetGroup());
+		GetTargetsByCell(targets, positions, targetGroup);
+		result.AttackResult.TargetGroup = targetGroup;
+
+		for(auto& target : targets) {
+			auto* targetChar = GetCharacterByHandle2(target.Handle);
+			if(targetChar == nullptr) {
+				GAME_ERROR("target char is null");
+				return false;
+			}
+
+			if(skillData->Type == ESkillType::Attack) {
+				const float attack = attackChar->Attack;
+				const float deffence = targetChar->Deffence;
+				const int32 damage = CalcDamage(attack, deffence, 0, 100, attackChar->Style, targetChar->Style, 1.2f, BattleSettings.MinDamage, BattleSettings.MaxDamage);
+				//targetChar->ReceiveDamage(damage);
+
+				FBattleTargetValue value;
+				value.Target = target.Handle;
+				value.Value = damage;
+				value.Status |= static_cast<int32>(targetChar->IsDie() ? EStatusFlag::Status_Die : EStatusFlag::None);
+
+				GAME_LOG_FMT("AddResult {0} {1} {2}", value.Target.GetObjectIndex(), value.Value, value.Status);
+				result.AttackResult.TargetResults.Add(value);
+			}
+			else {
+				// todo : 回復
+				//skillData->ValueAtLevel->GetFloatValue();
+				//targetChar->Heal();
+			}
+		}
+	}
+	return true;
+}
