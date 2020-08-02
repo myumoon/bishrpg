@@ -22,25 +22,31 @@ public:
 
 	static const int32 CELL_NUM = BOARD_ROW * BOARD_COL;
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static bool IsValidCellNo(int32 index) { return (0 <= index && index < CELL_NUM); }
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetBoardRow() { return BOARD_ROW; }
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
+	static int32 GetLastRowIndex() { return BOARD_ROW - 1; }
+
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetBoardCol() { return BOARD_COL; }
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
+	static int32 GetLastColIndex() { return BOARD_COL - 1; }
+
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetColLeft() { return COL_LEFT; }
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetColRight() { return COL_RIGHT; }
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetColCenter() { return COL_CENTER; }
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetCellNum() { return CELL_NUM; }
 
 	UFUNCTION(BlueprintCallable, Category = "Battle")
@@ -52,7 +58,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Battle")
 	static void MakePositionListRandom(TArray<int32>& madePosList, int32 positions, const FRandomStream& randStream);
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetFacedCol(int32 pos)
 	{
 		if(0 <= pos) {
@@ -62,7 +68,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetColReverse(int32 col)
 	{
 		if(0 <= col && col < GetBoardCol()) {
@@ -71,7 +77,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetRowReverse(int32 row)
 	{
 		if(0 <= row && row < GetBoardRow()) {
@@ -80,7 +86,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetCol(int32 pos)
 	{
 		if(0 <= pos) {
@@ -89,7 +95,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetRow(int32 pos)
 	{
 		if(0 <= pos) {
@@ -98,7 +104,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetRowInverse(int32 pos)
 	{
 		const int32 row = GetRow(pos);
@@ -108,7 +114,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetPos(int32 row, int32 col)
 	{
 		if((0 <= row) && (row < GetBoardRow()) && (0 <= col) && (col < GetBoardCol())) {
@@ -118,7 +124,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetPosForward(int32 pos)
 	{
 		if((0 <= pos) && (pos < GetCellNum())) {
@@ -128,7 +134,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetPosBack(int32 pos)
 	{
 		if((0 <= pos) && (pos < GetCellNum())) {
@@ -138,7 +144,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetPosLeft(int32 pos)
 	{
 		if((0 <= pos) && (pos < GetCellNum())) {
@@ -148,7 +154,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetPosRight(int32 pos)
 	{
 		if((0 <= pos) && (pos < GetCellNum())) {
@@ -158,7 +164,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetPosForwardLeft(int32 pos)
 	{
 		const int32 forward = GetPosForward(pos);
@@ -168,7 +174,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetPosForwardRight(int32 pos)
 	{
 		const int32 forward = GetPosForward(pos);
@@ -178,7 +184,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetPosBackLeft(int32 pos)
 	{
 		const int32 back = GetPosBack(pos);
@@ -188,7 +194,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 GetPosBackRight(int32 pos)
 	{
 		const int32 back = GetPosBack(pos);
@@ -198,7 +204,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 Clamp(int32 pos, int32 originPos)
 	{
 		if((pos < 0) || (GetCellNum() <= pos)) {
@@ -207,7 +213,7 @@ public:
 		return -1;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 FixCol(int32 pos, int32 originPos)
 	{
 		const int32 baseCol  = GetCol(originPos);
@@ -218,7 +224,7 @@ public:
 		return Clamp(fixedPos, originPos);
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Battle")
+	UFUNCTION(BlueprintPure, Category = "Battle")
 	static int32 FixRow(int32 pos, int32 originPos)
 	{
 		const int32 baseRow  = GetRow(originPos);
