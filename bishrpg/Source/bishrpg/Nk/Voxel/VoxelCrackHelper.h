@@ -64,9 +64,6 @@ struct BISHRPG_API FVoxelBlockCalcContext {
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Voxel")
-	TArray<int32> BlockFlagBuffer;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Voxel")
 	TArray<FVoxelBlockCornerContext> CurveRectBuffer;
 };
 
@@ -107,7 +104,7 @@ public:
 	//! @param[in]  setOffset           配置エリア設置時のオフセット
 	UFUNCTION(BlueprintCallable, Category = "Voxel")
 	static void CalcBlockPlacementsWithArea(TArray<FVoxelBlockInfo>& Results, UPARAM(ref) FVoxelBlockCalcContext& context, const USplineComponent* spline, float startWidth, float endWidth, float interval = 200.0f, float setOffset = -50.0f, float blockSize = 100.0f);
-
+	
 	//! +X方向に壁を作るか
 	UFUNCTION(BlueprintPure, Category = "Voxel")
 	static bool IsSetWallPositiveX(const FVoxelBlockInfo& info);
@@ -124,7 +121,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Voxel")
 	static bool IsSetWallNegativeY(const FVoxelBlockInfo& info);
 
-	//! -Y方向に壁を作るか
+	//! 穴を作るか
 	UFUNCTION(BlueprintPure, Category = "Voxel")
 	static bool IsSetHole(const FVoxelBlockInfo& info);
 

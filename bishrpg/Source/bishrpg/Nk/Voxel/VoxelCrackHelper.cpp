@@ -11,6 +11,50 @@
 #define ENABLE_LOG_VOXEL_CRACK_HELPER false
 #define ENABLE_MEASURE_TIME_SPAN      true
 
+namespace {
+
+void UpdateWallFlag(TArray<FVoxelBlockInfo>& results, int32 row)
+{
+	const int32 col = results.Num() / row;
+	auto isLeftEdge   = [col](int32 index) { return (index % col == 0); };
+	auto isRightEdge  = [col](int32 index) { return ((index + 1) % col == 0); };
+	auto isTopEdge    = [col](int32 index) { return (index / col == 0); };
+	auto isBottomEdge = [col, row](int32 index) { return (index / col == row - 1); };
+
+	for(int32 y = 0; y < row; ++y) {
+		for(int32 x = 0; x < col; ++x) {
+			const int32 index = x + y * col;
+			if((index < 0) || (results.Num() <= index)) {
+				GAME_ERROR("out of index : x(%d), y(%d), index(%d)", x, y, index);
+				continue;
+			}
+			int32& flag = results[index].WallFlag;
+			if(flag & EWallFlagMask::ExistBlock) {
+				if(!(flag & EWallFlagMask::NegativeX) && !isLeftEdge(index)) {
+					const int32 leftIndex = index - 1;
+					flag |= results[leftIndex].WallFlag & ExistBlock ? 0 : NegativeX;
+				}
+				if(!(flag & EWallFlagMask::PositiveX) && !isRightEdge(index)) {
+					const int32 rightIndex = index + 1;
+					flag |= results[rightIndex].WallFlag & ExistBlock ? 0 : PositiveX;
+					//results[rightIndex].WallFlag |= NegativeX;
+				}
+				if(!(flag & EWallFlagMask::NegativeY) && !isTopEdge(index)) {
+					const int32 upperIndex = index - col;
+					flag |= results[upperIndex].WallFlag & ExistBlock ? 0 : NegativeY;
+				}
+				if(!(flag & EWallFlagMask::PositiveY) && !isBottomEdge(index)) {
+					const int32 lowerIndex = index + col;
+					flag |= results[lowerIndex].WallFlag & ExistBlock ? 0 : PositiveY;
+					//results[lowerIndex].WallFlag |= NegativeY;
+				}
+			}
+		}
+	}
+}
+
+}
+
 // 地割れ計算
 void UVoxelCrackHelper::CalcBlockPlacementsWithLine(TArray<FVoxelBlockInfo>& Results, const USplineComponent* spline, float startWidth, float endWidth, float interval, float blockSize)
 {
@@ -150,10 +194,19 @@ void UVoxelCrackHelper::CalcBlockPlacementsWithArea(TArray<FVoxelBlockInfo>& Res
 		splineMaxPos.X = FMath::Max(splineMaxPos.X, maxX);
 		splineMaxPos.Y = FMath::Max(splineMaxPos.Y, maxY);
 	}
-		
+	
+	const FVector2D fixedSplineMinPos = {
+		GetBoardIndex(splineMinPos.X, blockSize) * blockSize,
+		GetBoardIndex(splineMinPos.Y, blockSize) * blockSize,
+	};
+	const FVector2D fixedSplineMaxPos = {
+		GetBoardIndex(splineMaxPos.X, blockSize) * blockSize,
+		GetBoardIndex(splineMaxPos.Y, blockSize) * blockSize,
+	};
+
 	// ブロック情報格納バッファ初期化
-	const int32 separateX      = GetBoardIndex((splineMaxPos.X - splineMinPos.X), blockSize) + 1;
-	const int32 separateY      = GetBoardIndex((splineMaxPos.Y - splineMinPos.Y), blockSize) + 1;
+	const int32 separateX      = GetBoardIndex((fixedSplineMaxPos.X - fixedSplineMinPos.X), blockSize) + 1;
+	const int32 separateY      = GetBoardIndex((fixedSplineMaxPos.Y - fixedSplineMinPos.Y), blockSize) + 1;
 	const int32 blockAreaCount = separateX * separateY;
 
 	Results.Reset();
@@ -262,6 +315,8 @@ void UVoxelCrackHelper::CalcBlockPlacementsWithArea(TArray<FVoxelBlockInfo>& Res
 		}
 	}
 
+	UpdateWallFlag(Results, separateX);
+
 #if ENABLE_MEASURE_TIME_SPAN
 	FTimespan elapsedTime = FDateTime::Now() - startTime;
 	GAME_LOG_FMT("CalcBlockPlacementsWithArray time = {0}ms", elapsedTime.GetTotalMilliseconds());
@@ -306,13 +361,22 @@ int32 UVoxelCrackHelper::GetBlockLinearIndex(const FVector2D& checkPos, const FV
 #if 1
 	int32 xBlockCount = 0;
 	int32 yBlockCount = 0;
-	GetBoardSectionsWithArea(xBlockCount, yBlockCount, minPos, maxPos, blockSize);
 
-	const auto fixedCheckPos = checkPos - minPos;
-	const auto fixedMaxPos   = maxPos - minPos;
+	const FVector2D fixedMinPos = {
+		GetBoardIndex(minPos.X, blockSize) * blockSize,
+		GetBoardIndex(minPos.Y, blockSize) * blockSize,
+	};
+	const FVector2D fixedMaxPos = {
+		GetBoardIndex(maxPos.X, blockSize) * blockSize,
+		GetBoardIndex(maxPos.Y, blockSize) * blockSize,
+	};
+	GetBoardSectionsWithArea(xBlockCount, yBlockCount, fixedMinPos, fixedMaxPos, blockSize);
+
+	const auto PosituveCheckPos  = checkPos - fixedMinPos;
+	//const auto positiveMaxPos    = fixedMaxPos - fixedMinPos;
 	
-	const int32 x = GetBoardIndex(fixedCheckPos.X, blockSize);
-	const int32 y = GetBoardIndex(fixedCheckPos.Y, blockSize);
+	const int32 x = GetBoardIndex(PosituveCheckPos.X, blockSize);
+	const int32 y = GetBoardIndex(PosituveCheckPos.Y, blockSize);
 
 	return y * xBlockCount + x;
 #else
