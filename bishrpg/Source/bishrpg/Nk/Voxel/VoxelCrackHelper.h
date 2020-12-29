@@ -65,6 +65,10 @@ struct BISHRPG_API FVoxelBlockCalcContext {
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Voxel")
 	TArray<FVoxelBlockCornerContext> CurveRectBuffer;
+
+	FVector2D SplineMinPos = {};
+	FVector2D SplineMaxPos = {};
+	float     BlockSize    = 0.0f;
 };
 
 /**	ボクセルの地割れ計算
@@ -104,6 +108,25 @@ public:
 	//! @param[in]  setOffset           配置エリア設置時のオフセット
 	UFUNCTION(BlueprintCallable, Category = "Voxel")
 	static void CalcBlockPlacementsWithArea(TArray<FVoxelBlockInfo>& Results, UPARAM(ref) FVoxelBlockCalcContext& context, const USplineComponent* spline, float startWidth, float endWidth, float interval = 200.0f, float setOffset = -50.0f, float blockSize = 100.0f);
+
+	//! 地割れの穴の位置をフラグ設定
+	//! 
+	//! CalcBlockPlacementsWithAreaで計算した結果に対して穴の位置を計算する
+	//! この関数を呼び出さずにCalcHolePositionsで計算した座標をResultsに設定することでも同様の結果になる
+	//! 
+	//! @param[in] Results              結果
+	//! @param[in]  context             計算情報
+	UFUNCTION(BlueprintCallable, Category = "Voxel")
+	static void UpdateHoleFlag(UPARAM(ref) TArray<FVoxelBlockInfo>& Results, UPARAM(ref) FVoxelBlockCalcContext& context);
+
+	//! 地割れの壁の位置をフラグ設定
+	//! 
+	//! UpdateHoleFlag相当の穴位置設定を行ったあとに呼ぶこと
+	//! 
+	//! @param[in] Results              結果
+	//! @param[in]  context             計算情報
+	UFUNCTION(BlueprintCallable, Category = "Voxel")
+	static void UpdateWallFlag(UPARAM(ref) TArray<FVoxelBlockInfo>& Results, UPARAM(ref) FVoxelBlockCalcContext& context);
 	
 	//! +X方向に壁を作るか
 	UFUNCTION(BlueprintPure, Category = "Voxel")

@@ -11,47 +11,6 @@
 #define ENABLE_LOG_VOXEL_CRACK_HELPER false
 #define ENABLE_MEASURE_TIME_SPAN      false
 
-namespace {
-
-void UpdateWallFlag(TArray<FVoxelBlockInfo>& results, int32 row, int32 col)
-{
-	const auto isLeftEdge   = [col](int32 index) { return (index % col == 0); };
-	const auto isRightEdge  = [col](int32 index) { return ((index + 1) % col == 0); };
-	const auto isTopEdge    = [col](int32 index) { return (index / col == 0); };
-	const auto isBottomEdge = [col, row](int32 index) { return (index / col == row - 1); };
-	
-	for(int32 y = 0; y < row; ++y) {
-		for(int32 x = 0; x < col; ++x) {
-			const int32 index = x + y * col;
-			if((index < 0) || (results.Num() <= index)) {
-				GAME_ERROR("out of index : x(%d), y(%d), index(%d)", x, y, index);
-				continue;
-			}
-			int32& flag = results[index].WallFlag;
-
-			// 指定方向に壁があれば壁フラグを設定する関数
-			const auto setWallFlag = [&flag, &results, index](EWallFlagMask wall, auto edgeTestFunc, int32 checkIndex) {
-				if(!(flag & wall)) {
-					if(edgeTestFunc(index)) {
-						flag |= wall;
-					}
-					else {
-						flag |= results[checkIndex].WallFlag & EWallFlagMask::ExistBlock ? 0 : wall;
-					}
-				}
-			};
-
-			if(flag & EWallFlagMask::ExistBlock) {
-				setWallFlag(EWallFlagMask::NegativeX, isLeftEdge, index - 1);
-				setWallFlag(EWallFlagMask::PositiveX, isRightEdge, index + 1);
-				setWallFlag(EWallFlagMask::NegativeY, isTopEdge, index - col);
-				setWallFlag(EWallFlagMask::PositiveY, isBottomEdge, index + col);
-			}
-		}
-	}
-}
-
-}
 
 // 地割れ計算
 void UVoxelCrackHelper::CalcBlockPlacementsWithLine(TArray<FVoxelBlockInfo>& Results, const USplineComponent* spline, float startWidth, float endWidth, float interval, float blockSize)
@@ -192,19 +151,32 @@ void UVoxelCrackHelper::CalcBlockPlacementsWithArea(TArray<FVoxelBlockInfo>& Res
 		splineMaxPos.X = FMath::Max(splineMaxPos.X, maxX);
 		splineMaxPos.Y = FMath::Max(splineMaxPos.Y, maxY);
 	}
-	
+
+	context.SplineMinPos = splineMinPos;
+	context.SplineMaxPos = splineMaxPos;
+	context.BlockSize    = blockSize;
+
+#if ENABLE_MEASURE_TIME_SPAN
+	FTimespan elapsedTime = FDateTime::Now() - startTime;
+	GAME_LOG_FMT("CalcBlockPlacementsWithArray time = {0}ms", elapsedTime.GetTotalMilliseconds());
+#endif
+}
+
+// 穴位置計算
+void UVoxelCrackHelper::UpdateHoleFlag(UPARAM(ref) TArray<FVoxelBlockInfo>& Results, UPARAM(ref) FVoxelBlockCalcContext& context)
+{
 	const FVector2D fixedSplineMinPos = {
-		GetBoardIndex(splineMinPos.X, blockSize) * blockSize,
-		GetBoardIndex(splineMinPos.Y, blockSize) * blockSize,
+		GetBoardIndex(context.SplineMinPos.X, context.BlockSize) * context.BlockSize,
+		GetBoardIndex(context.SplineMinPos.Y, context.BlockSize) * context.BlockSize,
 	};
 	const FVector2D fixedSplineMaxPos = {
-		GetBoardIndex(splineMaxPos.X, blockSize) * blockSize,
-		GetBoardIndex(splineMaxPos.Y, blockSize) * blockSize,
+		GetBoardIndex(context.SplineMaxPos.X, context.BlockSize) * context.BlockSize,
+		GetBoardIndex(context.SplineMaxPos.Y, context.BlockSize) * context.BlockSize,
 	};
 
 	// ブロック情報格納バッファ初期化
-	const int32 separateX      = GetBoardIndex((fixedSplineMaxPos.X - fixedSplineMinPos.X), blockSize);
-	const int32 separateY      = GetBoardIndex((fixedSplineMaxPos.Y - fixedSplineMinPos.Y), blockSize);
+	const int32 separateX      = GetBoardIndex((fixedSplineMaxPos.X - fixedSplineMinPos.X), context.BlockSize);
+	const int32 separateY      = GetBoardIndex((fixedSplineMaxPos.Y - fixedSplineMinPos.Y), context.BlockSize);
 	const int32 blockAreaCount = separateX * separateY;
 
 #if ENABLE_LOG_VOXEL_CRACK_HELPER
@@ -236,8 +208,8 @@ void UVoxelCrackHelper::CalcBlockPlacementsWithArea(TArray<FVoxelBlockInfo>& Res
 		return true;
 	};
 
-	const float baseOffsetX = - splineMinPos.X;
-	const float baseOffsetY = - splineMinPos.Y;
+	const float baseOffsetX = -context.SplineMinPos.X;
+	const float baseOffsetY = -context.SplineMinPos.Y;
 #if ENABLE_LOG_VOXEL_CRACK_HELPER
 	GAME_LOG_FMT("@@@ result size({0}) separateX({1}) separateY({2})", Results.Num(), separateX, separateY);
 	GAME_LOG_FMT("@@@ baseOffset({0}, {1})", baseOffsetX, baseOffsetY);
@@ -249,10 +221,10 @@ void UVoxelCrackHelper::CalcBlockPlacementsWithArea(TArray<FVoxelBlockInfo>& Res
 		const FVector& min    = context.CurveRectBuffer[i].Min;
 		const FVector& max    = context.CurveRectBuffer[i].Max;
 
-		const int32 minPosXIndex = GetBoardIndex(min.X, blockSize);
-		const int32 minPosYIndex = GetBoardIndex(min.Y, blockSize);
-		const int32 maxPosXIndex = GetBoardIndex(max.X, blockSize);
-		const int32 maxPosYIndex = GetBoardIndex(max.Y, blockSize);
+		const int32 minPosXIndex = GetBoardIndex(min.X, context.BlockSize);
+		const int32 minPosYIndex = GetBoardIndex(min.Y, context.BlockSize);
+		const int32 maxPosXIndex = GetBoardIndex(max.X, context.BlockSize);
+		const int32 maxPosYIndex = GetBoardIndex(max.Y, context.BlockSize);
 		const int32 blockCountX  = maxPosXIndex - minPosXIndex;
 		const int32 blockCountY  = maxPosYIndex - minPosYIndex;
 
@@ -280,20 +252,20 @@ void UVoxelCrackHelper::CalcBlockPlacementsWithArea(TArray<FVoxelBlockInfo>& Res
 		// https://yttm-work.jp/collision/collision_0007.html
 		for(int32 yIdx = 0; yIdx < blockCountY; ++yIdx) {
 			for(int32 xIdx = 0; xIdx < blockCountX; ++xIdx) {
-				const FVector2D checkPos = FixBlockCenterPos({min.X + xIdx * blockSize, min.Y + yIdx * blockSize}, blockSize);
+				const FVector2D checkPos = FixBlockCenterPos({min.X + xIdx * context.BlockSize, min.Y + yIdx * context.BlockSize}, context.BlockSize);
 
 #if ENABLE_LOG_VOXEL_CRACK_HELPER
-				GAME_LOG_FMT("@@@ min({0}) xIdx({1}) yIdx({2}) blockSize({3})", min.ToString(), xIdx, yIdx, blockSize);
+				GAME_LOG_FMT("@@@ min({0}) xIdx({1}) yIdx({2}) blockSize({3})", min.ToString(), xIdx, yIdx, context.BlockSize);
 				GAME_LOG_FMT("@@@ co1({0}) co2({1}) co3({2}) co4({3}) check({4})", corner1.ToString(), corner2.ToString(), corner3.ToString(), corner4.ToString(), checkPos.ToString());
 #endif
-				const int32 index = GetBlockLinearIndex(checkPos, splineMinPos, splineMaxPos, blockSize);
+				const int32 index = GetBlockLinearIndex(checkPos, context.SplineMinPos, context.SplineMaxPos, context.BlockSize);
 				GAME_ASSERT_FMT(0 <= index && index < Results.Num(), "0 <= index({0}) < size({1}) : checkPos({2}, {3}), min({4}, {5}), max({6}, {7}), blockSize({8})",
 					index,
 					Results.Num(),
 					checkPos.X, checkPos.Y,
-					splineMinPos.X, splineMinPos.Y,
-					splineMaxPos.X, splineMaxPos.Y,
-					blockSize);
+					context.SplineMinPos.X, context.SplineMinPos.Y,
+					context.SplineMaxPos.X, context.SplineMaxPos.Y,
+					context.BlockSize);
 				// エラーチェック
 				if((index < 0) || (Results.Num() <= index)) {
 					continue;
@@ -316,16 +288,60 @@ void UVoxelCrackHelper::CalcBlockPlacementsWithArea(TArray<FVoxelBlockInfo>& Res
 			}
 		}
 	}
-
-	UpdateWallFlag(Results, separateY, separateX);
-
-#if ENABLE_MEASURE_TIME_SPAN
-	FTimespan elapsedTime = FDateTime::Now() - startTime;
-	GAME_LOG_FMT("CalcBlockPlacementsWithArray time = {0}ms", elapsedTime.GetTotalMilliseconds());
-#endif
 }
 
+// 壁位置計算
+void UVoxelCrackHelper::UpdateWallFlag(UPARAM(ref) TArray<FVoxelBlockInfo>& Results, UPARAM(ref) FVoxelBlockCalcContext& context)
+{
+	const FVector2D fixedSplineMinPos = {
+			GetBoardIndex(context.SplineMinPos.X, context.BlockSize) * context.BlockSize,
+			GetBoardIndex(context.SplineMinPos.Y, context.BlockSize) * context.BlockSize,
+	};
+	const FVector2D fixedSplineMaxPos = {
+		GetBoardIndex(context.SplineMaxPos.X, context.BlockSize) * context.BlockSize,
+		GetBoardIndex(context.SplineMaxPos.Y, context.BlockSize) * context.BlockSize,
+	};
 
+	const int32 separateX   = GetBoardIndex((fixedSplineMaxPos.X - fixedSplineMinPos.X), context.BlockSize);
+	const int32 separateY   = GetBoardIndex((fixedSplineMaxPos.Y - fixedSplineMinPos.Y), context.BlockSize);
+	const int32 row         = separateY;
+	const int32 col         = separateX;
+
+	const auto isLeftEdge   = [col](int32 index) { return (index % col == 0); };
+	const auto isRightEdge  = [col](int32 index) { return ((index + 1) % col == 0); };
+	const auto isTopEdge    = [col](int32 index) { return (index / col == 0); };
+	const auto isBottomEdge = [col, row](int32 index) { return (index / col == row - 1); };
+
+	for(int32 y = 0; y < row; ++y) {
+		for(int32 x = 0; x < col; ++x) {
+			const int32 index = x + y * col;
+			if((index < 0) || (Results.Num() <= index)) {
+				GAME_ERROR("out of index : x(%d), y(%d), index(%d)", x, y, index);
+				continue;
+			}
+			int32& flag = Results[index].WallFlag;
+
+			// 指定方向に壁があれば壁フラグを設定する関数
+			const auto setWallFlag = [&flag, &Results, index](EWallFlagMask wall, auto edgeTestFunc, int32 checkIndex) {
+				if(!(flag & wall)) {
+					if(edgeTestFunc(index)) {
+						flag |= wall;
+					}
+					else {
+						flag |= Results[checkIndex].WallFlag & EWallFlagMask::ExistBlock ? 0 : wall;
+					}
+				}
+			};
+
+			if(flag & EWallFlagMask::ExistBlock) {
+				setWallFlag(EWallFlagMask::NegativeX, isLeftEdge, index - 1);
+				setWallFlag(EWallFlagMask::PositiveX, isRightEdge, index + 1);
+				setWallFlag(EWallFlagMask::NegativeY, isTopEdge, index - col);
+				setWallFlag(EWallFlagMask::PositiveY, isBottomEdge, index + col);
+			}
+		}
+	}
+}
 
 // +X方向に壁を作るか
 bool UVoxelCrackHelper::IsSetWallPositiveX(const FVoxelBlockInfo& info)
