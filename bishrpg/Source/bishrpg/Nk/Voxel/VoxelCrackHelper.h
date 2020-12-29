@@ -66,8 +66,13 @@ struct BISHRPG_API FVoxelBlockCalcContext {
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Voxel")
 	TArray<FVoxelBlockCornerContext> CurveRectBuffer;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Voxel")
 	FVector2D SplineMinPos = {};
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Voxel")
 	FVector2D SplineMaxPos = {};
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Voxel")
 	float     BlockSize    = 0.0f;
 };
 
